@@ -1,0 +1,1 @@
+java -verbose -classpath ".;a.jar;weld-se-1.1.5.Final.jar"   org.jboss.weld.environment.se.StartMain 

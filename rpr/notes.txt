@@ -1,0 +1,31 @@
+mvn exec:java -Dexec.mainClass="org.jboss.weld.environment.se.StartMain" 
+
+see of init sc with CDI (beans.xml for example)
+
+        <variable name="description">StructureModel</variable>
+        <variable name="scMass" unit="kg">1000</variable>
+        <variable name="scVelocityECI" length="3" unit="m/s">0.0 2700.0 7058.0</variable>  
+        <!--Simple Equatorial V: 0.0 7557.865 0.0 -->
+        <!--Simple 60deg Inclined V: 0.0 3778.932731151020 6545.303488738586 -->
+        <!--FLP Equatorial V: -3764.421 -6553.660 0.000 -->
+        <!--FLP Nominal V: 910.412 -470.333 7488.075 -->
+        <variable name="scPositionECI" length="3" unit="m">6978137.0 0.0 0.0</variable>
+        <!--Simple Equatorial r: 6978137.0 0.0 0.0 -->
+        <!--Simple 60deg Inclined r: 6978137.0 0.0 0.0 -->
+        <!--FLP Equatorial r: -6050959.663 3475670.172 0.000 0.0 -->
+        <!--FLP Nominal r: 3202853.905 6199687.319 0.000 -->
+        <variable name="xPosition" unit="km">7000.0</variable>
+        <variable name="yPosition" unit="km">0.0</variable>
+        <variable name="zPosition" unit="km">0.0</variable>
+        <variable name="wQuat" unit="rad">0.0</variable>
+        <variable name="xQuat" unit="rad">0.0</variable>
+        <variable name="yQuat" unit="rad">0.0</variable>
+        <variable name="zQuat" unit="rad">0.0</variable>
+
+Currently, the StaxInput class is doing initialisation.  
+
+The ScStructure can be a base class having a few simulation related params. 
+A RockeModel can extend it, having a Earth Model and velocity / earth referenced 
+parameters. Also the mass is initialised there.
+
+       

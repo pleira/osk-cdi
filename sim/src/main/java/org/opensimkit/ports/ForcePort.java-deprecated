@@ -1,0 +1,86 @@
+/*
+ * ForcePortDat.java
+ *
+ * Created on 21. April 2009
+ *
+ * Port class intended to transport forces.
+ *
+ *-----------------------------------------------------------------------------
+ * Modification History:
+ *
+ *  2009-04-21
+ *      File created - A. Brandt:
+ *      Initial version.
+ *
+ *  2009-11
+ *      A. Brandt:
+ *      Boundary value handling cleaned.
+ *
+ *
+ *      File under GPL - see OpenSimKit Documentation.
+ *
+ *      No warranty and liability for correctness by author.
+ *
+ */
+package org.opensimkit.ports;
+
+import org.opensimkit.Kernel;
+
+/**
+ * Port class intended to transport forces.
+ *
+ * @author A. Brandt
+ * @version 1.1
+ * @since 2.8.0
+ */
+public class ForcePort extends BasePort {
+    private double thrust;
+    private double[] vector;
+
+    /**
+     * This constructor is needed for the AnalogPort initialisation during
+     * the XML file parsing.
+     */
+    public ForcePort(final String name, final Kernel kernel) {
+        super(name, kernel);
+    }
+
+    public void setThrust(final double thrust) {
+        this.thrust = thrust;
+    }
+
+    public void setVector(final double[] newVector) {
+    vector = setVector(newVector, 3);
+    }
+
+    public double getThrust() {
+        return thrust;
+    }
+
+    public double[] getVector() {
+        return vector;
+    }
+
+    @Override
+    public void printValues(final String text) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+
+        result.append(this.getClass().getName());
+        result.append(": thrust == ");
+        result.append(thrust);
+        result.append("; vector == {");
+        result.append(vector[0]);
+        result.append(", ");
+        result.append(vector[1]);
+        result.append(", ");
+        result.append(vector[2]);
+        result.append("}.");
+
+        return result.toString();
+    }
+}

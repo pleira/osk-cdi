@@ -1,0 +1,24 @@
+* Introduce CDI
+* Try to remove ProviderSubscriber which sets the gravityAcceleration on each step. To connect the scStructure to the gravityModel use a simple CDI approach, and have some kind of CDI event/subscriber approach to set the values on each iteration step.
+* Remove the SimVisThread from the scStructure
+* The numeric models should implement an interface TimeStep (with methods related to the numeric computation, like timeStep). The SeqSimMod would work with a container of TimeSteps 
+* Create a ModelInfo type which would be a field in each Model. 
+
+
+* The SimVisThread for Celestia accesses the position and velocity of the S/C bythe manipulator, which manages a map of manipulable attributes. The access could be done polling, using jmx.
+
+
+
+----
+
+The rocket is the object Rocky. Rocky contains all the pipes, structures, fluids, etc.
+
+* Use JMX instead of the current commands / @Manipulable approaches to manage the simulation. MXBeans seem OK.
+The purpose of OpenSimKit is simulation of the commanding aspect. Maybe it is nice to code the management in JMX and provide a client whose commands invoke JMX functions. Of course, client commands can also be coded with the normal OpenSimKit classes
+
+
+---
+Kernel
+   - inject timehandler
+
+java -classpath "weld-se-1.1.5.Final.jar;*"  org.jboss.weld.environment.se.StartMain ../Rocket-stage-inclined2-engine-off.xml out.log 

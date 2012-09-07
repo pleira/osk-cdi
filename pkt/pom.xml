@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.opensimkit</groupId>
+  <artifactId>pkt</artifactId>
+  <version>0.1</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+	  <!--
+<dependency><groupId>deltaspike-core-api-0.3-incubating-20120801.004612-54</groupId><artifactId>deltaspike-core-api-0.3-incubating-20120801.004612-54</artifactId><version>deltaspike-core-api-0.3-incubating-20120801.004612-54</version></dependency>
+<dependency><groupId>deltaspike-core-impl-0.3-incubating-20120801.004616-54</groupId><artifactId>deltaspike-core-impl-0.3-incubating-20120801.004616-54</artifactId><version>deltaspike-core-impl-0.3-incubating-20120801.004616-54</version></dependency>
+-->
+<!--
+<dependency><groupId>org.codehaus.janino</groupId><artifactId>janino</artifactId><version>2.5.15</version></dependency>
+<dependency><groupId>org.jfree.jcommon</groupId><artifactId>jcommon</artifactId><version>1.0.15</version></dependency>
+<dependency><groupId>org.jfree.jfreechart</groupId><artifactId>jfreechart</artifactId><version>1.0.12</version></dependency>
+<dependency><groupId>org.logback.classic</groupId><artifactId>logback-classic</artifactId><version>0.9.15</version></dependency>
+<dependency><groupId>org.logback-core</groupId><artifactId>logback-core</artifactId><version>0.9.15</version></dependency>
+<dependency><groupId>osk-j-jat-minimal</groupId><artifactId>osk-j-jat-minimal</artifactId><version>osk-j-jat-minimal</version></dependency>
+<dependency><groupId>osk-j-packet-library</groupId><artifactId>osk-j-packet-library</artifactId><version>osk-j-packet-library</version></dependency>
+<dependency><groupId>stax-api</groupId><artifactId>stax-api</artifactId><version>1.0.1</version></dependency>
+
+<dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>1.5.6</version></dependency>
+<dependency><groupId>org.codehaus.woodstox</groupId><artifactId>stax2-api</artifactId><version>3.1.1</version></dependency>
+<dependency><groupId>org.vecmath</groupId><artifactId>vecmath</artifactId><version>1.0</version></dependency>
+<dependency><groupId>org.codehaus.woodstox</groupId><artifactId>woodstox-core-asl</artifactId><version>4.1.2</version></dependency>
+<dependency><groupId>org.jboss.weld-se</groupId><artifactId>weld-se</artifactId><version>1.1.5.Final</version></dependency>
+-->
+<dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.8.1</version></dependency>
+   </dependencies>
+
+  <parent>
+  	<groupId>org.opensimkit</groupId>
+  	<artifactId>opensimkit</artifactId>
+  	<version>0.1</version>
+  	<relativePath>..</relativePath>
+  </parent>
+  <build>
+    <pluginManagement>
+	   <plugins>
+	   	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+    </pluginManagement>
+	</build>
+	
+</project>

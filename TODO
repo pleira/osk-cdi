@@ -1,0 +1,6 @@
+Inject TimeHandler in Kernel using CDI.
+The configuration for Manipulators should be successful via CDI
+Find why file exception in Kernel
+See how the resources can be read from the class path using deltaspike @ConfigProperty (see PetStore as well)
+The Manipulator is about initalization, command and telemetry. Devise a plan to replace it, using a command / telemetry approach based on JMX and CDI for configuration.
+

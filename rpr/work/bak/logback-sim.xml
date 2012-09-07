@@ -1,0 +1,99 @@
+<configuration debug="false">
+
+	<appender name="STDOUT-INFO" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%message%n</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="STDOUT-DEBUG" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>DEBUG</level>
+			<onMatch>NEUTRAL</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+			<evaluator name="myEval">
+				<expression>(marker != null) &amp;&amp; (marker.contains("DBGSHORT"))</expression>
+			</evaluator>
+			<OnMatch>DENY</OnMatch>
+			<OnMismatch>NEUTRAL</OnMismatch>
+		</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>DEBUG: [%thread] [%file:%line] %msg%n</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="STDOUT-DBGSHORT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>DEBUG</level>
+			<onMatch>NEUTRAL</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<!-- Was not able to get it to work with MarkerFilter (MarkerFilter accepted msgs without marker), switch to EvaluatatorFilter instead -->
+		<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+			<evaluator name="myEval">
+				<expression>(marker != null) &amp;&amp; (marker.contains("DBGSHORT"))</expression>
+			</evaluator>
+			<OnMatch>NEUTRAL</OnMatch>
+			<OnMismatch>DENY</OnMismatch>
+		</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>\% %logger{0} %msg%n</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="STDERR-WARN" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.err</Target>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>WARN</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>Warning: %message%n</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="STDERR-ERR" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.err</Target>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>Runtime-Error: %message%n</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="ERRORLOG-FILE" class="ch.qos.logback.core.FileAppender">
+		<file>${user.dir}/osk-sim.log</file>
+		<append>false</append>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%date %-5level [%thread] %logger [%file:%line] %msg%n</Pattern>
+		</layout>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="STDOUT-INFO" />
+		<appender-ref ref="STDOUT-DEBUG" />
+		<appender-ref ref="STDOUT-DBGSHORT" />
+		<appender-ref ref="STDERR-WARN" />
+		<appender-ref ref="STDERR-ERR" />
+		<appender-ref ref="ERRORLOG-FILE" />
+	</root>
+
+        <!-- 
+        <logger name="org.opensimkit.models.rocketpropulsion.IntervalController" level="DEBUG"/>
+        <logger name="org.opensimkit.Kernel" level="DEBUG"/> 
+-->
+</configuration>

@@ -1,0 +1,76 @@
+/*
+* LocationPortDat.java
+*
+* Created on April 2009
+*
+* Port class intended to transport forces.
+*
+*-----------------------------------------------------------------------------
+* Modification History:
+*
+*  2009-04
+*      File created - A. Brandt:
+*      Initial version.
+*
+*  2009-11
+*      A. Brandt:
+*      Boundary value handling cleaned.
+*
+*
+*      File under GPL - see OpenSimKit Documentation.
+*
+*      No warranty and liability for correctness by author.
+*
+*/
+package org.opensimkit.ports;
+
+import org.opensimkit.Kernel;
+import org.opensimkit.manipulation.Manipulatable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+* Port class intended to transport location information.
+*
+* @author A. Brandt
+* @version 1.2
+* @since 3.0.0
+*/
+public class LocationPort extends BasePort  {
+    private static final Logger LOG
+            = LoggerFactory.getLogger(LocationPort.class);
+    @Manipulatable private double[] locationVector = new double[3];
+
+    /**
+     * This constructor is needed for the LocationPort initialisation during
+     * the XML file parsing.
+     */
+    public LocationPort(final String name, final Kernel kernel) {
+        super(name, kernel);
+    }
+
+    public void setLocationVector(final double[] newLocationVector) {
+        locationVector = setVector(newLocationVector, 3);
+    }
+
+    public double[] getLocationVector() {
+        return locationVector;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+
+        result.append(this.getClass().getName());
+        result.append(": locationVector == {");
+        result.append(locationVector[0]);
+        result.append(", ");
+        result.append(locationVector[1]);
+        result.append(", ");
+        result.append(locationVector[2]);
+        result.append("}.");
+
+        return result.toString();
+    }
+}

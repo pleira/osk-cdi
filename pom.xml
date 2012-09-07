@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.opensimkit</groupId>
+  <artifactId>opensimkit</artifactId>
+  <version>0.1</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <geronimo_jaxws.version>1.0</geronimo_jaxws.version>
+        <geronimo_servlet.version>1.2</geronimo_servlet.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <geronimo_ejb.version>1.0.2</geronimo_ejb.version>
+        <geronimo_el.version>1.0.2</geronimo_el.version>
+        <scannatation.version>1.0.2</scannatation.version>
+        <geronimo_annotation.version>1.0.1</geronimo_annotation.version>
+        <geronimo_jpa.version>1.1</geronimo_jpa.version>
+        <geronimo_jta.version>1.1.1</geronimo_jta.version>
+        <geronimo_jsp.version>1.0.1</geronimo_jsp.version>
+        <geronimo_cdi.version>1.0</geronimo_cdi.version>
+        <geronimo_atinject.version>1.0</geronimo_atinject.version>
+        <geronimo_interceptor.version>1.0</geronimo_interceptor.version>
+        <geronimo_validation.version>1.1</geronimo_validation.version>
+        <javassist.version>3.12.0.GA</javassist.version>
+        <openejb.version>3.1.4</openejb.version>
+        <myfaces.version>2.0.7</myfaces.version>
+  </properties>
+
+
+  <modules>
+    <module>sim</module>
+    <module>pkt</module>
+    <module>rpr</module>
+    <!-- module>mmi</module -->
+  </modules>
+
+
+    <dependencyManagement>
+
+        <dependencies>
+
+<dependency>
+	<groupId>org.apache.deltaspike</groupId>
+	<artifactId>deltaspike-project</artifactId>
+	<version>0.3-incubating</version>
+</dependency>
+            
+	    <dependency>
+                <groupId>org.jboss.weld.se</groupId>
+                <artifactId>weld-se</artifactId>
+                <version>1.1.5.Final</version>
+                <scope>compile</scope>
+            </dependency>
+	    <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-logger</artifactId>
+                <version>1.0.0-CR2</version>
+                <scope>compile</scope>
+            </dependency>
+	    <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.8.2</version>
+                <scope>test</scope>
+            </dependency>
+
+
+        </dependencies>
+    </dependencyManagement>
+
+       <dependencies>
+    	    <dependency>
+                <groupId>org.jboss.weld.se</groupId>
+                <artifactId>weld-se</artifactId>
+            </dependency>
+    	    <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-logger</artifactId>
+            </dependency>
+
+
+        </dependencies>
+
+</project>
