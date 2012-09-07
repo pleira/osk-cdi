@@ -45,7 +45,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
 import org.opensimkit.Kernel;
-import org.opensimkit.models.rocketpropulsion.HPBottleT1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.4.6
  */
-
+@ApplicationScoped
 public class StaxInput {
     private static final Logger LOG
             = LoggerFactory.getLogger(StaxInput.class);

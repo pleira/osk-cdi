@@ -6,16 +6,11 @@
   <packaging>jar</packaging>
   <name>Rocket Propulsion Numerical Model</name>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <deltaspike.version>0.3-incubating</deltaspike.version>
-  </properties>
-
   <parent>
   	<groupId>org.opensimkit</groupId>
-  	<artifactId>opensimkit</artifactId>
-  	<version>0.1</version>
-  	<relativePath>..</relativePath>
+  	<artifactId>parent</artifactId>
+  	<version>0.1-SNAPSHOT</version>
+  	<relativePath>../parent</relativePath>
   </parent>
   
     <profiles>
@@ -59,33 +54,33 @@
   mvn install:install-file -Dfile=vecmath.jar -DgroupId=jat.vecmath -DartifactId=vecmath -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true
 -->
 
-<dependency>
-    <groupId>org.apache.deltaspike.cdictrl</groupId>
-    <artifactId>deltaspike-cdictrl-api</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.deltaspike.cdictrl</groupId>
-    <artifactId>deltaspike-cdictrl-weld</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.deltaspike.core</groupId>
-    <artifactId>deltaspike-core-api</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.deltaspike.core</groupId>
-    <artifactId>deltaspike-core-impl</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-        <dependency>
-            <groupId>org.jboss.weld.se</groupId>
-            <artifactId>weld-se</artifactId>
-            <version>1.1.5.Final</version>
-        </dependency>
+<!-- <dependency> -->
+<!--     <groupId>org.apache.deltaspike.cdictrl</groupId> -->
+<!--     <artifactId>deltaspike-cdictrl-api</artifactId> -->
+<!--     <version>${deltaspike.version}</version> -->
+<!-- </dependency> -->
+<!-- <dependency> -->
+<!--     <groupId>org.apache.deltaspike.cdictrl</groupId> -->
+<!--     <artifactId>deltaspike-cdictrl-weld</artifactId> -->
+<!--     <version>${deltaspike.version}</version> -->
+<!-- </dependency> -->
+<!-- <dependency> -->
+<!--     <groupId>org.apache.deltaspike.core</groupId> -->
+<!--     <artifactId>deltaspike-core-api</artifactId> -->
+<!--     <version>${deltaspike.version}</version> -->
+<!-- </dependency> -->
+<!-- <dependency> -->
+<!--     <groupId>org.apache.deltaspike.core</groupId> -->
+<!--     <artifactId>deltaspike-core-impl</artifactId> -->
+<!--     <version>${deltaspike.version}</version> -->
+<!-- </dependency> -->
+<!--         <dependency> -->
+<!--             <groupId>org.jboss.weld.se</groupId> -->
+<!--             <artifactId>weld-se</artifactId> -->
+<!--             <version>1.1.5.Final</version> -->
+<!--         </dependency> -->
 
-<dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>1.5.6</version></dependency>
+<!-- <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>1.5.6</version></dependency> -->
    	<dependency>
    		<groupId>jat.vecmath</groupId>
    		<artifactId>vecmath</artifactId>
@@ -99,7 +94,7 @@
    	<dependency>
    		<groupId>org.opensimkit</groupId>
    		<artifactId>sim</artifactId>
-   		<version>0.1</version>
+   		<version>0.1-SNAPSHOT</version>
    	</dependency>
    </dependencies>
    

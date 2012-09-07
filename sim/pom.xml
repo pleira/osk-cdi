@@ -14,15 +14,19 @@
 		This example uses the same settings as the Weld examples provided by
 		the JBoss team, see http://seamframework.org/Weld/WeldDistributionDownloads
 	-->
-	<parent>
-		<artifactId>weld-examples-parent</artifactId>
-		<groupId>org.jboss.weld.examples</groupId>
-		<version>1.1.9.Final</version>
-	</parent>
+
+  <parent>
+  	<groupId>org.opensimkit</groupId>
+  	<artifactId>parent</artifactId>
+  	<version>0.1-SNAPSHOT</version>
+  	<relativePath>../parent/</relativePath>
+  </parent>
+
 
 	<name>Open Sim Kit :: Core </name>
 
 	<dependencies>
+	<!-- 
 <dependency>
     <groupId>org.apache.deltaspike.cdictrl</groupId>
     <artifactId>deltaspike-cdictrl-api</artifactId>
@@ -51,10 +55,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.opensimkit</groupId>
 			<artifactId>pkt</artifactId>
-			<version>0.1</version>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		
 	</dependencies>
@@ -92,14 +97,14 @@
 
 	<build>
 		<plugins>
-<plugin>
-<groupId>org.apache.maven.plugins</groupId>
-<artifactId>maven-checkstyle-plugin</artifactId>
-<configuration>
-<failsOnError>false</failsOnError>
-<useFile/>
-</configuration>
-			</plugin>
+<!-- <plugin> -->
+<!-- <groupId>org.apache.maven.plugins</groupId> -->
+<!-- <artifactId>maven-checkstyle-plugin</artifactId> -->
+<!-- <configuration> -->
+<!-- <failsOnError>false</failsOnError> -->
+<!-- <useFile/> -->
+<!-- </configuration> -->
+<!-- 			</plugin> -->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

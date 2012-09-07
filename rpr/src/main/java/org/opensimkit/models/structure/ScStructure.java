@@ -92,26 +92,25 @@
  
 package org.opensimkit.models.structure;
 
+import java.io.*;
+
 import jat.matvec.data.Matrix;
 import jat.matvec.data.Quaternion;
 import jat.matvec.data.VectorN;
+
 import jat.spacetime.EarthRef;
 import jat.spacetime.Time;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-
+import java.io.IOException;
+import java.lang.Math;
 import org.opensimkit.BaseModel;
 import org.opensimkit.Kernel;
-import org.opensimkit.ScData;
 import org.opensimkit.TimeHandler;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
+import org.opensimkit.SimVisThread;
 
 /**
  * Model definition for a point mass.
@@ -126,17 +125,13 @@ import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
  */
 
 
-public class ScStructure extends BaseModel {
+public final class ScStructure extends BaseModel {
     /** Logger instance for the ScStructure. */
     private static final Logger LOG = LoggerFactory.getLogger(ScStructure.class);
     /** Gravity acceleration imposed onto structure. */
     @Manipulatable private double[] gravityAccel = new double[4];
     /** Structure mass. */
     @Manipulatable private double scMass;
-    
-    @Inject
-    @ConfigProperty(name = "scMass")
-    private double scMass0;
     
     /** Structure SCVelocity in ECI frame. */
     @Manipulatable private double[] scVelocityECI = new double[3];
@@ -198,13 +193,19 @@ public class ScStructure extends BaseModel {
     /** Direction vector (unitized) of engine thrust in ECI frame. */
     private double[] thrustVecECI = new double[3];
 
-
-    @Inject @Any
-	Event<ScData> dataEvent;
-    
+    //  Entries for Celestia interface variables.
+    @Manipulatable private String celestiaTime;
+    @Manipulatable private double xPosition;
+    @Manipulatable private double yPosition;
+    @Manipulatable private double zPosition;
+    @Manipulatable private double wQuat;
+    @Manipulatable private double xQuat;
+    @Manipulatable private double yQuat;
+    @Manipulatable private double zQuat;
 
     //  Entries for simVisThread.
-    // private static SimVisThread visThread;
+    @Manipulatable private int visSocketNumber = 1520;
+    private static SimVisThread visThread;
     
     private static final String TYPE = "ScStructure";
     private static final String SOLVER = "none";
@@ -239,7 +240,10 @@ public class ScStructure extends BaseModel {
      */
     public ScStructure(final String name, final Kernel kernel) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+
         timeHandler = kernel.getTimeHandler();
+        LOG.info("Generating visualization thread for " + name);
+        visThread = new SimVisThread(kernel, name, visSocketNumber);
     }
 
 
@@ -269,6 +273,7 @@ public class ScStructure extends BaseModel {
             scPositionECI_prev[i] = scPositionECI[i];
             scVelocityECI_prev[i] = scVelocityECI[i];
         }
+        visThread.start();
     }
 
 
@@ -277,7 +282,7 @@ public class ScStructure extends BaseModel {
         LOG.debug("% {} TimeStep-Computation", name);
 
         //Computes the UTC J2000 time in Celestia compatible string format
-        String celestiaTime = timeHandler.getCelestiaUTCJulian2000();
+        celestiaTime = timeHandler.getCelestiaUTCJulian2000();
         mjdMissionTime = (timeHandler.getSimulatedMissionTimeAsDouble()-946684800)/86400;
         
         LOG.debug("gravityAccel[0]:  '{}' ", gravityAccel[0]);
@@ -294,7 +299,6 @@ public class ScStructure extends BaseModel {
         LOG.debug("thrustMag:  '{}' ", thrustMag);
 
         double scMass_inverted = 0.0;
-        scMass = scMass0;
         if (scMass >= 0.0) {
             scMass_inverted = 1.0 / scMass;
         } else {
@@ -307,7 +311,7 @@ public class ScStructure extends BaseModel {
                 totalAcc[i] = gravityAccel[i+1] * gravityAccel[0];
             } else {
                 totalAcc[i] = gravityAccel[i+1] * gravityAccel[0] + thrustVecECI[i]
-                        * thrustMag / scMass_inverted;
+                        * thrustMag * scMass_inverted;
             }
             LOG.debug("totalAcc[i]:  '{}' ", totalAcc[i]);
         }
@@ -506,13 +510,15 @@ public class ScStructure extends BaseModel {
         
         // Generating the quaternion output for Celestia 
         // =====================================================================
-        ScData scData = (new ScData.Builder())
-        		.withTime(celestiaTime)
-        		.withPosition(scPositionECI)
-        		.withQuaternion(quaternionInComponent)
-        		.build();
+        // Celestia needs the position vector in [km], not in [m]. 
+        xPosition = scPositionX / 1000.0;
+        yPosition = scPositionY / 1000.0;
+        zPosition = scPositionZ / 1000.0;
         
-        dataEvent.fire(scData);
+        wQuat = quaternionInComponent[3];
+        xQuat = quaternionInComponent[0];
+        yQuat = quaternionInComponent[1];
+        zQuat = quaternionInComponent[2];
 
         return 0;
     }
