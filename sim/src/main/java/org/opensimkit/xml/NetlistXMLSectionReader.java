@@ -86,7 +86,7 @@ public class NetlistXMLSectionReader
         this.kernel      = kernel;
         this.comHandler  = kernel.getComHandler();
         this.portHandler = kernel.getPortHandler();
-        // manipulator = kernel.getManipulator();
+        manipulator = kernel.getManipulator();
     }
 
     public void foundArrayValue(final String elementName, final String value,

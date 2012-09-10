@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  */
 
 
-public final class OSKGravityModel extends BaseModel {
+public class OSKGravityModel extends BaseModel {
     /** Logger instance for the OSKGravityModel. */
     private static final Logger LOG = LoggerFactory.getLogger(OSKGravityModel.class);
     /** Order of spherical harmonic. */
@@ -144,7 +144,8 @@ public final class OSKGravityModel extends BaseModel {
         gravityVector = new VectorN(3);
         convertedMissionTime = new Time();
         earthReference = new EarthRef(convertedMissionTime);
-        File path = new File("../data/earthGravity/JGM3.grv");
+        // Maybe one day this file is read as resource from classpath 
+        File path = new File("src/main/resources/earthGravity/JGM3.grv");
 
         String pathString;
         try {

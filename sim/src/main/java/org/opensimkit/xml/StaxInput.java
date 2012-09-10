@@ -42,9 +42,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
-
-import org.jboss.weld.environment.se.beans.ParametersFactory;
 import org.opensimkit.Kernel;
+import org.opensimkit.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,33 +56,25 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.4.6
  */
-//@ApplicationScoped
 public class StaxInput {
     private static final Logger LOG
             = LoggerFactory.getLogger(StaxInput.class);
     private static final String TEMPLATES = "templates";
     private static final String TEMPLATE  = "template";
     private final XMLTemplateManager xmlTemplateManager;
-    
     private final SortedMap<String, XMLSectionReader> items;
     private int    element;
     private String currentSection;
-    
-    @Inject ParametersFactory pf;
-	@Inject ModelsXMLSectionReader modelsXMLSectionReader;
 
-//	@Inject HPBottleT1 bottle; // only for classpath
-	
     @Inject
     public StaxInput(Kernel kernel) {
-    	System.out.println("injection" + pf.getArgs().get(0));
         xmlTemplateManager = new XMLTemplateManager(TEMPLATES);
         items = new TreeMap<String, XMLSectionReader>();
 
         registerXMLReader(xmlTemplateManager);
         registerXMLReader(new SystemXMLSectionReader("system", kernel));
         registerXMLReader(
-                modelsXMLSectionReader);
+                new ModelsXMLSectionReader("models", kernel));
         registerXMLReader(
                 new MeshXMLSectionReader("meshes", kernel));
         registerXMLReader(new NetlistXMLSectionReader("connections",
@@ -91,11 +82,10 @@ public class StaxInput {
         registerXMLReader(
                 new TabgeneratorXMLSectionReader("logOutput", kernel));
         registerXMLReader(
-        		new ProviderSubscriberXMLSectionReader("provider", kernel));
+                new ProviderSubscriberXMLSectionReader(
+                "providerSubscriberTable", kernel));
     }
 
-    
-    @Inject
     public void registerXMLReader(final XMLSectionReader xmlReader) {
         if (!items.containsKey(xmlReader.getRootName())) {
             items.put(xmlReader.getRootName(), xmlReader);
@@ -113,6 +103,8 @@ public class StaxInput {
     public void process(FileReader reader) throws FileNotFoundException, XMLStreamException {
         // Create the XML input factory
         XMLInputFactory factory = XMLInputFactory.newInstance();
+        // Create the XML event reader
+       
 
        XMLEventReader xmlEventReader = factory.createXMLEventReader(reader);
        // Loop over XML input stream and process events
@@ -189,4 +181,21 @@ public class StaxInput {
         }
     }
 
+    public static StaxInput getDefaultStaxInput(final Kernel kernel) {
+        StaxInput stax = new StaxInput(kernel);
+        stax.registerXMLReader(new SystemXMLSectionReader("system", kernel));
+        stax.registerXMLReader(
+                new ModelsXMLSectionReader("models", kernel));
+        stax.registerXMLReader(
+                new MeshXMLSectionReader("meshes", kernel));
+        stax.registerXMLReader(new NetlistXMLSectionReader("connections",
+                kernel));
+        stax.registerXMLReader(
+                new TabgeneratorXMLSectionReader("logOutput", kernel));
+        stax.registerXMLReader(
+                new ProviderSubscriberXMLSectionReader(
+                "providerSubscriberTable", kernel));
+
+        return stax;
+    }
 }
