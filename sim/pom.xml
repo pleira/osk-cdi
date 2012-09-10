@@ -40,55 +40,21 @@
     <artifactId>deltaspike-core-impl</artifactId>
     <version>${deltaspike.version}</version>
 </dependency>
-		<dependency>
-			<groupId>org.jboss.weld.se</groupId>
-			<artifactId>weld-se-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-		</dependency>
-		 -->
+	<dependency>
+		<groupId>org.jboss.weld.se</groupId>
+		<artifactId>weld-se-core</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+	</dependency>
+ -->
     <dependency>
       <groupId>org.opensimkit</groupId>
       <artifactId>pkt</artifactId>
       <version>0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
-  <profiles>
-    <profile>
-      <id>run</id>
-      <activation>
-        <property>
-          <name>run</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <executions>
-              <execution>
-                <id>run</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>java</goal>
-                </goals>
-              </execution>
-            </executions>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <configuration>
-              <mainClass>org.jboss.weld.environment.se.StartMain</mainClass>
-              <arguments>
-                <argument>Rocket-stage-inclined2-engine-off.xml</argument>
-                <argument>out.log</argument>
-              </arguments>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
   <build>
     <plugins>
       <!-- <plugin> -->
@@ -112,40 +78,4 @@
       </plugin>
     </plugins>
   </build>
-  <!--
-		The repositories are only added for your convenience. They should be
-		added to your Maven settings.xml instead of the pom.xml
-	-->
-  <repositories>
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Maven Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Maven Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 </project>

@@ -17,8 +17,8 @@ mvn eclipse:eclipse
 
 The program can be executed from command line with 
 
-cd sim
+cd rpr
 mvn -Drun exec:java
 
-The StartMain from the CDI implementation Weld is used as Main. It delivers an event which is used to start the actual application.
+The StartMain from the CDI implementation Weld is used as Main. It delivers an event which is used to start the actual application. The rpr has to be used for CDI to find the rocket model classes in the classpath. 
    
