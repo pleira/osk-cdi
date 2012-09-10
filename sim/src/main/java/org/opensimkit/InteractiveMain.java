@@ -95,10 +95,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.beans.ParametersFactory;
+import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,12 +130,12 @@ public class InteractiveMain {
     @Inject Instance<SimVisThread> visThreadInstance;
 
     /**
-     * Main entry point of the OpenSimKit simulator. From here the loading of
+     * entry point of the OpenSimKit simulator. From here the loading of
      * the input file is triggered.
      * @param args Commandline arguments
      * @throws java.io.IOException
      */
-    public void initSim() throws IOException {
+    public void initSim(@Observes ContainerInitialized init) throws IOException {
 //    public static void main(final String[] args) throws IOException {
         int cmdShutFlag;
         int compShutFlag;
@@ -173,7 +175,7 @@ public class InteractiveMain {
 //        }
 
         SimHeaders.myInFileName = args.get(0);
-        SimHeaders.myOutFileName = "out.log"; // args.get(1);
+        SimHeaders.myOutFileName = args.get(1);
         LOG.info("Input File: {}", SimHeaders.myInFileName);
         LOG.info("Output File: {}", SimHeaders.myOutFileName);
 
@@ -204,7 +206,7 @@ public class InteractiveMain {
 
             LOG.info("Generating visualization thread...");
             SimVisThread visThread = visThreadInstance.get();
-            // visThread.connectToCelestia();
+            visThread.connectToCelestia();
 
             while (true) {
                 try {
