@@ -85,9 +85,6 @@ public class Manipulator {
     /**************************************************************************
      *                Private general methods                                 *
      **************************************************************************/
-    public Manipulator() {
-    	System.out.println("----------Manipulator");
-    }
     private void updateClassInformation(
             final Class<?> clazz,
             final String name,

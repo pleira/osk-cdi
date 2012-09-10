@@ -36,8 +36,10 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.inject.Singleton;
+import javax.enterprise.inject.Disposes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @since 3.5.0
  */
 
-@Singleton
+@ApplicationScoped
 public class SimVisThread  {
 //	@Inject
 //	private Logger LOG;
@@ -69,6 +71,7 @@ public class SimVisThread  {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimVisThread.class);
     
+    // TODO: someone has to fire sc data
     public void writeSimData(@Observes ScData data) {
 //        connectToCelestia();
 
@@ -97,21 +100,21 @@ public class SimVisThread  {
 //        disconnectFromCelestia();
     }
 
-    // @Disposes
-	public void disconnectFromCelestia() {
+ 
+	public void disconnectFromCelestia(@Disposes SimVisThread visThread) {
 		isRunning = 0;
 		LOG.debug("Start terminating SimVisThread");
         LOG.debug("Checking whether socket already was closed");
         try {
-            socket.close();
-            out.close();
+            if (socket!= null) socket.close();
+            if (out != null) out.close();
         }
         catch (IOException e2) {
         }
         LOG.info("SimVisThread terminating");
 	}
 
-
+	@PostConstruct
 	public void connectToCelestia() {
 		LOG.info("SimVisThread running for component " + compName);
         LOG.debug("Waiting for connection of Visualization software on port " + visSocketNumber);

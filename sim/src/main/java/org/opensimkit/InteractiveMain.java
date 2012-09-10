@@ -83,7 +83,9 @@
 
 package org.opensimkit;
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -93,16 +95,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import org.jboss.weld.environment.se.beans.ParametersFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jboss.weld.environment.se.beans.ParametersFactory;
-import org.jboss.weld.environment.se.events.ContainerInitialized;
-import org.opensimkit.SimVisThread;
-import org.opensimkit.manipulation.Manipulator;
-import org.opensimkit.providerSubscriber.ProviderSubscriber;
 
 
 /**
@@ -116,33 +114,18 @@ import org.opensimkit.providerSubscriber.ProviderSubscriber;
  */
 @ApplicationScoped
 public class InteractiveMain {
-    private static final String MODEL_PATH = "../models/";
-    private static final String LIB_PATH = "../lib/";
+//    private static final String MODEL_PATH = "../models/";
+//    private static final String LIB_PATH = "../lib/";
     private static Logger LOG = LoggerFactory.getLogger(InteractiveMain.class);
     private static SimCmdThread cmdThread;
     private static ComputeThread compThread;
     private static Socket tcSocket, tmSocket;
-
-   
-    @Inject ParametersFactory pF;
-    
-//    @Inject Manipulator manipulator;
-
-//    @Inject A a;
-
-//    @Inject Manipulator  manipulator;
-
-//    @Inject TimeHandler  timeHandler;
-        
-//    @Inject TabGenerator tabGenerator;
-//    @Inject ProviderSubscriber providerSubscriber;
-//    @Inject ComHandler   compColl;
-//    @Inject PortHandler  portColl;
-//    @Inject MeshHandler  meshColl;
-//    @Inject SeqModSim    simul;
  
+    @Inject ParametersFactory pF;
+     
     @Inject Kernel kernel;
-
+    
+    @Inject Instance<SimVisThread> visThreadInstance;
 
     /**
      * Main entry point of the OpenSimKit simulator. From here the loading of
@@ -162,7 +145,7 @@ public class InteractiveMain {
         List<String> args = pF.getArgs(); // argsValidator.getValidParameters();
         if (args.size() < 2) {
            LOG.error("Usage: java -jar osk-j-sim.jar inputfile.xml outfile");
-           // exit(1);
+           exit(1);
         }
         
         //LOG.info(a.hi());
@@ -189,7 +172,7 @@ public class InteractiveMain {
 //            LOG.info("");
 //        }
 
-        SimHeaders.myInFileName = "Rocket-stage-inclined2-engine-off.xml"; // args.get(0);
+        SimHeaders.myInFileName = args.get(0);
         SimHeaders.myOutFileName = "out.log"; // args.get(1);
         LOG.info("Input File: {}", SimHeaders.myInFileName);
         LOG.info("Output File: {}", SimHeaders.myOutFileName);
@@ -197,7 +180,8 @@ public class InteractiveMain {
         try {
             LOG.info("Simulator started...");
 //            Kernel kernel = new Kernel();
-            kernel.init();
+//            kernel.init();
+            // With CDI, the kernel should be ready here
             kernel.openInput(SimHeaders.myInFileName);
             kernel.openOutput(SimHeaders.myOutFileName);
             kernel.load();
@@ -218,13 +202,9 @@ public class InteractiveMain {
             cmdThread = new SimCmdThread(compThread, tcSocket, kernel);
             cmdThread.start();
 
-            
-/*            
             LOG.info("Generating visualization thread...");
-            visThread = new SimVisThread(kernel);
-            LOG.debug("getName {}", visThread.getName());
-*/
-            
+            SimVisThread visThread = visThreadInstance.get();
+            // visThread.connectToCelestia();
 
             while (true) {
                 try {

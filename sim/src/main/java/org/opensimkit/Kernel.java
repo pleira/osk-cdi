@@ -83,6 +83,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -162,19 +163,10 @@ public class Kernel {
      */
     public Kernel()  {
     	LOG.info("Kernel");
-        /* The manipulator needs to be created before all other objects. */
-        /* The timeHandler instance needs to be created before the SeqModSim
-           instance. */
-//        timeHandler   = new TimeHandler("timeHandler");
-        /* The providerSubscriber instance needs to be created before the SeqModSim
-           instance. */
-//        providerSubscriber = new ProviderSubscriber(manipulator);
-       // simul         = new SeqModSim;
-
- 
         LOG.debug(SimHeaders.DEBUG_SHORT, "Constructor {}", name);
     }
 
+    @PostConstruct
     public int init() {
         LOG.debug("Initialization");
         manipulator.registerInstance(getName(), this);
