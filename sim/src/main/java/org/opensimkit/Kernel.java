@@ -167,7 +167,7 @@ public class Kernel {
     }
 
     @PostConstruct
-    public int init() {
+    public void init() {
         LOG.debug("Initialization");
         manipulator.registerInstance(getName(), this);
         manipulator.registerInstance(timeHandler.getName(), timeHandler);
@@ -182,7 +182,7 @@ public class Kernel {
         SimHeaders.epsabs = absAccuracy;
         SimHeaders.negativeAckFlag = 0;
         LOG.info("System initialization successful. No model loaded yet.");
-        return 0;
+        return;
     }
 
     public int openInput(final String fileName) {

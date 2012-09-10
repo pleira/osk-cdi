@@ -36,10 +36,10 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Produces;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +101,7 @@ public class SimVisThread  {
     }
 
  
-	public void disconnectFromCelestia(@Disposes SimVisThread visThread) {
+	public void disconnectFromCelestia(@Disposes @CelestiaConnection SimVisThread visThread) {
 		isRunning = 0;
 		LOG.debug("Start terminating SimVisThread");
         LOG.debug("Checking whether socket already was closed");
@@ -114,8 +114,8 @@ public class SimVisThread  {
         LOG.info("SimVisThread terminating");
 	}
 
-	@PostConstruct
-	public void connectToCelestia() {
+	@Produces @CelestiaConnection
+	public SimVisThread connectToCelestia() {
 		LOG.info("SimVisThread running for component " + compName);
         LOG.debug("Waiting for connection of Visualization software on port " + visSocketNumber);
 
@@ -130,6 +130,7 @@ public class SimVisThread  {
         catch (IOException e) {
             e.printStackTrace();
         }
+        return this;
 	}
-
+        
 }
