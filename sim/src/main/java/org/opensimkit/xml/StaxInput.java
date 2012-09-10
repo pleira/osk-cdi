@@ -37,13 +37,13 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
+import org.jboss.weld.environment.se.beans.ParametersFactory;
 import org.opensimkit.Kernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.4.6
  */
-@ApplicationScoped
+//@ApplicationScoped
 public class StaxInput {
     private static final Logger LOG
             = LoggerFactory.getLogger(StaxInput.class);
@@ -69,12 +69,14 @@ public class StaxInput {
     private int    element;
     private String currentSection;
     
-	@Inject XMLSectionReader modelsXMLSectionReader;
+    @Inject ParametersFactory pf;
+	@Inject ModelsXMLSectionReader modelsXMLSectionReader;
 
 //	@Inject HPBottleT1 bottle; // only for classpath
 	
     @Inject
     public StaxInput(Kernel kernel) {
+    	System.out.println("injection" + pf.getArgs().get(0));
         xmlTemplateManager = new XMLTemplateManager(TEMPLATES);
         items = new TreeMap<String, XMLSectionReader>();
 
@@ -92,6 +94,7 @@ public class StaxInput {
         		new ProviderSubscriberXMLSectionReader("provider", kernel));
     }
 
+    
     @Inject
     public void registerXMLReader(final XMLSectionReader xmlReader) {
         if (!items.containsKey(xmlReader.getRootName())) {

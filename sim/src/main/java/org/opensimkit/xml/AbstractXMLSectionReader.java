@@ -50,6 +50,10 @@ public abstract class AbstractXMLSectionReader implements XMLSectionReader {
     protected String rootName;
     private final List<XMLEvent> hierarchy = new ArrayList<XMLEvent>();
 
+    public AbstractXMLSectionReader() {
+    	super();
+    	System.out.println("AbstractXMLSectionReader");    	
+    }
     /**
      *
      * @param rootName The name of the root tag.

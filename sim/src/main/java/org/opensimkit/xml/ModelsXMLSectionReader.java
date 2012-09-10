@@ -29,12 +29,14 @@ package org.opensimkit.xml;
 
 import java.lang.reflect.Constructor;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+
 import org.opensimkit.ComHandler;
-import org.opensimkit.Model;
 import org.opensimkit.Kernel;
+import org.opensimkit.Model;
 import org.opensimkit.manipulation.Manipulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.4.6
  */
+@ApplicationScoped
 public class ModelsXMLSectionReader
         extends AbstractTemplateXMLSectionReader {
     private static final Logger LOG
@@ -58,9 +61,10 @@ public class ModelsXMLSectionReader
     @Inject Manipulator        manipulator;
     @Inject Kernel             kernel;
     private       Model model;
-
+    
+ 
     public ModelsXMLSectionReader() {
-        super("models");
+        this.rootName = "models";
     }
 
     public void foundArrayValue(final String elementName,

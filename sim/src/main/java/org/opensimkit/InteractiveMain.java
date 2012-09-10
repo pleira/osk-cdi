@@ -92,6 +92,7 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -113,7 +114,8 @@ import org.opensimkit.providerSubscriber.ProviderSubscriber;
  * @version 2.2
  * @since 2.4.6
  */
-public final class InteractiveMain {
+@ApplicationScoped
+public class InteractiveMain {
     private static final String MODEL_PATH = "../models/";
     private static final String LIB_PATH = "../lib/";
     private static Logger LOG = LoggerFactory.getLogger(InteractiveMain.class);
@@ -148,7 +150,7 @@ public final class InteractiveMain {
      * @param args Commandline arguments
      * @throws java.io.IOException
      */
-    public void initSim(@Observes ContainerInitialized init) throws IOException {
+    public void initSim() throws IOException {
 //    public static void main(final String[] args) throws IOException {
         int cmdShutFlag;
         int compShutFlag;

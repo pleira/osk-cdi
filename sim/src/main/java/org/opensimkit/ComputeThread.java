@@ -28,6 +28,9 @@ package org.opensimkit;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +43,8 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.6
  * @version 1.1
  */
-public final class ComputeThread extends Thread {
+@ApplicationScoped
+public class ComputeThread extends Thread {
     private static final Logger LOG
             = LoggerFactory.getLogger(ComputeThread.class);
     private final Socket socket;

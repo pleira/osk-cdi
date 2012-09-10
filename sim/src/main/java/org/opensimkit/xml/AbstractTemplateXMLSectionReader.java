@@ -50,12 +50,17 @@ public abstract class AbstractTemplateXMLSectionReader
             = LoggerFactory.getLogger(AbstractTemplateXMLSectionReader.class);
     protected StartElement currentStartElement;
 
+    public AbstractTemplateXMLSectionReader() {
+    	super();
+    	System.out.println("AbstractTemplateXMLSectionReader");
+    }
+
     public AbstractTemplateXMLSectionReader(final String rootName) {
         super(rootName);
     }
 
     @Override
-    public final void process(final XMLEvent xmlEvent)
+    public  void process(final XMLEvent xmlEvent)
             throws XMLStreamException {
         /** Important, do not forget this! */
         super.process(xmlEvent);
@@ -76,7 +81,7 @@ public abstract class AbstractTemplateXMLSectionReader
      * Processes the character data.
      * @param characters
      */
-    private final void processData(final Characters characters) {
+    private void processData(final Characters characters) {
         final Attribute lengthAttribute
                 = currentStartElement.getAttributeByName(new QName(LENGTH));
         if (lengthAttribute != null) {

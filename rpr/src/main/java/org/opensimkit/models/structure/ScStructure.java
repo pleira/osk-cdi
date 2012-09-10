@@ -205,7 +205,7 @@ public final class ScStructure extends BaseModel {
 
     //  Entries for simVisThread.
     @Manipulatable private int visSocketNumber = 1520;
-    private static SimVisThread visThread;
+//    private static SimVisThread visThread;
     
     private static final String TYPE = "ScStructure";
     private static final String SOLVER = "none";
@@ -243,7 +243,7 @@ public final class ScStructure extends BaseModel {
 
         timeHandler = kernel.getTimeHandler();
         LOG.info("Generating visualization thread for " + name);
-        visThread = new SimVisThread(kernel, name, visSocketNumber);
+//        visThread = new SimVisThread(kernel, name, visSocketNumber);
     }
 
 
@@ -273,7 +273,7 @@ public final class ScStructure extends BaseModel {
             scPositionECI_prev[i] = scPositionECI[i];
             scVelocityECI_prev[i] = scVelocityECI[i];
         }
-        visThread.start();
+//        visThread.start();
     }
 
 
