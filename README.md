@@ -7,7 +7,13 @@ OpenSimKit [OpenSimKit.org] is a simulation kit written in Java. The developer h
 
 I am checking how CDI (Context Dependency and Injection) works. I have taken some of the original OSK code and played with CDI initialisation. The MMI part has not been included.
 
-I changed the build system to use maven. The user should download the original OSK software and add some of their dependencies (like vecmath and jat) to his local maven repository with a maven install command. Configuration files for eclipse or netbeans can be generated from maven command line.
+I changed the build system to use maven. The user should download the original OSK software and add some of their dependencies (like vecmath and jat) to his local maven repository with a maven install command.
+mvn install:install-file -Dfile=vecmath.jar  -DgroupId=jat.vecmath -DartifactId=vecmath -Dversion=1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=osk-j-jat-minimal.jar  -DgroupId=jat.osk -DartifactId=jat-osk -Dversion=1.0 -Dpackaging=jar 
+
+The root maven pom is in the parent directory. Configuration files for eclipse or netbeans can be generated from maven command line.
+
+mvn eclipse:eclipse
 
 The program can be executed from command line with 
 
