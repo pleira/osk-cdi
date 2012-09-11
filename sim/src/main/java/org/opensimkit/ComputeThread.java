@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +45,18 @@ import org.slf4j.LoggerFactory;
  * @version 1.1
  */
 @ApplicationScoped
-public class ComputeThread extends Thread {
+public class ComputeThread implements Runnable {
     private static final Logger LOG
             = LoggerFactory.getLogger(ComputeThread.class);
-    private final Socket socket;
-    private final Kernel kernel;
-    private int isTerminated;
+//    private final Socket socket;
+    @Inject Kernel kernel;
+    private int isTerminated = 0;
 
-    public ComputeThread(final Socket socket, final Kernel kernel) {
+    public ComputeThread() {
         super();
-        this.setName("ComputeModel");
-        isTerminated = 0;
-        this.socket = socket;
-        this.kernel = kernel;
+//        this.setName("ComputeModel");
+//        isTerminated = 0;
+//        this.kernel = kernel;
     }
 
     public void terminate() {
@@ -74,14 +74,8 @@ public class ComputeThread extends Thread {
     @Override
     public void run() {
         kernel.setIsSimulationRunning(true);
-        LOG.info(getName());
+//        LOG.info(getName());
         LOG.info("Simulator: Output console connection established...\n");
-        try {
-            final OutputStream out = socket.getOutputStream();
-            kernel.setOutputWriter(out);
-        } catch (IOException ex) {
-            LOG.error("Exception:", ex);
-        }
         while (isTerminated == 0) {
             // Here the simulation computation takes place and
             // potential thread interrupt must be caught

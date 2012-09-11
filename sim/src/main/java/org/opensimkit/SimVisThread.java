@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -121,12 +122,14 @@ public class SimVisThread  {
         try {
             ServerSocket visualizationTMSocket = new ServerSocket(visSocketNumber);
             LOG.info("SimVisThread waiting...");
+            visualizationTMSocket.setSoTimeout(1000);
             socket = visualizationTMSocket.accept();
             LOG.info("Celestia connected to OSK");
             out = socket.getOutputStream();
             isRunning = 1;    		
-        }
-        catch (IOException e) {
+        } catch (SocketTimeoutException e) {
+        	LOG.warn("no tm socket available...");
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return this;

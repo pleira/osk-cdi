@@ -25,14 +25,12 @@
  */
 package org.opensimkit.commanding;
 
-import javax.inject.Inject;
-
 import org.opensimkit.Kernel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.ClassIsNotAModelException;
 import org.opensimkit.manipulation.FieldIsNotManipulatableException;
-import org.opensimkit.manipulation.Manipulator;
 import org.opensimkit.manipulation.ManipulationPrinter;
+import org.opensimkit.manipulation.Manipulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,17 +42,17 @@ import org.slf4j.LoggerFactory;
  * @version 1.1
  * @since 2.4.6
  */
-public final class HelpCommand extends BaseMMICommand {
+public class HelpCommand extends BaseMMICommand {
     private static final Logger LOG
             = LoggerFactory.getLogger(HelpCommand.class);
     private final MMICommandHandler mmiCommandHandler;
-    @Inject Manipulator       manipulator;
+    Manipulator       manipulator;
 
     public HelpCommand(final MMICommandHandler mmiCommandHandler,
             final Kernel kernel) {
         super("HELP");
         this.mmiCommandHandler = mmiCommandHandler;
-        // manipulator = kernel.getManipulator();
+        manipulator = kernel.getManipulator();
     }
 
     // TODO Extend HelpCommand to accept parameters like "help run" to show a

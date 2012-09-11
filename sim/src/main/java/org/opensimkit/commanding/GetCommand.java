@@ -50,9 +50,9 @@ public class GetCommand extends BaseMMICommand {
     private static final Logger LOG = LoggerFactory.getLogger(GetCommand.class);
     @Inject Manipulator manipulator;
 
-    public GetCommand(final Kernel kernel) {
+    public GetCommand(Kernel kernel) {
         super("GET");
-        // manipulator = kernel.getManipulator();
+        manipulator = kernel.getManipulator();
     }
 
     @Override

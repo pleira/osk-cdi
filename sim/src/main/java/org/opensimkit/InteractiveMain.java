@@ -89,10 +89,14 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -120,7 +124,7 @@ public class InteractiveMain {
 //    private static final String LIB_PATH = "../lib/";
     private static Logger LOG = LoggerFactory.getLogger(InteractiveMain.class);
     private static SimCmdThread cmdThread;
-    private static ComputeThread compThread;
+    @Inject static ComputeThread compThread;
     private static Socket tcSocket, tmSocket;
  
     @Inject ParametersFactory pF;
@@ -128,6 +132,8 @@ public class InteractiveMain {
     @Inject Kernel kernel;
     
     @Inject Instance<SimVisThread> visThreadInstance;
+    
+    static ExecutorService executor = Executors.newSingleThreadExecutor();
 
     /**
      * entry point of the OpenSimKit simulator. From here the loading of
@@ -190,24 +196,41 @@ public class InteractiveMain {
 
             LOG.info("Waiting for Cmd/Ctrl connection on port 1500...");
             ServerSocket telecommandSocket = new ServerSocket(1500);
+            telecommandSocket.setSoTimeout(1000);
+            try {
             tcSocket = telecommandSocket.accept();
-
+            } catch (SocketTimeoutException e) {
+            	// nothing
+            }
             LOG.info("Waiting for output console connection on port 1510...");
             ServerSocket telemetrySocket = new ServerSocket(1510);
-            tmSocket = telemetrySocket.accept();
+            telemetrySocket.setSoTimeout(1000);
+            try {
+            	// This socket should be injected, having different alternatives
+            tmSocket = telecommandSocket.accept();
+            kernel.setOutputWriter(tmSocket.getOutputStream());
+            } catch (SocketTimeoutException e) {
+                LOG.warn("no tm socket available...");
+            } catch (IOException e) {
+                LOG.warn("no io to tm socket...");
 
-            LOG.info("Generating computation thread...");
-            compThread = new ComputeThread(tmSocket, kernel);
-            LOG.debug("getName {}", compThread.getName());
+            }            
+            
+//            LOG.info("Generating computation thread...");
+//            compThread = new ComputeThread();
+            
+//            LOG.debug("getName {}", compThread.getName());
 
-            LOG.info("Generating command thread...");
-            cmdThread = new SimCmdThread(compThread, tcSocket, kernel);
-            cmdThread.start();
+            //LOG.info("Generating command thread...");
+            //cmdThread = new SimCmdThread(compThread, tcSocket, kernel);
+            //cmdThread.start();
 
             LOG.info("Generating visualization thread...");
             SimVisThread visThread = visThreadInstance.get();
             visThread.connectToCelestia();
-
+            // normally, a user command should start the simulation, but for now...
+            startSimulation();
+            
             while (true) {
                 try {
                     Thread.sleep(200);
@@ -352,12 +375,12 @@ public class InteractiveMain {
 
 
     public static synchronized void startSimulation() {
-        compThread.start();
+        executor.submit(compThread);
     }
 
 
     public static synchronized void shutdownSimulation() {
-        compThread.terminate();
+        executor.shutdownNow();
     }
 
 

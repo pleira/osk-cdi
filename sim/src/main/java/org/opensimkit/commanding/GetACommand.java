@@ -49,11 +49,11 @@ import org.slf4j.LoggerFactory;
 public class GetACommand extends BaseMMICommand {
     private static final Logger LOG
             = LoggerFactory.getLogger(GetACommand.class);
-    @Inject Manipulator manipulator;
+   Manipulator manipulator;
 
-    public GetACommand(final Kernel kernel) {
+    public GetACommand(Kernel kernel) {
         super("GETA");
-        // manipulator = kernel.getManipulator();
+        manipulator = kernel.getManipulator();
     }
 
     @Override

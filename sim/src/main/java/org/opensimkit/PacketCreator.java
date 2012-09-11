@@ -25,7 +25,6 @@
 package org.opensimkit;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.ParseException;

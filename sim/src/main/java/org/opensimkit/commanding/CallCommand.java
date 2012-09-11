@@ -47,12 +47,12 @@ import org.slf4j.LoggerFactory;
 public class CallCommand extends BaseMMICommand {
     private static final Logger LOG
             = LoggerFactory.getLogger(CallCommand.class);
-    @Inject
+ 
     private Manipulator manipulator;
 
     public CallCommand(final Kernel kernel) {
         super("CALL");
-        //// manipulator = kernel.getManipulator();
+        manipulator = kernel.getManipulator();
     }
 
     @Override

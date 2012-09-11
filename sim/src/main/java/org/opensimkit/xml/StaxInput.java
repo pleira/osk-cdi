@@ -181,21 +181,21 @@ public class StaxInput {
         }
     }
 
-    public static StaxInput getDefaultStaxInput(final Kernel kernel) {
-        StaxInput stax = new StaxInput(kernel);
-        stax.registerXMLReader(new SystemXMLSectionReader("system", kernel));
-        stax.registerXMLReader(
-                new ModelsXMLSectionReader("models", kernel));
-        stax.registerXMLReader(
-                new MeshXMLSectionReader("meshes", kernel));
-        stax.registerXMLReader(new NetlistXMLSectionReader("connections",
-                kernel));
-        stax.registerXMLReader(
-                new TabgeneratorXMLSectionReader("logOutput", kernel));
-        stax.registerXMLReader(
-                new ProviderSubscriberXMLSectionReader(
-                "providerSubscriberTable", kernel));
-
-        return stax;
-    }
+//    public static StaxInput getDefaultStaxInput(final Kernel kernel) {
+//        StaxInput stax = new StaxInput(kernel);
+//        stax.registerXMLReader(new SystemXMLSectionReader("system", kernel));
+//        stax.registerXMLReader(
+//                new ModelsXMLSectionReader("models", kernel));
+//        stax.registerXMLReader(
+//                new MeshXMLSectionReader("meshes", kernel));
+//        stax.registerXMLReader(new NetlistXMLSectionReader("connections",
+//                kernel));
+//        stax.registerXMLReader(
+//                new TabgeneratorXMLSectionReader("logOutput", kernel));
+//        stax.registerXMLReader(
+//                new ProviderSubscriberXMLSectionReader(
+//                "providerSubscriberTable", kernel));
+//
+//        return stax;
+//    }
 }

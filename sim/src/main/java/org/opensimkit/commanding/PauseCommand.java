@@ -31,7 +31,7 @@ import org.opensimkit.SimulatorState;
  * @version 1.1
  * @since 2.5.1
  */
-public final class PauseCommand extends BaseMMICommand {
+public class PauseCommand extends BaseMMICommand {
     private final Kernel kernel;
 
     public PauseCommand(final Kernel kernel) {
