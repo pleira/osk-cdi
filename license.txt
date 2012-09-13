@@ -1,0 +1,6 @@
+License Conditions and Liability:
+
+OpenSimKit is free software. You are free to publish, copy, use and modify it under the conditions of the GNU General Public License Version 3 as published by the Free Software Foundation.
+
+Publishing of this software program is done under the assumption that it will be beneficial for the users, but WITHOUT ANY WARRANTY, even without any implicit warranty on READINESS FOR MARKETING or the APPLICABILITY FOR A SPECIFIC PURPOSE. Details can be found in the GNU General Public License included.
+
