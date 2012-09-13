@@ -84,19 +84,18 @@
 package org.opensimkit;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -120,12 +119,10 @@ import org.slf4j.LoggerFactory;
  */
 @ApplicationScoped
 public class InteractiveMain {
-//    private static final String MODEL_PATH = "../models/";
-//    private static final String LIB_PATH = "../lib/";
     private static Logger LOG = LoggerFactory.getLogger(InteractiveMain.class);
     private static SimCmdThread cmdThread;
-    @Inject static ComputeThread compThread;
-    private static Socket tcSocket, tmSocket;
+    static ComputeThread sCompThread;
+    @Inject ComputeThread compThread;
  
     @Inject ParametersFactory pF;
      
@@ -138,7 +135,7 @@ public class InteractiveMain {
     /**
      * entry point of the OpenSimKit simulator. From here the loading of
      * the input file is triggered.
-     * @param args Commandline arguments
+     * @param args ContainerInitialized init
      * @throws java.io.IOException
      */
     public void initSim(@Observes ContainerInitialized init) throws IOException {
@@ -146,13 +143,14 @@ public class InteractiveMain {
         int cmdShutFlag;
         int compShutFlag;
         String[] foundLibraries;
-
+        // static field was not initialized by CDI
+        sCompThread = compThread;
         cmdShutFlag = 0;
         compShutFlag = 0;
         
         List<String> args = pF.getArgs(); // argsValidator.getValidParameters();
         if (args.size() < 2) {
-           LOG.error("Usage: java -jar osk-j-sim.jar inputfile.xml outfile");
+           LOG.error("Pass 2 arguments: inputfile.xml outfile");
            exit(1);
         }
         
@@ -161,60 +159,40 @@ public class InteractiveMain {
         LOG.info(greet());
         LOG.info(getComputerInformation());
 
-//        foundLibraries = addLibrariesToClasspath(LIB_PATH);
-//        if (foundLibraries != null) {
-//            LOG.info("The following 3rd party libraries were found:");
-//            for (String library : foundLibraries) {
-//                LOG.info(library);
-//            }
-//            LOG.info("");
-//        }
-
-//        foundLibraries = addLibrariesToClasspath(MODEL_PATH);
-//        if (foundLibraries != null) {
-//            LOG.info("The following Model Libraries were found:");
-//            for (String library : foundLibraries) {
-//                LOG.info(library);
-//            }
-//            LOG.info("-------------------------------");
-//            LOG.info("");
-//        }
-
         SimHeaders.myInFileName = args.get(0);
         SimHeaders.myOutFileName = args.get(1);
         LOG.info("Input File: {}", SimHeaders.myInFileName);
         LOG.info("Output File: {}", SimHeaders.myOutFileName);
 
+        Socket tcSocket, tmSocket;
         try {
             LOG.info("Simulator started...");
-//            Kernel kernel = new Kernel();
-//            kernel.init();
             // With CDI, the kernel should be ready here
             kernel.openInput(SimHeaders.myInFileName);
             kernel.openOutput(SimHeaders.myOutFileName);
             kernel.load();
 
-            LOG.info("Waiting for Cmd/Ctrl connection on port 1500...");
-            ServerSocket telecommandSocket = new ServerSocket(1500);
-            telecommandSocket.setSoTimeout(1000);
-            try {
-            tcSocket = telecommandSocket.accept();
-            } catch (SocketTimeoutException e) {
-            	// nothing
-            }
-            LOG.info("Waiting for output console connection on port 1510...");
-            ServerSocket telemetrySocket = new ServerSocket(1510);
-            telemetrySocket.setSoTimeout(1000);
-            try {
-            	// This socket should be injected, having different alternatives
-            tmSocket = telecommandSocket.accept();
-            kernel.setOutputWriter(tmSocket.getOutputStream());
-            } catch (SocketTimeoutException e) {
-                LOG.warn("no tm socket available...");
-            } catch (IOException e) {
-                LOG.warn("no io to tm socket...");
-
-            }            
+//            LOG.info("Waiting for Cmd/Ctrl connection on port 1500...");
+//            ServerSocket telecommandSocket = new ServerSocket(1500);
+//            telecommandSocket.setSoTimeout(1000);
+//            try {
+//            tcSocket = telecommandSocket.accept();
+//            } catch (SocketTimeoutException e) {
+//            	// nothing
+//            }
+//            LOG.info("Waiting for output console connection on port 1510...");
+//            ServerSocket telemetrySocket = new ServerSocket(1510);
+//            telemetrySocket.setSoTimeout(1000);
+//            try {
+//            	// This socket should be injected, having different alternatives
+//            tmSocket = telemetrySocket.accept();
+//            kernel.setOutputWriter(tmSocket.getOutputStream());
+//            } catch (SocketTimeoutException e) {
+//                LOG.warn("no tm socket available...");
+//            } catch (IOException e) {
+//                LOG.warn("no io to tm socket...");
+//
+//            }            
             
 //            LOG.info("Generating computation thread...");
 //            compThread = new ComputeThread();
@@ -225,11 +203,15 @@ public class InteractiveMain {
             //cmdThread = new SimCmdThread(compThread, tcSocket, kernel);
             //cmdThread.start();
 
-            LOG.info("Generating visualization thread...");
-            SimVisThread visThread = visThreadInstance.get();
-            visThread.connectToCelestia();
+
+//            LOG.info("Generating visualization thread...");
+//            SimVisThread visThread = visThreadInstance.get();
+//            visThread.connectToCelestia();
             // normally, a user command should start the simulation, but for now...
-            startSimulation();
+            OutputStream writer = new FileOutputStream("simulation.log");
+            kernel.setOutputWriter(writer);
+//            startSimulation();
+            sCompThread.run();
             
             while (true) {
                 try {
@@ -248,119 +230,119 @@ public class InteractiveMain {
                 }
             }
             if (cmdShutFlag == 2 || compShutFlag == 2) {
-                LOG.info("System terminating due broken connections...");
-                try {
-                    tcSocket.close();
-                }
-                catch (IOException e2) {
-                    }
-                try {
-                    tmSocket.close();
-                }
-                catch (IOException e2) {
-                }
+//                LOG.info("System terminating due broken connections...");
+//                try {
+//                    tcSocket.close();
+//                }
+//                catch (IOException e2) {
+//                    }
+//                try {
+//                    tmSocket.close();
+//                }
+//                catch (IOException e2) {
+//                }
                 exit(1);
             }
             if (cmdShutFlag == 1 || compShutFlag == 1) {
                 LOG.info("System terminated");
-                try {
-                    tcSocket.close();
-                }
-                catch (IOException e2) {
-                    }
-                try {
-                    tmSocket.close();
-                }
-                catch (IOException e2) {
-                }
+//                try {
+//                    tcSocket.close();
+//                }
+//                catch (IOException e2) {
+//                    }
+//                try {
+//                    tmSocket.close();
+//                }
+//                catch (IOException e2) {
+//                }
                 exit(0);
             }
         } catch (IOException e) {
             LOG.error("Exception:", e);
-            try {
-                tcSocket.close();
-            }
-            catch (IOException e2) {
-            }
-            try {
-                tmSocket.close();
-            }
-            catch (IOException e2) {
-            }
+//            try {
+//                tcSocket.close();
+//            }
+//            catch (IOException e2) {
+//            }
+//            try {
+//                tmSocket.close();
+//            }
+//            catch (IOException e2) {
+//            }
             exit(1);
         }
         //
         // Normal system termination
-        try {
-            tcSocket.close();
-        }
-        catch (IOException e2) {
-        }
-        try {
-            tmSocket.close();
-        }
-        catch (IOException e2) {
-        }
+//        try {
+//            tcSocket.close();
+//        }
+//        catch (IOException e2) {
+//        }
+//        try {
+//            tmSocket.close();
+//        }
+//        catch (IOException e2) {
+//        }
     }
 
 
-
-    /**
-     * Adds all libraries (jar files) found inside path to the classpath.
-     * @param path Path from which all jar files shall be added to the
-     * classpath.
-     * @return All jar files found in path.
-     * @throws java.io.IOException
-     */
-    private static String[] addLibrariesToClasspath(final String path)
-        throws IOException {
-        final Class[] parameters = new Class[]{URL.class};
-        URLClassLoader sysLoader;
-        String[] result = null;
-
-        sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-
-        File[] fileList;
-        URL[] urls;
-        File dir = new File(path);
-
-        FilenameFilter filter = new FilenameFilter() {
-
-            public boolean accept(final File dir, final String name) {
-                return name.endsWith(".jar");
-            }
-        };
-
-        fileList = dir.listFiles(filter);
-        Arrays.sort(fileList);
-
-        if (fileList != null) {
-
-            urls = new URL[fileList.length];
-            result = new String[fileList.length];
-
-            for (int i = 0; i < fileList.length; i++) {
-                urls[i] = fileList[i].toURI().toURL();
-                result[i] = fileList[i].getCanonicalPath();
-            }
-
-            for (int i = 0; i < urls.length; i++) {
-                Class<?> sysclass = URLClassLoader.class;
-
-                try {
-                    Method method =
-                            sysclass.getDeclaredMethod("addURL", parameters);
-                    method.setAccessible(true);
-                    method.invoke(sysLoader, new Object[]{urls[i]});
-                } catch (Exception t) {
-                    t.printStackTrace();
-                    throw new IOException("Error, could not add URL to"
-                            + " system classloader");
-                }
-            }
-        }
-        return result;
-    }
+//
+//    /**
+//     * Adds all libraries (jar files) found inside path to the classpath.
+//     * @param path Path from which all jar files shall be added to the
+//     * classpath.
+//     * @return All jar files found in path.
+//     * @throws java.io.IOException
+//     */
+//    private static String[] addLibrariesToClasspath(final String path)
+//        throws IOException {
+//        final Class[] parameters = new Class[]{URL.class};
+//        URLClassLoader sysLoader;
+//        String[] result = null;
+//
+//        sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+//
+//        File[] fileList;
+//        URL[] urls;
+//        File dir = new File(path);
+//
+//        FilenameFilter filter = new FilenameFilter() {
+//
+//            public boolean accept(final File dir, final String name) {
+//                return name.endsWith(".jar");
+//            }
+//        };
+//
+//        fileList = dir.listFiles(filter);
+//        Arrays.sort(fileList);
+//
+//        if (fileList != null) {
+//
+//            urls = new URL[fileList.length];
+//            result = new String[fileList.length];
+//
+//            for (int i = 0; i < fileList.length; i++) {
+//                urls[i] = fileList[i].toURI().toURL();
+//                result[i] = fileList[i].getCanonicalPath();
+//            }
+//
+//            for (int i = 0; i < urls.length; i++) {
+//                Class<?> sysclass = URLClassLoader.class;
+//
+//                try {
+//                    Method method =
+//                            sysclass.getDeclaredMethod("addURL", parameters);
+//                    method.setAccessible(true);
+//                    method.invoke(sysLoader, new Object[]{urls[i]});
+//                } catch (Exception t) {
+//                    t.printStackTrace();
+//                    throw new IOException("Error, could not add URL to"
+//                            + " system classloader");
+//                }
+//            }
+//        }
+//        return result;
+//    }
 
 
 
@@ -375,7 +357,7 @@ public class InteractiveMain {
 
 
     public static synchronized void startSimulation() {
-        executor.submit(compThread);
+        executor.submit(sCompThread);
     }
 
 

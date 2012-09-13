@@ -52,12 +52,12 @@ public class ComputeThread implements Runnable {
     @Inject Kernel kernel;
     private int isTerminated = 0;
 
-    public ComputeThread() {
-        super();
+//    public ComputeThread() {
+//        super();
 //        this.setName("ComputeModel");
 //        isTerminated = 0;
 //        this.kernel = kernel;
-    }
+//    }
 
     public void terminate() {
         isTerminated = 1;
