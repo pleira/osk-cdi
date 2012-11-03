@@ -9,7 +9,7 @@
  *                  +----------+--------------+
  *    controlPort --+                         |
  *                  +----------+--------------+
- *                             | outputPort
+ *                             | getOuputPort()
  *
  *  Valve computes the following phenomena:
  *    - Mass flow control according to settings
@@ -54,13 +54,16 @@ package org.opensimkit.models.rocketpropulsion;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.Kernel;
+import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
-import org.opensimkit.SimHeaders;
-import org.opensimkit.ports.AnalogPort;
-import org.opensimkit.ports.PureLiquidPort;
+import org.opensimkit.models.ports.AnalogPort;
+import org.opensimkit.models.ports.PureLiquidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,10 +72,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author J. Eickhoff
  * @author A. Brandt
- * @version 2.2
- * @since 2.6.7
  */
-public class FluidFlowValve extends BaseModel {
+
+public abstract class FluidFlowValve extends BaseModel {
     /** Logger instance for the FluidFlowValve. */
     private static final Logger LOG
             = LoggerFactory.getLogger(FluidFlowValve.class);
@@ -90,6 +92,7 @@ public class FluidFlowValve extends BaseModel {
     @Readable      private double localtime;
     @Readable      private double controlValue;
     @Readable      private double DP;
+    //E id;
 
     private static final String TYPE      = "FluidFlowValve";
     private static final String SOLVER    = "none";
@@ -98,9 +101,18 @@ public class FluidFlowValve extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private PureLiquidPort inputPort;
-    @Manipulatable private PureLiquidPort outputPort;
-    @Manipulatable private AnalogPort     controlPort;
+    @Manipulatable protected PureLiquidPort inputPort;
+
+//	@Inject @Named("19_PureLiquidDat")
+	@Manipulatable protected PureLiquidPort outputPort;
+	
+//	@Inject @Named("23_Fuel_Flow_Control_Signal")
+	@Manipulatable protected AnalogPort     controlPort;
+
+
+   public FluidFlowValve(final String name) {
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+    }
 
     /**
      * Creates a new instance of the Fluid Flow Valve.
@@ -112,16 +124,60 @@ public class FluidFlowValve extends BaseModel {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
     }
 
+    public FluidFlowValve(String name, PureLiquidPort inputPort,
+			PureLiquidPort outputPort, AnalogPort controlPort) {
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+		this.inputPort = inputPort;
+		this.outputPort = outputPort;
+		this.controlPort = controlPort;		
+	}
 
-    /**
+	public double getReferencePressureLoss() {
+		return referencePressureLoss;
+	}
+
+	public void setReferencePressureLoss(double referencePressureLoss) {
+		this.referencePressureLoss = referencePressureLoss;
+	}
+
+	public double getReferenceMassFlow() {
+		return referenceMassFlow;
+	}
+
+	public void setReferenceMassFlow(double referenceMassFlow) {
+		this.referenceMassFlow = referenceMassFlow;
+	}
+
+	@PostConstruct
+    public void completeConnections() {
+    	LOG.info("completeConnections for " + name);
+        inputPort.setToModel(this);
+        outputPort.setFromModel(this);
+        controlPort.setFromModel(this);
+    }
+    
+	public PureLiquidPort getInputPort() {
+		return inputPort;
+	}
+
+	public PureLiquidPort getOutputPort() {
+		return outputPort;
+	}
+
+	public AnalogPort getControlPort() {
+		return controlPort;
+	}
+
+	/**
     * The initialization of the Component takes place in this method. It is
     * called after the creation of the instance and the loading of its default
     * values so that derived variables can be calculated after loading or
     * re-calculated after the change of a manipulatable variable (but in this
     * case the init method must be called manually!).
     */
-    @Override
+    @Override    
     public void init() {
+    	completeConnections();
         /* Computation of derived initialization parameters. */
         /* Initializing mass flow. */
         massflow = 0.0;
@@ -174,9 +230,8 @@ public class FluidFlowValve extends BaseModel {
         localtime = localtime + 0.5;
         return 0;
     }
-
-
-    @Override
+    
+	@Override
     public int iterationStep() {
         LOG.debug("% {} IterationStep-Computation", name);
 
@@ -281,10 +336,9 @@ public class FluidFlowValve extends BaseModel {
         inputPort.setBoundaryMassflow(massflow);
 
         return result;
-    }
+    }	
 
-
-    @Override
+	@Override
     public int regulStep() {
         LOG.debug("% {} RegulStep-Computation", name);
         return 0;

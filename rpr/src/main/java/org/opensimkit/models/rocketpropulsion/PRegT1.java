@@ -100,9 +100,9 @@ import org.opensimkit.BaseModel;
 import org.opensimkit.HeliumJKC;
 import org.opensimkit.Kernel;
 import org.opensimkit.manipulation.Manipulatable;
+import org.opensimkit.models.ports.PureGasPort;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,10 +162,15 @@ public class PRegT1 extends BaseModel {
     * @param name Name of the instance.
     * @param kernel Reference to the kernel.
     */
-    public PRegT1(final String name, final Kernel kernel) {
+    public PRegT1(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
     }
 
+    public PRegT1(final String name, PureGasPort inputPort, PureGasPort outputPort) {
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        this.inputPort = inputPort;
+        this.outputPort = outputPort;        
+    }
 
     /**
     * The initialization of the Component takes place in this method. It is

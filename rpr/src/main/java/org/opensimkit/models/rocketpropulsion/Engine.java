@@ -56,19 +56,16 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.*;
-
 import java.io.FileWriter;
 import java.io.IOException;
+
 import org.opensimkit.BaseModel;
-import org.opensimkit.Kernel;
+import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
-import org.opensimkit.SimHeaders;
-import org.opensimkit.ports.PureLiquidPort;
+import org.opensimkit.models.ports.PureLiquidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * Model definition for an engine.
  *
@@ -79,17 +76,17 @@ import org.slf4j.LoggerFactory;
  * @version 3.0
  * @since 2.6.0
  */
-public class Engine extends BaseModel {
+public abstract class Engine extends BaseModel {
     /** Logger instance for the Engine. */
     private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
     /** Reference force. */
-    @Manipulatable private double referenceForce;
+    //@Manipulatable private double referenceForce = 0;
     /** Fuel flow at ingnition [kg/s]. */
-    @Manipulatable private double ingnitionFuelFlow;
+    @Manipulatable private double ingnitionFuelFlow = 0;
     /** Ox flow at ingnition [kg/s]. */
-    @Manipulatable private double ingnitionOxidizerFlow;
+    @Manipulatable private double ingnitionOxidizerFlow = 0;
     /** Altitude above ground [ m ] */
-    @Manipulatable private double alt;
+    @Manipulatable private double alt = 1600000;
     /** Specific impulse [s] */
     @Readable private double ISP;
     /** Fuel inflow pressure [Pa] */
@@ -146,7 +143,6 @@ public class Engine extends BaseModel {
 
     @Manipulatable private PureLiquidPort inputPortFuel;
     @Manipulatable private PureLiquidPort inputPortOxidizer;
-
     
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -169,13 +165,43 @@ public class Engine extends BaseModel {
      * Creates a new instance of the engine.
      *
      * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
      */
-    public Engine(final String name, final Kernel kernel) {
+    public Engine(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
     }
 
-    /**
+    public Engine(final String name, PureLiquidPort inputPortOxidizer, 
+    		PureLiquidPort inputPortFuel) {
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        this.inputPortOxidizer = inputPortOxidizer;
+        this.inputPortFuel = inputPortFuel;
+    }
+    
+    public double getIngnitionFuelFlow() {
+		return ingnitionFuelFlow;
+	}
+
+	public void setIngnitionFuelFlow(double ingnitionFuelFlow) {
+		this.ingnitionFuelFlow = ingnitionFuelFlow;
+	}
+
+	public double getIngnitionOxidizerFlow() {
+		return ingnitionOxidizerFlow;
+	}
+
+	public void setIngnitionOxidizerFlow(double ingnitionOxidizerFlow) {
+		this.ingnitionOxidizerFlow = ingnitionOxidizerFlow;
+	}
+
+	public double getAlt() {
+		return alt;
+	}
+
+	public void setAlt(double alt) {
+		this.alt = alt;
+	}
+
+	/**
      * The initialization of the Component takes place in this method. It is
      * called after the creation of the instance and the loading of its default
      * values so that derived variables can be calculated after loading or

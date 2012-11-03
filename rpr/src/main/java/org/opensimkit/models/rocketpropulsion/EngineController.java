@@ -39,15 +39,15 @@
  package org.opensimkit.models.rocketpropulsion;
 
  import java.io.FileWriter;
- import java.io.IOException;
- import org.opensimkit.BaseModel;
- import org.opensimkit.Kernel;
- import org.opensimkit.manipulation.Manipulatable;
- import org.opensimkit.manipulation.Readable;
- import org.opensimkit.SimHeaders;
- import org.opensimkit.ports.AnalogPort;
- import org.slf4j.Logger;
- import org.slf4j.LoggerFactory;
+import java.io.IOException;
+
+import org.opensimkit.BaseModel;
+import org.opensimkit.SimHeaders;
+import org.opensimkit.manipulation.Manipulatable;
+import org.opensimkit.manipulation.Readable;
+import org.opensimkit.models.ports.AnalogPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Model definition for a controller component provding 2 analog output ports.
@@ -57,8 +57,9 @@
  * @version 1.2
  * @since 2.6.8
  */
-public class EngineController extends BaseModel {
-    /** Logger instance for the EngineController. */
+public abstract class EngineController extends BaseModel {
+
+	/** Logger instance for the EngineController. */
     private static final Logger LOG
             = LoggerFactory.getLogger(EngineController.class);
     /** Commandeable control value. */
@@ -78,8 +79,8 @@ public class EngineController extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 1;
 
-    @Manipulatable private AnalogPort controlPort1;
-    @Manipulatable private AnalogPort controlPort2;
+    @Manipulatable final AnalogPort controlPort1;
+    @Manipulatable final AnalogPort controlPort2;
 
     /**
      * Creates a new instance of the engine controller.
@@ -87,12 +88,50 @@ public class EngineController extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-     public EngineController(final String name, final Kernel kernel) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
+//     public EngineController(final String name) {
+//        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+//       	System.out.println("EngineController " + name);
+//     }
+     public EngineController(final String name, AnalogPort controlPort1, AnalogPort controlPort2) {
+         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+         this.controlPort1 = controlPort1;
+         this.controlPort2 = controlPort2;
+        	System.out.println("EngineController " + name);
+      }
+    
+    public double getControlRangeMax() {
+		return controlRangeMax;
+	}
 
+	public void setControlRangeMax(double controlRangeMax) {
+		this.controlRangeMax = controlRangeMax;
+	}
 
-    /**
+	public double getControlRangeMin() {
+		return controlRangeMin;
+	}
+
+	public void setControlRangeMin(double controlRangeMin) {
+		this.controlRangeMin = controlRangeMin;
+	}
+
+    public double getControlValue1Nom() {
+		return controlValue1Nom;
+	}
+
+	public void setControlValue1Nom(double controlValue1Nom) {
+		this.controlValue1Nom = controlValue1Nom;
+	}
+
+	public double getControlValue2Nom() {
+		return controlValue2Nom;
+	}
+
+	public void setControlValue2Nom(double controlValue2Nom) {
+		this.controlValue2Nom = controlValue2Nom;
+	}
+
+	/**
     * The initialization of the Component takes place in this method. It is
     * called after the creation of the instance and the loading of its default
     * values so that derived variables can be calculated after loading or
@@ -100,7 +139,11 @@ public class EngineController extends BaseModel {
     * case the init method must be called manually!).
     */
     @Override
+ //   @PostConstruct
     public void init() {
+//    	controlPort1.setFromModel(this);
+//    	controlPort2.setToModel(this);
+    	System.out.println(controlPort1.getName() + " " + controlPort2.getName() + " "  );
         /* Computation of derived initialization parameters. */
         localtime = 0.0;
         controlValueActual = controlRangeMax;

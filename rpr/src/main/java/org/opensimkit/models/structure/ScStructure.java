@@ -92,17 +92,12 @@
  
 package org.opensimkit.models.structure;
 
-import java.io.*;
-
 import jat.matvec.data.Matrix;
 import jat.matvec.data.Quaternion;
 import jat.matvec.data.VectorN;
-
 import jat.spacetime.EarthRef;
 import jat.spacetime.Time;
 
-import java.io.IOException;
-import java.lang.Math;
 import org.opensimkit.BaseModel;
 import org.opensimkit.Kernel;
 import org.opensimkit.TimeHandler;
@@ -110,7 +105,6 @@ import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opensimkit.SimVisThread;
 
 /**
  * Model definition for a point mass.

@@ -83,11 +83,11 @@ package org.opensimkit.models.rocketpropulsion;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
 import org.opensimkit.BaseModel;
-import org.opensimkit.Kernel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.ports.PureGasPort;
+import org.opensimkit.models.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,10 +143,17 @@ public class JunctionT1 extends BaseModel {
      * Creates a new instance of the Junction.
      *
      * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
      */
-    public JunctionT1(final String name, final Kernel kernel) {
+    public JunctionT1(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+    }
+
+    public JunctionT1(final String name, PureGasPort inputPortLeft, 
+    		PureGasPort inputPortRight, PureGasPort outputPort) {
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        this.outputPort = outputPort;
+        this.inputPortLeft = inputPortLeft;
+        this.inputPortRight = inputPortRight;
     }
 
 

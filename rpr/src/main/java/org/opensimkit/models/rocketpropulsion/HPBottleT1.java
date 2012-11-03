@@ -96,9 +96,9 @@ import org.opensimkit.HeliumJKC;
 import org.opensimkit.Kernel;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
+import org.opensimkit.models.ports.PureGasPort;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +111,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.4
  * @since 2.4.0
  */
-public class HPBottleT1 extends BaseModel {
+public abstract class HPBottleT1 extends BaseModel {
     /** Logger instance for the HPBottleT1. */
     private static final Logger LOG = LoggerFactory.getLogger(HPBottleT1.class);
     /** Mass of pressure vessel. */
@@ -170,8 +170,12 @@ public class HPBottleT1 extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-    public HPBottleT1(final String name, final Kernel kernel) {
+    public HPBottleT1(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+    }
+    public HPBottleT1(final String name,PureGasPort outputPort) {
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        this.outputPort = outputPort;
     }
 
 

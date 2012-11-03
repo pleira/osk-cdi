@@ -128,17 +128,20 @@ package org.opensimkit.models.rocketpropulsion;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.DEQClient;
 import org.opensimkit.DEqSys;
 import org.opensimkit.GLoad;
 import org.opensimkit.Kernel;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.ports.PureGasPort;
-import org.opensimkit.ports.PureLiquidPort;
+import org.opensimkit.manipulation.Manipulatable;
+import org.opensimkit.manipulation.Readable;
+import org.opensimkit.models.ports.PureGasPort;
+import org.opensimkit.models.ports.PureLiquidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,14 +155,28 @@ import org.slf4j.LoggerFactory;
  * @version 1.3
  * @since 2.4.0
  */
-public class TankT1 extends BaseModel implements DEQClient {
+public abstract class TankT1 extends BaseModel implements DEQClient {
     /** Logger instance for the TankT1. */
     private static final Logger LOG = LoggerFactory.getLogger(TankT1.class);
     /** Fuel type. */
     @Manipulatable private String fuel;
-    /** Oxidizer type. */
+    public String getFuel() {
+		return fuel;
+	}
+	public void setFuel(String fuel) {
+		this.fuel = fuel;
+	}
+
+	/** Oxidizer type. */
     @Manipulatable private String oxidizer;
-    /** Pressure gas for fuel compartment. */
+    public String getOxidizer() {
+		return oxidizer;
+	}
+	public void setOxidizer(String oxidizer) {
+		this.oxidizer = oxidizer;
+	}
+
+	/** Pressure gas for fuel compartment. */
     @Manipulatable private String fuPressGas;
     /** Pressure gas for oxidizer compartment. */
     @Manipulatable private String oxPressGas;
@@ -193,7 +210,8 @@ public class TankT1 extends BaseModel implements DEQClient {
 
     /** Volume of fuel tank. */
     @Manipulatable private double VTBR;
-    /** Volume of oxidizer tank. */
+        
+	/** Volume of oxidizer tank. */
     @Manipulatable private double VTOX;
 
     /** Outer wall surface of oxidizer compartment. */
@@ -389,6 +407,24 @@ public class TankT1 extends BaseModel implements DEQClient {
     public TankT1(final String name, final Kernel kernel) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
     }
+    public TankT1(String name, 
+    		PureLiquidPort outputPortFuel, PureLiquidPort outputPortOxidizer, 
+    		PureGasPort inputPortFuelPressureGas, PureGasPort inputPortOxidizerPressureGas) {
+         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+ 		this.outputPortFuel = outputPortFuel;
+ 		this.outputPortOxidizer = outputPortOxidizer;
+ 		this.inputPortFuelPressureGas = inputPortFuelPressureGas;
+ 		this.inputPortOxidizerPressureGas = inputPortOxidizerPressureGas;
+ 	}
+
+ 	@PostConstruct
+    public void completeConnections() {
+     	LOG.info("completeConnections for " + name);
+     	inputPortFuelPressureGas.setToModel(this);
+     	inputPortOxidizerPressureGas.setToModel(this);
+     	outputPortFuel.setFromModel(this);
+     	outputPortOxidizer.setFromModel(this);
+     }
 
     /**
     * The initialization of the Component takes place in this method. It is
@@ -1329,4 +1365,551 @@ public class TankT1 extends BaseModel implements DEQClient {
         outFile.write("TankT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+	public String getFuPressGas() {
+		return fuPressGas;
+	}
+	public void setFuPressGas(String fuPressGas) {
+		this.fuPressGas = fuPressGas;
+	}
+	public String getOxPressGas() {
+		return oxPressGas;
+	}
+	public void setOxPressGas(String oxPressGas) {
+		this.oxPressGas = oxPressGas;
+	}
+	public double getMfBoundFuelPress() {
+		return mfBoundFuelPress;
+	}
+	public void setMfBoundFuelPress(double mfBoundFuelPress) {
+		this.mfBoundFuelPress = mfBoundFuelPress;
+	}
+	public double getMfBoundOxPress() {
+		return mfBoundOxPress;
+	}
+	public void setMfBoundOxPress(double mfBoundOxPress) {
+		this.mfBoundOxPress = mfBoundOxPress;
+	}
+	public double getpBoundFuelPress() {
+		return pBoundFuelPress;
+	}
+	public void setpBoundFuelPress(double pBoundFuelPress) {
+		this.pBoundFuelPress = pBoundFuelPress;
+	}
+	public double getpBoundOxPress() {
+		return pBoundOxPress;
+	}
+	public void setpBoundOxPress(double pBoundOxPress) {
+		this.pBoundOxPress = pBoundOxPress;
+	}
+	public double getMfBoundFuel() {
+		return mfBoundFuel;
+	}
+	public void setMfBoundFuel(double mfBoundFuel) {
+		this.mfBoundFuel = mfBoundFuel;
+	}
+	public double getMfBoundOx() {
+		return mfBoundOx;
+	}
+	public void setMfBoundOx(double mfBoundOx) {
+		this.mfBoundOx = mfBoundOx;
+	}
+	public double getPinFPG() {
+		return pinFPG;
+	}
+	public void setPinFPG(double pinFPG) {
+		this.pinFPG = pinFPG;
+	}
+	public double getTinFPG() {
+		return tinFPG;
+	}
+	public void setTinFPG(double tinFPG) {
+		this.tinFPG = tinFPG;
+	}
+	public double getMfinFPG() {
+		return mfinFPG;
+	}
+	public void setMfinFPG(double mfinFPG) {
+		this.mfinFPG = mfinFPG;
+	}
+	public double getPinOPG() {
+		return pinOPG;
+	}
+	public void setPinOPG(double pinOPG) {
+		this.pinOPG = pinOPG;
+	}
+	public double getTinOPG() {
+		return tinOPG;
+	}
+	public void setTinOPG(double tinOPG) {
+		this.tinOPG = tinOPG;
+	}
+	public double getMfinOPG() {
+		return mfinOPG;
+	}
+	public void setMfinOPG(double mfinOPG) {
+		this.mfinOPG = mfinOPG;
+	}
+	public double getPoutFuel() {
+		return poutFuel;
+	}
+	public void setPoutFuel(double poutFuel) {
+		this.poutFuel = poutFuel;
+	}
+	public double getToutFuel() {
+		return toutFuel;
+	}
+	public void setToutFuel(double toutFuel) {
+		this.toutFuel = toutFuel;
+	}
+	public double getMfoutFuel() {
+		return mfoutFuel;
+	}
+	public void setMfoutFuel(double mfoutFuel) {
+		this.mfoutFuel = mfoutFuel;
+	}
+	public double getPoutOxidizer() {
+		return poutOxidizer;
+	}
+	public void setPoutOxidizer(double poutOxidizer) {
+		this.poutOxidizer = poutOxidizer;
+	}
+	public double getToutOxidizer() {
+		return toutOxidizer;
+	}
+	public void setToutOxidizer(double toutOxidizer) {
+		this.toutOxidizer = toutOxidizer;
+	}
+	public double getMfoutOxidizer() {
+		return mfoutOxidizer;
+	}
+	public void setMfoutOxidizer(double mfoutOxidizer) {
+		this.mfoutOxidizer = mfoutOxidizer;
+	}
+	public double getVTBR() {
+		return VTBR;
+	}
+	public void setVTBR(double vTBR) {
+		VTBR = vTBR;
+	}
+	public double getVTOX() {
+		return VTOX;
+	}
+	public void setVTOX(double vTOX) {
+		VTOX = vTOX;
+	}
+	public double getFAWO() {
+		return FAWO;
+	}
+	public void setFAWO(double fAWO) {
+		FAWO = fAWO;
+	}
+	public double getFTWO() {
+		return FTWO;
+	}
+	public void setFTWO(double fTWO) {
+		FTWO = fTWO;
+	}
+	public double getFAWB() {
+		return FAWB;
+	}
+	public void setFAWB(double fAWB) {
+		FAWB = fAWB;
+	}
+	public double getFTWB() {
+		return FTWB;
+	}
+	public void setFTWB(double fTWB) {
+		FTWB = fTWB;
+	}
+	public double getHGOX() {
+		return HGOX;
+	}
+	public void setHGOX(double hGOX) {
+		HGOX = hGOX;
+	}
+	public double getHGBR() {
+		return HGBR;
+	}
+	public void setHGBR(double hGBR) {
+		HGBR = hGBR;
+	}
+	public double getCHARMO() {
+		return CHARMO;
+	}
+	public void setCHARMO(double cHARMO) {
+		CHARMO = cHARMO;
+	}
+	public double getCHARMB() {
+		return CHARMB;
+	}
+	public void setCHARMB(double cHARMB) {
+		CHARMB = cHARMB;
+	}
+	public double getFMAWO() {
+		return FMAWO;
+	}
+	public void setFMAWO(double fMAWO) {
+		FMAWO = fMAWO;
+	}
+	public double getFMTW() {
+		return FMTW;
+	}
+	public void setFMTW(double fMTW) {
+		FMTW = fMTW;
+	}
+	public double getFMAWB() {
+		return FMAWB;
+	}
+	public void setFMAWB(double fMAWB) {
+		FMAWB = fMAWB;
+	}
+	public double getSPWKO() {
+		return SPWKO;
+	}
+	public void setSPWKO(double sPWKO) {
+		SPWKO = sPWKO;
+	}
+	public double getSPWKB() {
+		return SPWKB;
+	}
+	public void setSPWKB(double sPWKB) {
+		SPWKB = sPWKB;
+	}
+	public double getPTO() {
+		return PTO;
+	}
+	public void setPTO(double pTO) {
+		PTO = pTO;
+	}
+	public double getPENDOX() {
+		return PENDOX;
+	}
+	public void setPENDOX(double pENDOX) {
+		PENDOX = pENDOX;
+	}
+	public double getPTB() {
+		return PTB;
+	}
+	public void setPTB(double pTB) {
+		PTB = pTB;
+	}
+	public double getPENDBR() {
+		return PENDBR;
+	}
+	public void setPENDBR(double pENDBR) {
+		PENDBR = pENDBR;
+	}
+	public double getVANFOX() {
+		return VANFOX;
+	}
+	public void setVANFOX(double vANFOX) {
+		VANFOX = vANFOX;
+	}
+	public double getTANFOX() {
+		return TANFOX;
+	}
+	public void setTANFOX(double tANFOX) {
+		TANFOX = tANFOX;
+	}
+	public double getVANFBR() {
+		return VANFBR;
+	}
+	public void setVANFBR(double vANFBR) {
+		VANFBR = vANFBR;
+	}
+	public double getTANFBR() {
+		return TANFBR;
+	}
+	public void setTANFBR(double tANFBR) {
+		TANFBR = tANFBR;
+	}
+	public double getPVO() {
+		return PVO;
+	}
+	public void setPVO(double pVO) {
+		PVO = pVO;
+	}
+	public double getTHEINO() {
+		return THEINO;
+	}
+	public void setTHEINO(double tHEINO) {
+		THEINO = tHEINO;
+	}
+	public double getTHEINB() {
+		return THEINB;
+	}
+	public void setTHEINB(double tHEINB) {
+		THEINB = tHEINB;
+	}
+	public double getMAWGO() {
+		return MAWGO;
+	}
+	public void setMAWGO(double mAWGO) {
+		MAWGO = mAWGO;
+	}
+	public double getMTWGO() {
+		return MTWGO;
+	}
+	public void setMTWGO(double mTWGO) {
+		MTWGO = mTWGO;
+	}
+	public double getMAWGB() {
+		return MAWGB;
+	}
+	public void setMAWGB(double mAWGB) {
+		MAWGB = mAWGB;
+	}
+	public double getMTWGB() {
+		return MTWGB;
+	}
+	public void setMTWGB(double mTWGB) {
+		MTWGB = mTWGB;
+	}
+	public double getMPHEOX() {
+		return MPHEOX;
+	}
+	public void setMPHEOX(double mPHEOX) {
+		MPHEOX = mPHEOX;
+	}
+	public double getMPHEBR() {
+		return MPHEBR;
+	}
+	public void setMPHEBR(double mPHEBR) {
+		MPHEBR = mPHEBR;
+	}
+	public double getMAWGOA() {
+		return MAWGOA;
+	}
+	public void setMAWGOA(double mAWGOA) {
+		MAWGOA = mAWGOA;
+	}
+	public double getMTWGOA() {
+		return MTWGOA;
+	}
+	public void setMTWGOA(double mTWGOA) {
+		MTWGOA = mTWGOA;
+	}
+	public double getMAWGBA() {
+		return MAWGBA;
+	}
+	public void setMAWGBA(double mAWGBA) {
+		MAWGBA = mAWGBA;
+	}
+	public double getMTWGBA() {
+		return MTWGBA;
+	}
+	public void setMTWGBA(double mTWGBA) {
+		MTWGBA = mTWGBA;
+	}
+	public double getMLOX() {
+		return MLOX;
+	}
+	public void setMLOX(double mLOX) {
+		MLOX = mLOX;
+	}
+	public double getMLBR() {
+		return MLBR;
+	}
+	public void setMLBR(double mLBR) {
+		MLBR = mLBR;
+	}
+	public double getMPKTLO() {
+		return MPKTLO;
+	}
+	public void setMPKTLO(double mPKTLO) {
+		MPKTLO = mPKTLO;
+	}
+	public double getMPKTLB() {
+		return MPKTLB;
+	}
+	public void setMPKTLB(double mPKTLB) {
+		MPKTLB = mPKTLB;
+	}
+	public double getMDO() {
+		return MDO;
+	}
+	public void setMDO(double mDO) {
+		MDO = mDO;
+	}
+	public double getMHEOXA() {
+		return MHEOXA;
+	}
+	public void setMHEOXA(double mHEOXA) {
+		MHEOXA = mHEOXA;
+	}
+	public double getMHEBRA() {
+		return MHEBRA;
+	}
+	public void setMHEBRA(double mHEBRA) {
+		MHEBRA = mHEBRA;
+	}
+	public double[] getFuLevel() {
+		return fuLevel;
+	}
+	public void setFuLevel(double[] fuLevel) {
+		this.fuLevel = fuLevel;
+	}
+	public double[] getFuCOutWSfc() {
+		return fuCOutWSfc;
+	}
+	public void setFuCOutWSfc(double[] fuCOutWSfc) {
+		this.fuCOutWSfc = fuCOutWSfc;
+	}
+	public double[] getFuCSepWSfc() {
+		return fuCSepWSfc;
+	}
+	public void setFuCSepWSfc(double[] fuCSepWSfc) {
+		this.fuCSepWSfc = fuCSepWSfc;
+	}
+	public double[] getFuSfc() {
+		return fuSfc;
+	}
+	public void setFuSfc(double[] fuSfc) {
+		this.fuSfc = fuSfc;
+	}
+	public double[] getFuCOutWSfc2() {
+		return fuCOutWSfc2;
+	}
+	public void setFuCOutWSfc2(double[] fuCOutWSfc2) {
+		this.fuCOutWSfc2 = fuCOutWSfc2;
+	}
+	public double[] getFuCSepWSfc2() {
+		return fuCSepWSfc2;
+	}
+	public void setFuCSepWSfc2(double[] fuCSepWSfc2) {
+		this.fuCSepWSfc2 = fuCSepWSfc2;
+	}
+	public double[] getFuSfc2() {
+		return fuSfc2;
+	}
+	public void setFuSfc2(double[] fuSfc2) {
+		this.fuSfc2 = fuSfc2;
+	}
+	public double[] getOxLevel() {
+		return oxLevel;
+	}
+	public void setOxLevel(double[] oxLevel) {
+		this.oxLevel = oxLevel;
+	}
+	public double[] getOxCOutWSfc() {
+		return oxCOutWSfc;
+	}
+	public void setOxCOutWSfc(double[] oxCOutWSfc) {
+		this.oxCOutWSfc = oxCOutWSfc;
+	}
+	public double[] getOxCSepWSfc() {
+		return oxCSepWSfc;
+	}
+	public void setOxCSepWSfc(double[] oxCSepWSfc) {
+		this.oxCSepWSfc = oxCSepWSfc;
+	}
+	public double[] getOxSfc() {
+		return oxSfc;
+	}
+	public void setOxSfc(double[] oxSfc) {
+		this.oxSfc = oxSfc;
+	}
+	public double[] getOxCOutWSfc2() {
+		return oxCOutWSfc2;
+	}
+	public void setOxCOutWSfc2(double[] oxCOutWSfc2) {
+		this.oxCOutWSfc2 = oxCOutWSfc2;
+	}
+	public double[] getOxCSepWSfc2() {
+		return oxCSepWSfc2;
+	}
+	public void setOxCSepWSfc2(double[] oxCSepWSfc2) {
+		this.oxCSepWSfc2 = oxCSepWSfc2;
+	}
+	public double[] getOxSfc2() {
+		return oxSfc2;
+	}
+	public void setOxSfc2(double[] oxSfc2) {
+		this.oxSfc2 = oxSfc2;
+	}
+	public int getIFMAX() {
+		return IFMAX;
+	}
+	public void setIFMAX(int iFMAX) {
+		IFMAX = iFMAX;
+	}
+	public int getIFANZ() {
+		return IFANZ;
+	}
+	public void setIFANZ(int iFANZ) {
+		IFANZ = iFANZ;
+	}
+	public int getIFEHL() {
+		return IFEHL;
+	}
+	public void setIFEHL(int iFEHL) {
+		IFEHL = iFEHL;
+	}
+	public int getBDFLAG() {
+		return BDFLAG;
+	}
+	public void setBDFLAG(int bDFLAG) {
+		BDFLAG = bDFLAG;
+	}
+	public double getPoxt() {
+		return poxt;
+	}
+	public void setPoxt(double poxt) {
+		this.poxt = poxt;
+	}
+	public double gettGOxT() {
+		return tGOxT;
+	}
+	public void settGOxT(double tGOxT) {
+		this.tGOxT = tGOxT;
+	}
+	public double gettLOxT() {
+		return tLOxT;
+	}
+	public void settLOxT(double tLOxT) {
+		this.tLOxT = tLOxT;
+	}
+	public double getPFuT() {
+		return PFuT;
+	}
+	public void setPFuT(double pFuT) {
+		PFuT = pFuT;
+	}
+	public double gettGFuT() {
+		return tGFuT;
+	}
+	public void settGFuT(double tGFuT) {
+		this.tGFuT = tGFuT;
+	}
+	public double gettLFuT() {
+		return tLFuT;
+	}
+	public void settLFuT(double tLFuT) {
+		this.tLFuT = tLFuT;
+	}
+	public PureGasPort getInputPortFuelPressureGas() {
+		return inputPortFuelPressureGas;
+	}
+	public void setInputPortFuelPressureGas(PureGasPort inputPortFuelPressureGas) {
+		this.inputPortFuelPressureGas = inputPortFuelPressureGas;
+	}
+	public PureGasPort getInputPortOxidizerPressureGas() {
+		return inputPortOxidizerPressureGas;
+	}
+	public void setInputPortOxidizerPressureGas(
+			PureGasPort inputPortOxidizerPressureGas) {
+		this.inputPortOxidizerPressureGas = inputPortOxidizerPressureGas;
+	}
+	public PureLiquidPort getOutputPortFuel() {
+		return outputPortFuel;
+	}
+	public void setOutputPortFuel(PureLiquidPort outputPortFuel) {
+		this.outputPortFuel = outputPortFuel;
+	}
+	public PureLiquidPort getOutputPortOxidizer() {
+		return outputPortOxidizer;
+	}
+	public void setOutputPortOxidizer(PureLiquidPort outputPortOxidizer) {
+		this.outputPortOxidizer = outputPortOxidizer;
+	}
 }

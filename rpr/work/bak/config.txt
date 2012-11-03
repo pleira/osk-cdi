@@ -1,1 +1,0 @@
-/home/common/05-Jens-OSK/OpenSimKit-Distribution/osk-j-3.7.0-src/work/myout.txt

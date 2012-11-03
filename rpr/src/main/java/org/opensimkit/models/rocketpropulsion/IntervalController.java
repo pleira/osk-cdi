@@ -33,10 +33,10 @@
  import org.opensimkit.Kernel;
  import org.opensimkit.manipulation.Manipulatable;
  import org.opensimkit.manipulation.Readable;
+import org.opensimkit.models.ports.AnalogPort;
  import org.opensimkit.SimHeaders;
- import org.opensimkit.ports.AnalogPort;
  import org.slf4j.Logger;
- import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
 
 /**
  * Model definition for a controller component provding 2 analog output ports.
