@@ -29,8 +29,8 @@ public class FluidPort extends BasePort {
      * This constructor is needed for the FluidPort initialisation during
      * the XML file parsing.
      */
-    public FluidPort(final String name, final Kernel kernel) {
-        super(name, kernel);
+    public FluidPort(final String name) {
+        super(name);
     }
 
     public void setFluid(final String fluid) {

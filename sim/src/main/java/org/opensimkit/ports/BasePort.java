@@ -64,7 +64,6 @@
 package org.opensimkit.ports;
 
 import org.opensimkit.Model;
-import org.opensimkit.Kernel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,20 +80,35 @@ import org.slf4j.LoggerFactory;
  */
 public class BasePort implements Port {
     private static final Logger LOG = LoggerFactory.getLogger(BasePort.class);
-    private final Kernel kernel;
-    private String name;
+    String name;
     private String id;
     private String description;
     private Model  fromModel;
-    private Model  toModel;
+    
+    public Model getFromModel() {
+		return fromModel;
+	}
+
+	public void setFromModel(Model fromModel) {
+		this.fromModel = fromModel;
+	}
+
+	public Model getToModel() {
+		return toModel;
+	}
+
+	public void setToModel(Model toModel) {
+		this.toModel = toModel;
+	}
+
+	private Model  toModel;
     //private int       localNAckFlag;
     //Only one port-class but several classes for the port-data. This
     //requires a check for a correct initialization from models to the
     //ports. The type field enables this.
 
-    public BasePort(final String name, final Kernel kernel) {
+    public BasePort(final String name) {
         this.name = name;
-        this.kernel = kernel;
     }
 
     /**

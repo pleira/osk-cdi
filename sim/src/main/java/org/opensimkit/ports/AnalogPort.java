@@ -23,7 +23,8 @@
  */
 package org.opensimkit.ports;
 
-import org.opensimkit.Kernel;
+import javax.inject.Inject;
+
 import org.opensimkit.manipulation.Manipulatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,8 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.6.7
  */
-public final class AnalogPort extends BasePort {
+
+public class AnalogPort extends BasePort {
     private static final Logger LOG = LoggerFactory.getLogger(AnalogPort.class);
     @Manipulatable private double analogValue;
 
@@ -44,8 +46,8 @@ public final class AnalogPort extends BasePort {
      * This constructor is needed for the AnalogPort initialisation during
      * the XML file parsing.
      */
-    public AnalogPort(final String name, final Kernel kernel) {
-        super(name, kernel);
+    public AnalogPort(final String name) {
+        super(name);
     }
 
     public void setAnalogValue(final double analogValue) {

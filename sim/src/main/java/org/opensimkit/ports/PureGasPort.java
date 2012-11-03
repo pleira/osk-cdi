@@ -1,23 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.opensimkit.ports;
-
-import org.opensimkit.Kernel;
 
 /**
  *
- * @author A. Brandt
+ * @author P. Pita
  */
-public final class PureGasPort extends FluidPort {
-
-    /**
-     * This constructor is needed for the PureGasPort initialisation during
-     * the XML file parsing.
-     */
-    public PureGasPort(final String name, final Kernel kernel) {
-        super(name, kernel);
+public class PureGasPort extends FluidPort {
+	
+    public PureGasPort(String name) {
+        super(name);
     }
 }
