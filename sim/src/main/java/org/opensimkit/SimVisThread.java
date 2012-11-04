@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 3.5.0
  */
-
+@ApplicationScoped
 public class SimVisThread  {
 //	@Inject
 //	private Logger LOG;

@@ -105,7 +105,7 @@ public class TabGenerator {
     private int            factor;
     private int            stepcount;
     private int            flushcount;
-    private String         name;
+    private String         name = "tabGenerator";
     private FileWriter     table;
     private int            localNAckFlag;
     private long           startTime;
@@ -122,6 +122,7 @@ public class TabGenerator {
      *                  TabGenerator.
      * @throws java.io.IOException
      */
+    @Inject
     public TabGenerator()  {
         LOG.debug("{}:\t{}", this.name, "Constructor");
 

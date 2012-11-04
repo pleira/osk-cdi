@@ -58,7 +58,6 @@ import java.io.IOException;
 import javax.annotation.PostConstruct;
 
 import org.opensimkit.BaseModel;
-import org.opensimkit.Kernel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
@@ -92,7 +91,6 @@ public abstract class FluidFlowValve extends BaseModel {
     @Readable      private double localtime;
     @Readable      private double controlValue;
     @Readable      private double DP;
-    //E id;
 
     private static final String TYPE      = "FluidFlowValve";
     private static final String SOLVER    = "none";
@@ -103,12 +101,9 @@ public abstract class FluidFlowValve extends BaseModel {
 
     @Manipulatable protected PureLiquidPort inputPort;
 
-//	@Inject @Named("19_PureLiquidDat")
 	@Manipulatable protected PureLiquidPort outputPort;
 	
-//	@Inject @Named("23_Fuel_Flow_Control_Signal")
 	@Manipulatable protected AnalogPort     controlPort;
-
 
    public FluidFlowValve(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
@@ -120,9 +115,9 @@ public abstract class FluidFlowValve extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-    public FluidFlowValve(final String name, final Kernel kernel) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
+//    public FluidFlowValve(final String name, final Kernel kernel) {
+//        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+//    }
 
     public FluidFlowValve(String name, PureLiquidPort inputPort,
 			PureLiquidPort outputPort, AnalogPort controlPort) {

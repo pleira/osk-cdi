@@ -138,9 +138,8 @@ public class InteractiveMain {
      * @param args ContainerInitialized init
      * @throws java.io.IOException
      */
-    public void initSim(ContainerInitialized init) throws IOException {
-//    public void initSim(@Observes ContainerInitialized init) throws IOException {
-//    public static void main(final String[] args) throws IOException {
+    public void initSim(@Observes ContainerInitialized init) throws IOException {
+//    public void main(final String[] args) throws IOException {
         int cmdShutFlag;
         int compShutFlag;
         String[] foundLibraries;
@@ -149,30 +148,30 @@ public class InteractiveMain {
         cmdShutFlag = 0;
         compShutFlag = 0;
         
-        List<String> args = pF.getArgs(); // argsValidator.getValidParameters();
-        if (args.size() < 2) {
-           LOG.error("Pass 2 arguments: inputfile.xml outfile");
-           exit(1);
-        }
+        //List<String> args = pF.getArgs(); // argsValidator.getValidParameters();
+//        if (args.size() < 2) {
+//           LOG.error("Pass 2 arguments: inputfile.xml outfile");
+//           exit(1);
+//        }
         
         //LOG.info(a.hi());
 
         LOG.info(greet());
         LOG.info(getComputerInformation());
 
-        SimHeaders.myInFileName = args.get(0);
-        SimHeaders.myOutFileName = args.get(1);
-        LOG.info("Input File: {}", SimHeaders.myInFileName);
-        LOG.info("Output File: {}", SimHeaders.myOutFileName);
+//        SimHeaders.myInFileName = args.get(0);
+//        SimHeaders.myOutFileName = args.get(1);
+//        LOG.info("Input File: {}", SimHeaders.myInFileName);
+//        LOG.info("Output File: {}", SimHeaders.myOutFileName);
 
         Socket tcSocket, tmSocket;
         try {
             LOG.info("Simulator started...");
             // With CDI, the kernel should be ready here
-            kernel.openInput(SimHeaders.myInFileName);
-            kernel.openOutput(SimHeaders.myOutFileName);
-            kernel.load();
-
+//            kernel.openInput(SimHeaders.myInFileName);
+//            kernel.openOutput(SimHeaders.myOutFileName);
+//            kernel.load();
+//            define meshes            
 //            LOG.info("Waiting for Cmd/Ctrl connection on port 1500...");
 //            ServerSocket telecommandSocket = new ServerSocket(1500);
 //            telecommandSocket.setSoTimeout(1000);
@@ -222,7 +221,7 @@ public class InteractiveMain {
                 }
                 // shutFlag = cmdThread.getstatus();
                 cmdShutFlag = cmdThread.getstatus();
-                compShutFlag = compThread.isterminated();
+                //compShutFlag = compThread.isterminated();
                 if (cmdShutFlag > 0) {
                     break;
                 }

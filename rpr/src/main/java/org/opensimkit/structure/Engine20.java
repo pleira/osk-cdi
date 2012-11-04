@@ -9,21 +9,22 @@ import org.opensimkit.ports.PureLiquidPort;
 
 public class Engine20 extends Engine {
 
+	@Inject
 	public Engine20(@Named("21_PureLiquidDat") PureLiquidPort inputPortOxidizer,
 			@Named("19_PureLiquidDat") PureLiquidPort inputPortFuel) {
 		super("20_Engine", inputPortOxidizer, inputPortFuel);
 	}
 	
 	@Inject
-	void initIngnitionFuelFlow(@NumberConfig(name = "engine20.ingnitionFuelFlow", defaultValue = "0.0") Double value) {
-		setIngnitionFuelFlow(value);
+	void initIngnitionFuelFlow(@NumberConfig(name = "engine20.ignitionFuelFlow", defaultValue = "0.0") Double value) {
+		setIgnitionFuelFlow(value);
 	}
 	@Inject
-	void initIngnitionOxidizerFlow(@NumberConfig(name = "engine20.ingnitionOxidizerFlow", defaultValue = "0.0") Double value) {
-		setIngnitionOxidizerFlow(value);
+	void initIngnitionOxidizerFlow(@NumberConfig(name = "engine20.ignitionOxidizerFlow", defaultValue = "0.0") Double value) {
+		setIgnitionOxidizerFlow(value);
 	}
 	@Inject
-	void initAlt(@NumberConfig(name = "engine20.atl", defaultValue = "600000") Double value) {
+	void initAlt(@NumberConfig(name = "engine20.alt", defaultValue = "600000") Double value) {
 		setAlt(value);
 	}
 

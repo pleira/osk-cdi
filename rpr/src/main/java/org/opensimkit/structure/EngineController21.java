@@ -8,8 +8,10 @@ import org.opensimkit.models.rocketpropulsion.EngineController;
 import org.opensimkit.ports.AnalogPort;
 
 public class EngineController21 extends EngineController {
-	public EngineController21(@Named("21_PureLiquidDat") AnalogPort controlPort1,
-			@Named("19_PureLiquidDat") AnalogPort controlPort2) {
+	
+	@Inject
+	public EngineController21(@Named("23_Fuel_Flow_Control_Signal") AnalogPort controlPort1,
+			@Named("24_Ox_Flow_Control_Signal") AnalogPort controlPort2) {
 		super("21_EngineController", controlPort1, controlPort2);
 	}
 	

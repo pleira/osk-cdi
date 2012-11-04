@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.opensimkit.steps.CIterationStep;
 
@@ -68,6 +69,7 @@ public class MeshHandler {
     private List<Mesh> items = new ArrayList<Mesh>();
 
     /** Creates a new instance of MeshHandler. */
+    @Inject
     public MeshHandler() {
         this.name = "Mesh-Collection";
         this.comment = "none";

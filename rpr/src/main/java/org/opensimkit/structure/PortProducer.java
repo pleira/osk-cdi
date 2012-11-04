@@ -7,11 +7,15 @@ import org.opensimkit.ports.AnalogPort;
 import org.opensimkit.ports.PureGasPort;
 import org.opensimkit.ports.PureLiquidPort;
 
-
+/**
+ * 
+ * @author P. Pita
+ */
 public class PortProducer {
+    // Here I use a direct instantiation of the ports. But it is a bit repetitive
+    // It would be interesting to code a CDI extension and generate such values in 
+    // the CDI container
 	
-//	@Inject Instance<FluidFlowValve> iffv;
-
 	@Produces @Named("03_PipeId") final String id03 = "03_Pipe";
 	@Produces @Named("02_PipeId") final String id02 = "02_Pipe";
 	@Produces @Named("21_EngineControllerId")  final String id21 = "21_EngineController";
@@ -25,8 +29,6 @@ public class PortProducer {
 	@Produces @Named("20_PureLiquidDatId")  final String pldid20 =  "20_PureLiquidDat";
 	@Produces @Named("21_PureLiquidDatId")  final String pldid21 =  "21_PureLiquidDat";
 
-//	@Inject @Valve(id = ValveID.PLP18)  PureLiquidPort plp18;
-//	@Inject @Valve(id = ValveID.PLP19) PureLiquidPort plp19;
     @Produces @Named("23_Fuel_Flow_Control_Signal") AnalogPort prfflow23 = new AnalogPort(id23);
     @Produces @Named("24_Ox_Flow_Control_Signal") AnalogPort proxflow24 = new AnalogPort(id24);
     @Produces @Named("00_PureGasDat") PureGasPort gp00 = new PureGasPort("00_PureGasDat");
@@ -53,6 +55,4 @@ public class PortProducer {
 	@Produces @Named("20_PureLiquidDat") PureLiquidPort plp20 = new PureLiquidPort(pldid20); 
 	@Produces @Named("21_PureLiquidDat") PureLiquidPort plp21 = new PureLiquidPort(pldid21); 
 	
-
-
 }

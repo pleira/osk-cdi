@@ -77,8 +77,10 @@ import java.io.IOException;
 import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.opensimkit.providerSubscriber.ProviderSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +124,7 @@ public class SeqModSim {
     private TabGenerator   outTab;
     @Inject ProviderSubscriber providerSubscriber;
 
+    @Inject
     public SeqModSim() {
         this.name        = "Simulation";
         //this.timeHandler = kernel.getTimeHandler();

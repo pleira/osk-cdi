@@ -77,23 +77,19 @@
 
 package org.opensimkit;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.xml.stream.XMLStreamException;
 
+import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Manipulator;
 import org.opensimkit.providerSubscriber.ProviderSubscriber;
-import org.opensimkit.xml.StaxInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +123,7 @@ public class Kernel {
     @Inject PortHandler  portColl;
     @Inject MeshHandler  meshColl;
     @Inject SeqModSim    simul;
-    @Inject Instance<StaxInput> staxInput;
+//    @Inject Instance<StaxInput> staxInput;
 
     private       FileWriter   outTabStream;
     private       FileWriter   outData;
@@ -156,13 +152,9 @@ public class Kernel {
     @Manipulatable private double  relAccuracy;
     @Manipulatable private double  absAccuracy;
 	
-    /** Creates a new instance of Kernel.
-     *
-     * @param name
-     * @throws IOException
-     */
+    @Inject
     public Kernel()  {
-    	LOG.info("Kernel");
+    	LOG.info(name);
         LOG.debug(SimHeaders.DEBUG_SHORT, "Constructor {}", name);
     }
 
@@ -185,6 +177,10 @@ public class Kernel {
         return;
     }
 
+//    public void initSim(@Observes ContainerInitialized init)  {
+//    LOG.info("built: " +  this.getName());	  
+//    }
+    
     public int openInput(final String fileName) {
         LOG.debug("Opening input file...");
 
@@ -268,17 +264,17 @@ public class Kernel {
          */
 
         /** Stax input reader obtained by CDI container. */
-        StaxInput stax = staxInput.get();
-        try {
-            // Create the XML event reader
-            FileReader reader = new FileReader(SimHeaders.myInFileName);
-
-            stax.process(reader);
-        } catch (FileNotFoundException ex) {
-            LOG.error("Exception:", ex);
-        } catch (XMLStreamException ex) {
-            LOG.error("Exception:", ex);
-        }
+//        StaxInput stax = staxInput.get();
+//        try {
+//            // Create the XML event reader
+//            FileReader reader = new FileReader(SimHeaders.myInFileName);
+//
+//            stax.process(reader);
+//        } catch (FileNotFoundException ex) {
+//            LOG.error("Exception:", ex);
+//        } catch (XMLStreamException ex) {
+//            LOG.error("Exception:", ex);
+//        }
 
         LOG.debug(SimHeaders.DEBUG_SHORT, "PortCollection sucessfully loaded.");
         LOG.debug(SimHeaders.DEBUG_SHORT, "Ports sucessfully initialized.");

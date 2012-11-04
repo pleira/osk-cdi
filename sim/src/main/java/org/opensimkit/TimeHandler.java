@@ -36,8 +36,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 
+import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
@@ -93,6 +96,7 @@ public class TimeHandler {
 //        this.name = name;
 //    }
 
+    @PostConstruct
     public void init() {
         // 1985-04-12T23:20:50.100Z
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");

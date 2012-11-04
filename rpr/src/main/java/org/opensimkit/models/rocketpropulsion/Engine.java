@@ -82,9 +82,9 @@ public abstract class Engine extends BaseModel {
     /** Reference force. */
     //@Manipulatable private double referenceForce = 0;
     /** Fuel flow at ingnition [kg/s]. */
-    @Manipulatable private double ingnitionFuelFlow = 0;
+    @Manipulatable private double ignitionFuelFlow = 0;
     /** Ox flow at ingnition [kg/s]. */
-    @Manipulatable private double ingnitionOxidizerFlow = 0;
+    @Manipulatable private double ignitionOxidizerFlow = 0;
     /** Altitude above ground [ m ] */
     @Manipulatable private double alt = 1600000;
     /** Specific impulse [s] */
@@ -141,8 +141,8 @@ public abstract class Engine extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private PureLiquidPort inputPortFuel;
-    @Manipulatable private PureLiquidPort inputPortOxidizer;
+    @Manipulatable private final PureLiquidPort inputPortFuel;
+    @Manipulatable private final PureLiquidPort inputPortOxidizer;
     
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -168,6 +168,8 @@ public abstract class Engine extends BaseModel {
      */
     public Engine(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        inputPortFuel = null;
+        inputPortOxidizer = null;
     }
 
     public Engine(final String name, PureLiquidPort inputPortOxidizer, 
@@ -177,20 +179,20 @@ public abstract class Engine extends BaseModel {
         this.inputPortFuel = inputPortFuel;
     }
     
-    public double getIngnitionFuelFlow() {
-		return ingnitionFuelFlow;
+    public double getIgnitionFuelFlow() {
+		return ignitionFuelFlow;
 	}
 
-	public void setIngnitionFuelFlow(double ingnitionFuelFlow) {
-		this.ingnitionFuelFlow = ingnitionFuelFlow;
+	public void setIgnitionFuelFlow(double ingnitionFuelFlow) {
+		this.ignitionFuelFlow = ingnitionFuelFlow;
 	}
 
-	public double getIngnitionOxidizerFlow() {
-		return ingnitionOxidizerFlow;
+	public double getIgnitionOxidizerFlow() {
+		return ignitionOxidizerFlow;
 	}
 
-	public void setIngnitionOxidizerFlow(double ingnitionOxidizerFlow) {
-		this.ingnitionOxidizerFlow = ingnitionOxidizerFlow;
+	public void setIgnitionOxidizerFlow(double ingnitionOxidizerFlow) {
+		this.ignitionOxidizerFlow = ingnitionOxidizerFlow;
 	}
 
 	public double getAlt() {
@@ -419,8 +421,8 @@ public abstract class Engine extends BaseModel {
         LOG.debug("% {} BackIteration-Computation", name);
 
         if (localtime == 0.0) {
-            requestedFuelFlow = ingnitionFuelFlow;
-            requestedOxFlow = ingnitionOxidizerFlow;
+            requestedFuelFlow = ignitionFuelFlow;
+            requestedOxFlow = ignitionOxidizerFlow;
         }
 
         /* Fuel: */
