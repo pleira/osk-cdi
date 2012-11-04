@@ -1,6 +1,20 @@
-Inject TimeHandler in Kernel using CDI.
-The configuration for Manipulators should be successful via CDI
-Find why file exception in Kernel
-See how the resources can be read from the class path using deltaspike @ConfigProperty (see PetStore as well)
 The Manipulator is about initalization, command and telemetry. Devise a plan to replace it, using a command / telemetry approach based on JMX and CDI for configuration.
+See how the resources can be read from the class path using deltaspike @ConfigProperty (see PetStore as well)
+
+
+=== Manipulator Plan ===
+https://github.com/germanescobar/jmx-annotations
+http://www.adam-bien.com/roller/abien/entry/singleton_the_simplest_possible_jmx
+http://openejb.apache.org/examples-trunk/mbean-auto-registration/
+
+The monitoring should be JMX based. That means, no need for infrastructure in osk for that. Try to go JMX 2.0 way (even if this one was not released)
+
+Therefore, CommandHandler would dissappear, and no need in StaxInput for that.
+
+The building of the models and the connections between model instances. It is also CDI. That means removing the connections section and injecting the appropriate bean types in the classes. 
+
+The providerSubscriber section : this should be converted to CDI event handling.
+
+The meshes: 
+Maybe can be also event based.
 

@@ -3,10 +3,6 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>sim</artifactId>
   <packaging>jar</packaging>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <deltaspike.version>0.3-incubating</deltaspike.version>
-  </properties>
   <!--
 		This example uses the same settings as the Weld examples provided by
 		the JBoss team, see http://seamframework.org/Weld/WeldDistributionDownloads

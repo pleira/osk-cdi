@@ -4,8 +4,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.opensimkit.config.NumberConfig;
-import org.opensimkit.models.ports.PureLiquidPort;
 import org.opensimkit.models.rocketpropulsion.Engine;
+import org.opensimkit.ports.PureLiquidPort;
 
 public class Engine20 extends Engine {
 

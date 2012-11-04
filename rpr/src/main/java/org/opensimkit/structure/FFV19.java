@@ -4,9 +4,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.opensimkit.config.NumberConfig;
-import org.opensimkit.models.ports.AnalogPort;
-import org.opensimkit.models.ports.PureLiquidPort;
 import org.opensimkit.models.rocketpropulsion.FluidFlowValve;
+import org.opensimkit.ports.AnalogPort;
+import org.opensimkit.ports.PureLiquidPort;
 
 
 public class FFV19 extends FluidFlowValve {

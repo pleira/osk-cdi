@@ -3,8 +3,8 @@ package org.opensimkit.structure;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.opensimkit.models.ports.PureGasPort;
 import org.opensimkit.models.rocketpropulsion.PipeT1;
+import org.opensimkit.ports.PureGasPort;
 
 
 public class Pipe05 extends PipeT1 {

@@ -87,7 +87,7 @@ import java.io.IOException;
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.models.ports.PureGasPort;
+import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

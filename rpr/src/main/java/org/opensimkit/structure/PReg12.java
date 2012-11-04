@@ -3,8 +3,8 @@ package org.opensimkit.structure;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.opensimkit.models.ports.PureGasPort;
 import org.opensimkit.models.rocketpropulsion.PRegT1;
+import org.opensimkit.ports.PureGasPort;
 
 
 public class PReg12 extends PRegT1 {

@@ -3,9 +3,9 @@ package org.opensimkit.structure;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
-import org.opensimkit.models.ports.AnalogPort;
-import org.opensimkit.models.ports.PureGasPort;
-import org.opensimkit.models.ports.PureLiquidPort;
+import org.opensimkit.ports.AnalogPort;
+import org.opensimkit.ports.PureGasPort;
+import org.opensimkit.ports.PureLiquidPort;
 
 
 public class PortProducer {

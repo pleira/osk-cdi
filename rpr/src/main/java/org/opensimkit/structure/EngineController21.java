@@ -4,8 +4,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.opensimkit.config.NumberConfig;
-import org.opensimkit.models.ports.AnalogPort;
 import org.opensimkit.models.rocketpropulsion.EngineController;
+import org.opensimkit.ports.AnalogPort;
 
 public class EngineController21 extends EngineController {
 	public EngineController21(@Named("21_PureLiquidDat") AnalogPort controlPort1,

@@ -138,7 +138,8 @@ public class InteractiveMain {
      * @param args ContainerInitialized init
      * @throws java.io.IOException
      */
-    public void initSim(@Observes ContainerInitialized init) throws IOException {
+    public void initSim(ContainerInitialized init) throws IOException {
+//    public void initSim(@Observes ContainerInitialized init) throws IOException {
 //    public static void main(final String[] args) throws IOException {
         int cmdShutFlag;
         int compShutFlag;

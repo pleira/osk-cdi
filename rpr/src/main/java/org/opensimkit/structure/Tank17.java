@@ -6,9 +6,9 @@ import javax.inject.Named;
 import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
 import org.opensimkit.config.NumberConfig;
 import org.opensimkit.config.Util;
-import org.opensimkit.models.ports.PureGasPort;
-import org.opensimkit.models.ports.PureLiquidPort;
 import org.opensimkit.models.rocketpropulsion.TankT1;
+import org.opensimkit.ports.PureGasPort;
+import org.opensimkit.ports.PureLiquidPort;
 
 public class Tank17 extends TankT1 {
 	
