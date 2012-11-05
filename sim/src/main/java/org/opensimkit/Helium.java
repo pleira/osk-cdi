@@ -67,10 +67,6 @@ public final class Helium {
     private static double LR;
     private static double GAMMA;
 
-    /** Creates a new instance of Helium. */
-    public Helium() {
-    }
-
     public static double SIGN(final double X1, final double X2) {
         if(X2 >=0) {
             return(X1);
@@ -90,7 +86,7 @@ public final class Helium {
         GAMMA = 323.4165875;
     }
 
-    public static MaterialProperties HELIUM(double PK, double TLAUF,
+    public static double HELIUM(double PK, double TLAUF,
             MaterialProperties MPHelium) {
     // FIXME  PK  has also to be returned!
         /**********************************************************************/
@@ -214,6 +210,6 @@ public final class Helium {
         MPHelium.NUE=MPHelium.ETA/MPHelium.DICHTE;
         PK=PK*1E5;
 
-    return MPHelium;
+        return PK;
     }
 }

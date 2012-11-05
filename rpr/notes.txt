@@ -22,8 +22,25 @@ see of init sc with CDI (beans.xml for example)
         <variable name="yQuat" unit="rad">0.0</variable>
         <variable name="zQuat" unit="rad">0.0</variable>
 
-Currently, the StaxInput class is doing initialisation.  
+the StaxInput class is no longer doing initialisation, as it is done via CDI
 
+The project dependencies in Eclipse are crossed between sim and model. The model
+depends on sim, and the sim has to call classes on the model to start the simulation.
+Therefore, fundamentally reflexion has to be used to decouple the model and the sim 
+framework. 
+
+CDI "plugins" could be used to solve this issue. 
+
+The output variables produced as position and velocity have to be abstracted so 
+that it can be easy to use other frameworks like OREKit. 
+
+It would be nice to abstract the connection to Celestia, to make it useful for other frameworks.
+See if one CDI interceptor can handle that.
+ 
+Some of the initialisation variables are hardcoded now (example, printwriter).
+
+
+ 
 The ScStructure can be a base class having a few simulation related params. 
 A RockeModel can extend it, having a Earth Model and velocity / earth referenced 
 parameters. Also the mass is initialised there.

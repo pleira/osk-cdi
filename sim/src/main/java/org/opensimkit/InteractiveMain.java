@@ -170,7 +170,7 @@ public class InteractiveMain {
             // With CDI, the kernel should be ready here
 //            kernel.openInput(SimHeaders.myInFileName);
 //            kernel.openOutput(SimHeaders.myOutFileName);
-//            kernel.load();
+            kernel.load();
 //            define meshes            
 //            LOG.info("Waiting for Cmd/Ctrl connection on port 1500...");
 //            ServerSocket telecommandSocket = new ServerSocket(1500);

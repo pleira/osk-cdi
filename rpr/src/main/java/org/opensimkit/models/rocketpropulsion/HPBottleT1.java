@@ -221,7 +221,7 @@ public abstract class HPBottleT1 extends BaseModel {
         twold = twall;
         /* Initializing initial mass in bottle. */
         /** TODO Look here, is this correct? */
-        helium = org.opensimkit.Helium.HELIUM(ptotal, ttotal, helium);
+        ptotal = org.opensimkit.Helium.HELIUM(ptotal, ttotal, helium);
         mtotal = helium.DICHTE * volume;
 
         /* Initializing default value for mass flow. */
@@ -366,7 +366,7 @@ public abstract class HPBottleT1 extends BaseModel {
                 }
         }
 
-        ptotal=P;
+        //ptotal=P;
 
         /**********************************************************************/
         /*                                                                    */
@@ -375,7 +375,7 @@ public abstract class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        helium = org.opensimkit.Helium.HELIUM(ptotal, ttotal, helium);
+        ptotal = org.opensimkit.Helium.HELIUM(P, ttotal, helium);
 
         /**********************************************************************/
         /*                                                                    */

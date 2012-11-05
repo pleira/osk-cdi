@@ -219,10 +219,10 @@ public class Kernel {
 
     public int load() throws IOException {
 
-        if (inputOpenFlag == 0 || tabOpenFlag == 0) {
-            // In- and outfiles not properly opened
-            return 1;
-        }
+//        if (inputOpenFlag == 0 || tabOpenFlag == 0) {
+//            // In- and outfiles not properly opened
+//            return 1;
+//        }
         if (loadFlag == 1) {
             // File already loaded
             return 0;

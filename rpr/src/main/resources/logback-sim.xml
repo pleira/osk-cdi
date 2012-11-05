@@ -2,7 +2,7 @@
 
 	<appender name="STDOUT-INFO" class="ch.qos.logback.core.ConsoleAppender">
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>INFO</level>
+			<level>DEBUG</level>
 			<onMatch>ACCEPT</onMatch>
 			<onMismatch>DENY</onMismatch>
 		</filter>
@@ -83,7 +83,7 @@
 		</layout>
 	</appender>
 
-	<root level="INFO">
+	<root level="DEBUG)">
 		<appender-ref ref="STDOUT-INFO" />
 		<appender-ref ref="STDOUT-DEBUG" />
 		<appender-ref ref="STDOUT-DBGSHORT" />

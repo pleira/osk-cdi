@@ -74,6 +74,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.opensimkit.steps.CRegulStep;
 import org.opensimkit.steps.CTimeStep;
@@ -96,11 +98,12 @@ import org.slf4j.LoggerFactory;
 public class ComHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ComHandler.class);
 //    private final Kernel kernel;
-    private   int     localNAckFlag;
+//    private   int     localNAckFlag;
     private String  name = "Model-Collection";
-    private int     id;
+//    private int     id;
     private String  comment = "none";
-    private SortedMap<String, Model> items = new TreeMap<String, Model>();
+    @Inject @Named("ALL_ITEMS_MAP")
+    private SortedMap<String, Model> items; // = new TreeMap<String, Model>();
 
     /**
      *

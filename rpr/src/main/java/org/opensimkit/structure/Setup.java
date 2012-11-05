@@ -1,14 +1,19 @@
 package org.opensimkit.structure;
 
 import java.io.IOException;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.deltaspike.core.api.config.PropertyFileConfig;
 import org.jboss.weld.environment.se.events.ContainerInitialized;
+import org.opensimkit.Model;
 
 @ApplicationScoped
 public class Setup  implements PropertyFileConfig   {
@@ -32,11 +37,13 @@ public class Setup  implements PropertyFileConfig   {
   @Inject PReg15 preg15;
   @Inject Split10 split10;
   @Inject Junction04 junction04;
-  @Inject Tank17 tank17;
-  
+  @Inject Tank17 tank17;  
   @Inject Engine20 engine20;
-    
   @Inject EngineController21 engineController21;
+  
+  //@Inject   @Named("ALL_ITEMS_MAP")
+  @Produces @Named("ALL_ITEMS_MAP")
+  final SortedMap<String, Model> items = new TreeMap<String, Model>();
     
 //	Use this method to check the instantiation of the rocket model
 //    public void initSim(@Observes ContainerInitialized init) throws IOException {
@@ -67,12 +74,42 @@ public class Setup  implements PropertyFileConfig   {
 		log.info(engineController21.getName());
 		log.info(engine20.getName());
     }
+    
+    @PostConstruct
+    void initItems() {
+    	  items.put( fflow18.getName(), fflow18);
+    	  items.put( fflow19.getName(), fflow19);
+    	  items.put( pipe02.getName(), pipe02);
+    	  items.put( pipe03.getName(), pipe03);
+    	  items.put( pipe05.getName(), pipe05);
+    	  items.put( pipe07.getName(), pipe07);
+    	  items.put( pipe09.getName(), pipe09);
+    	  items.put( pipe11.getName(), pipe11);  
+    	  items.put( pipe13.getName(), pipe13);
+    	  items.put( pipe14.getName(), pipe14);
+    	  items.put( pipe16.getName(), pipe16);
+    	  items.put( filter06.getName(), filter06);
+    	  items.put( hpbottle00.getName(), hpbottle00);
+    	  items.put( hpbottle01.getName(), hpbottle01);
+    	  items.put( preg08.getName(), preg08);
+    	  items.put( preg12.getName(), preg12);
+    	  items.put( preg15.getName(), preg15);
+    	  items.put( split10.getName(), split10);
+    	  items.put( junction04.getName(), junction04);
+    	  items.put( tank17.getName(), tank17);  
+    	  items.put( engine20.getName(), engine20);
+    	  items.put( engineController21.getName(), engineController21);
+    }
 	
     @Override
     public String getPropertyFileName()
     {
         return "sim.properties";
     }
+
+	public SortedMap<String, Model> getItems() {
+		return items;
+	}
 
 
 }

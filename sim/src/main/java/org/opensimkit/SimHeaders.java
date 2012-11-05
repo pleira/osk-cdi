@@ -82,7 +82,7 @@ public final class SimHeaders {
     public static String myInFileName;
 
     /* String for Output Table Filename  */
-    public static String myOutFileName;
+    public static String myOutFileName = "mysimulation.txt"; 
 
     /* ----- Precision Settings --------*/
     /* relative accuracy of computation */

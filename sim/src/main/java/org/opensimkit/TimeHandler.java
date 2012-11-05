@@ -84,7 +84,7 @@ public class TimeHandler {
     private final long[] time = new long[3];
     private DateFormat formatCel;
 
-    @Manipulatable private String simulatedMissionTimeString = "010-03-01T22:55:00.000+0000";
+    @Manipulatable private String simulatedMissionTimeString = "2010-03-01T22:55:00.000+0000";
     @Manipulatable private long interval;
     @Manipulatable private long stepSize;
 
