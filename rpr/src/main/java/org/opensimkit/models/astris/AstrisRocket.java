@@ -1,9 +1,7 @@
 package org.opensimkit.models.astris;
 
-import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -12,8 +10,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.deltaspike.core.api.config.PropertyFileConfig;
-import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.opensimkit.Model;
+import org.opensimkit.models.structure.ScStructure;
 /*
  * This class is intantiated by the CDI container. 
  * Itself, it instantiates the different elements of the rocket model.
@@ -26,7 +24,9 @@ import org.opensimkit.Model;
  * 
  */
 @ApplicationScoped
-public class Setup  implements PropertyFileConfig   {
+public class AstrisRocket extends ScStructure implements PropertyFileConfig   {
+
+  private static final long serialVersionUID = 13344563563L;
 
   @Inject FFV18 fflow18;
   @Inject FFV19 fflow19;
@@ -51,39 +51,41 @@ public class Setup  implements PropertyFileConfig   {
   @Inject Engine20 engine20;
   @Inject EngineController21 engineController21;
   
-  //@Inject   @Named("ALL_ITEMS_MAP")
   @Produces @Named("ALL_ITEMS_MAP")
   final SortedMap<String, Model> items = new TreeMap<String, Model>();
-    
-//	Use this method to check the instantiation of the rocket model
+
+  public AstrisRocket() {
+		super("ASTRIS_ROCKET");
+	}
+ 
+//	Use the annotated method to check the instantiation of the rocket model
 //    public void initSim(@Observes ContainerInitialized init) throws IOException {
-    public void initSim(ContainerInitialized init) throws IOException {
-    	      	Logger log = Logger.getGlobal();
-    	log.info(fflow18.getName());
-        log.info("Input Port " + fflow18.getInputPort().getName() + " flows to " + fflow18.getInputPort().getToModel().getName());
-        log.info("Output Port " + fflow18.getOutputPort().getName() + " flows from " + fflow18.getOutputPort().getFromModel().getName());
-        log.info(fflow19.getName());
-    	log.info("Input Port " + fflow19.getInputPort().getName() + " flows to " + fflow19.getInputPort().getToModel().getName());
-    	log.info("Output Port " + fflow19.getOutputPort().getName() + " flows from " + fflow19.getOutputPort().getFromModel().getName());
-		log.info(tank17.getName());
-		log.info("tank17 fuel type: " + tank17.getFuel());
-		log.info("tank17 oxidizer type: " + tank17.getOxidizer());
-		log.info("tank17 vtbr: " + tank17.getVTBR());
-		log.info("Pipe02 " + pipe02.getName());
-		log.info("Pipe03 " + pipe03.getName());
-		log.info("Pipe05 " + pipe05.getName());
-		log.info("Pipe07 " + pipe07.getName());
-		log.info("Pipe09 " + pipe09.getName());
-		log.info("Pipe11 " + pipe11.getName());
-		log.info("Pipe13 " + pipe13.getName());
-		log.info("Pipe14 " + pipe14.getName());
-		log.info("Pipe16 " + pipe16.getName());
-		log.info(junction04.getName());
-		log.info(split10.getName());
-		log.info(preg15.getName());
-		log.info(engineController21.getName());
-		log.info(engine20.getName());
-    }
+//      	Logger log = Logger.getGlobal();
+//    	log.info(fflow18.getName());
+//        log.info("Input Port " + fflow18.getInputPort().getName() + " flows to " + fflow18.getInputPort().getToModel().getName());
+//        log.info("Output Port " + fflow18.getOutputPort().getName() + " flows from " + fflow18.getOutputPort().getFromModel().getName());
+//        log.info(fflow19.getName());
+//    	log.info("Input Port " + fflow19.getInputPort().getName() + " flows to " + fflow19.getInputPort().getToModel().getName());
+//    	log.info("Output Port " + fflow19.getOutputPort().getName() + " flows from " + fflow19.getOutputPort().getFromModel().getName());
+//		log.info(tank17.getName());
+//		log.info("tank17 fuel type: " + tank17.getFuel());
+//		log.info("tank17 oxidizer type: " + tank17.getOxidizer());
+//		log.info("tank17 vtbr: " + tank17.getVTBR());
+//		log.info("Pipe02 " + pipe02.getName());
+//		log.info("Pipe03 " + pipe03.getName());
+//		log.info("Pipe05 " + pipe05.getName());
+//		log.info("Pipe07 " + pipe07.getName());
+//		log.info("Pipe09 " + pipe09.getName());
+//		log.info("Pipe11 " + pipe11.getName());
+//		log.info("Pipe13 " + pipe13.getName());
+//		log.info("Pipe14 " + pipe14.getName());
+//		log.info("Pipe16 " + pipe16.getName());
+//		log.info(junction04.getName());
+//		log.info(split10.getName());
+//		log.info(preg15.getName());
+//		log.info(engineController21.getName());
+//		log.info(engine20.getName());
+//    }
     
     @PostConstruct
     void initItems() {
@@ -111,6 +113,10 @@ public class Setup  implements PropertyFileConfig   {
     	  items.put( engineController21.getName(), engineController21);
     }
 	
+    /**
+     * This method is used by Apache Delta-Spike to initialize
+     * the model values
+     */
     @Override
     public String getPropertyFileName()
     {
