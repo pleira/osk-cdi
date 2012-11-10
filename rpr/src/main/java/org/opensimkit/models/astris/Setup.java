@@ -1,4 +1,4 @@
-package org.opensimkit.structure;
+package org.opensimkit.models.astris;
 
 import java.io.IOException;
 import java.util.SortedMap;
@@ -14,7 +14,17 @@ import javax.inject.Named;
 import org.apache.deltaspike.core.api.config.PropertyFileConfig;
 import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.opensimkit.Model;
-
+/*
+ * This class is intantiated by the CDI container. 
+ * Itself, it instantiates the different elements of the rocket model.
+ * The !wiring! of the rocket model is done therefore by the CDI container.
+ * By setting the properties file here, the configuration of the 
+ * different fields in the elements is done by the ConfigProperty CDI extension  
+ * from Apache DeltaSpike 
+ * 
+ * @author P. Pita
+ * 
+ */
 @ApplicationScoped
 public class Setup  implements PropertyFileConfig   {
 

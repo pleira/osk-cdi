@@ -1,4 +1,4 @@
-package org.opensimkit.structure;
+package org.opensimkit.models.astris;
 
 import javax.inject.Inject;
 import javax.inject.Named;

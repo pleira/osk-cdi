@@ -1,4 +1,4 @@
-package org.opensimkit.structure;
+package org.opensimkit.models.astris;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,5 +27,4 @@ public class Engine20 extends Engine {
 	void initAlt(@NumberConfig(name = "engine20.alt", defaultValue = "600000") Double value) {
 		setAlt(value);
 	}
-
 }

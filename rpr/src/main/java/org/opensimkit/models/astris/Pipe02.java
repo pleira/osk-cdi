@@ -1,4 +1,4 @@
-package org.opensimkit.structure;
+package org.opensimkit.models.astris;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -13,7 +13,5 @@ public class Pipe02 extends PipeT1 {
 	public Pipe02(@Named("00_PureGasDat") PureGasPort inputPort,
 			@Named("02_PureGasDat") PureGasPort outputPort) {
 		super("Pipe02", inputPort, outputPort);
-	}
-	
-	
+	}	
 }

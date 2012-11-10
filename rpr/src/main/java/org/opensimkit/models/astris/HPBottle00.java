@@ -1,4 +1,4 @@
-package org.opensimkit.structure;
+package org.opensimkit.models.astris;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -12,5 +12,4 @@ public class HPBottle00 extends HPBottleT1 {
 	public HPBottle00(@Named("00_PureGasDat") PureGasPort outputPort) {
 		super("00_HPBottle", outputPort);
 	}
-
 }

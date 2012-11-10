@@ -98,8 +98,9 @@ import jat.matvec.data.VectorN;
 import jat.spacetime.EarthRef;
 import jat.spacetime.Time;
 
+import javax.inject.Inject;
+
 import org.opensimkit.BaseModel;
-import org.opensimkit.Kernel;
 import org.opensimkit.TimeHandler;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
@@ -118,8 +119,7 @@ import org.slf4j.LoggerFactory;
  * @since 2.8.0
  */
 
-
-public final class ScStructure extends BaseModel {
+public class ScStructure extends BaseModel {
     /** Logger instance for the ScStructure. */
     private static final Logger LOG = LoggerFactory.getLogger(ScStructure.class);
     /** Gravity acceleration imposed onto structure. */
@@ -154,7 +154,8 @@ public final class ScStructure extends BaseModel {
     @Readable private double scPosLat, scPosLon, scPosAlt;
 
     /** Time handler object. */
-    private final TimeHandler timeHandler;
+    @Inject
+    private TimeHandler timeHandler;
     /** OSK SRT time in converted format. */
     private Time convertedMissionTime;
     /** Modified Julian date 2000. */
@@ -164,17 +165,11 @@ public final class ScStructure extends BaseModel {
     
     /** Direct cosine matrix ECI to ECEF as Java matrix. */
     private Matrix eci2ECEFMatrix;
-    /** Direct cosine matrix ECI to Body as JAT matrix. */
-    private Matrix DCM_ECI2BODY = new Matrix(3, 3);
     /** Direct cosine matrix ECEF to Body as JAT matrix. */
     private Matrix DCM_ECEF2BODY = new Matrix(3, 3);
 
-    /** Attitude in ECI as JAT quaternion. */
-    private Quaternion quaternionRelECI = new Quaternion();
     /** Attitude in ECEF as JAT quaternion. */
     private Quaternion quaternionRelECEF = new Quaternion();
-    /** Attitude quaternion ECI as normal Java vector. */
-    private double[]   quaternionInComponent = {0.0, 0.0, 0.0, 0.0};
     /** Diverse JAT vector variables. */
     private VectorN    xBodyFrameAxisInECI = new VectorN(3), 
                        yBodyFrameAxisInECI = new VectorN(3),
@@ -186,20 +181,6 @@ public final class ScStructure extends BaseModel {
     private double thrustMag;
     /** Direction vector (unitized) of engine thrust in ECI frame. */
     private double[] thrustVecECI = new double[3];
-
-    //  Entries for Celestia interface variables.
-    @Manipulatable private String celestiaTime;
-    @Manipulatable private double xPosition;
-    @Manipulatable private double yPosition;
-    @Manipulatable private double zPosition;
-    @Manipulatable private double wQuat;
-    @Manipulatable private double xQuat;
-    @Manipulatable private double yQuat;
-    @Manipulatable private double zQuat;
-
-    //  Entries for simVisThread.
-    @Manipulatable private int visSocketNumber = 1520;
-//    private static SimVisThread visThread;
     
     private static final String TYPE = "ScStructure";
     private static final String SOLVER = "none";
@@ -232,10 +213,9 @@ public final class ScStructure extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-    public ScStructure(final String name, final Kernel kernel) {
+    public ScStructure(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
 
-        timeHandler = kernel.getTimeHandler();
         LOG.info("Generating visualization thread for " + name);
 //        visThread = new SimVisThread(kernel, name, visSocketNumber);
     }
@@ -275,8 +255,6 @@ public final class ScStructure extends BaseModel {
     public int timeStep(final double time, final double tStepSize) {
         LOG.debug("% {} TimeStep-Computation", name);
 
-        //Computes the UTC J2000 time in Celestia compatible string format
-        celestiaTime = timeHandler.getCelestiaUTCJulian2000();
         mjdMissionTime = (timeHandler.getSimulatedMissionTimeAsDouble()-946684800)/86400;
         
         LOG.debug("gravityAccel[0]:  '{}' ", gravityAccel[0]);
@@ -439,16 +417,9 @@ public final class ScStructure extends BaseModel {
         //        DCM_ECI2BODY.setColumn(1, yBodyFrameAxisInECI);
         //        DCM_ECI2BODY.setColumn(2, zBodyFrameAxisInECI);
 
-        DCM_ECI2BODY.setColumn(0, xBodyFrameAxisInECI);
-        DCM_ECI2BODY.setColumn(1, yBodyFrameAxisInECI);
-        DCM_ECI2BODY.setColumn(2, zBodyFrameAxisInECI);
-
         // Prints the direction cosine matrix on the console.
         //DCM_ECI2BODY.print();
         
-        // Transforms the direction cosine matrix into the corresponding
-        // quaternion ....not yet Celestia quaternion format.
-        quaternionRelECI = new Quaternion(DCM_ECI2BODY);
         // Prints the quaternion on the console.
         //quaternionRelECI.print();
         
@@ -481,10 +452,6 @@ public final class ScStructure extends BaseModel {
         */
 
         
-       // Decomposition of the quaternion for further use  (ECI here).
-        for (int i = 0; i < 4; i++) {
-                quaternionInComponent[i] = quaternionRelECI.get(i);   
-        }
         
         /*
         This section is still buggy as it is not recoded to use the new eci2ecef method.
@@ -501,19 +468,6 @@ public final class ScStructure extends BaseModel {
         
         */
         
-        
-        // Generating the quaternion output for Celestia 
-        // =====================================================================
-        // Celestia needs the position vector in [km], not in [m]. 
-        xPosition = scPositionX / 1000.0;
-        yPosition = scPositionY / 1000.0;
-        zPosition = scPositionZ / 1000.0;
-        
-        wQuat = quaternionInComponent[3];
-        xQuat = quaternionInComponent[0];
-        yQuat = quaternionInComponent[1];
-        zQuat = quaternionInComponent[2];
-
         return 0;
     }
 
