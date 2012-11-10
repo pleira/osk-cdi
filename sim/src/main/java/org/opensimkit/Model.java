@@ -39,4 +39,5 @@ public interface Model {
     public void init();
     public int iterationStep();
     public int backIterStep();
+    public int timeStep(final double d1, final double d2);
 }
