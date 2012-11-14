@@ -4,29 +4,20 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.deltaspike.core.api.config.PropertyFileConfig;
 import org.opensimkit.Model;
-import org.opensimkit.models.structure.ScStructure;
-/*
- * This class is intantiated by the CDI container. 
+/**
+ * This class is instantiated by the CDI container. 
  * Itself, it instantiates the different elements of the rocket model.
  * The !wiring! of the rocket model is done therefore by the CDI container.
- * By setting the properties file here, the configuration of the 
- * different fields in the elements is done by the ConfigProperty CDI extension  
- * from Apache DeltaSpike 
  * 
  * @author P. Pita
  * 
  */
-@ApplicationScoped
-public class AstrisRocket extends ScStructure implements PropertyFileConfig   {
-
-  private static final long serialVersionUID = 13344563563L;
+public class AstrisRocket  {
 
   @Inject FFV18 fflow18;
   @Inject FFV19 fflow19;
@@ -50,13 +41,10 @@ public class AstrisRocket extends ScStructure implements PropertyFileConfig   {
   @Inject Tank17 tank17;  
   @Inject Engine20 engine20;
   @Inject EngineController21 engineController21;
+  @Inject ScStructure22 scStructure22;
   
-  @Produces @Named("ALL_ITEMS_MAP")
+  @Produces @Named("STRUCTURE_ITEMS_MAP")
   final SortedMap<String, Model> items = new TreeMap<String, Model>();
-
-  public AstrisRocket() {
-		super("ASTRIS_ROCKET");
-	}
  
 //	Use the annotated method to check the instantiation of the rocket model
 //    public void initSim(@Observes ContainerInitialized init) throws IOException {
@@ -111,21 +99,7 @@ public class AstrisRocket extends ScStructure implements PropertyFileConfig   {
     	  items.put( tank17.getName(), tank17);  
     	  items.put( engine20.getName(), engine20);
     	  items.put( engineController21.getName(), engineController21);
+    	  items.put( scStructure22.getName(), scStructure22);
     }
-	
-    /**
-     * This method is used by Apache Delta-Spike to initialize
-     * the model values
-     */
-    @Override
-    public String getPropertyFileName()
-    {
-        return "sim.properties";
-    }
-
-	public SortedMap<String, Model> getItems() {
-		return items;
-	}
-
 
 }

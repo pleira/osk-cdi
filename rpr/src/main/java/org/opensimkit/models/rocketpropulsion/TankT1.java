@@ -160,21 +160,6 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
     private static final Logger LOG = LoggerFactory.getLogger(TankT1.class);
     /** Fuel type. */
     @Manipulatable private String fuel;
-    public String getFuel() {
-		return fuel;
-	}
-	public void setFuel(String fuel) {
-		this.fuel = fuel;
-	}
-
-	/** Oxidizer type. */
-    @Manipulatable private String oxidizer;
-    public String getOxidizer() {
-		return oxidizer;
-	}
-	public void setOxidizer(String oxidizer) {
-		this.oxidizer = oxidizer;
-	}
 
 	/** Pressure gas for fuel compartment. */
     @Manipulatable private String fuPressGas;
@@ -1365,6 +1350,21 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         outFile.write("TankT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+    public String getFuel() {
+		return fuel;
+	}
+	public void setFuel(String fuel) {
+		this.fuel = fuel;
+	}
+
+	/** Oxidizer type. */
+    @Manipulatable private String oxidizer;
+    public String getOxidizer() {
+		return oxidizer;
+	}
+	public void setOxidizer(String oxidizer) {
+		this.oxidizer = oxidizer;
+	}
 	public String getFuPressGas() {
 		return fuPressGas;
 	}

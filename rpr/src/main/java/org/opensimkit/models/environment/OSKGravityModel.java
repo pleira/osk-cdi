@@ -35,18 +35,18 @@
  */
 package org.opensimkit.models.environment;
 
-import java.io.*;
-
 import jat.forces.GravityModel;
 import jat.matvec.data.Matrix;
 import jat.matvec.data.VectorN;
 import jat.spacetime.EarthRef;
 import jat.spacetime.Time;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.Math;
+
+import javax.inject.Inject;
+
 import org.opensimkit.BaseModel;
-import org.opensimkit.Kernel;
 import org.opensimkit.TimeHandler;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
@@ -68,9 +68,9 @@ public class OSKGravityModel extends BaseModel {
     /** Logger instance for the OSKGravityModel. */
     private static final Logger LOG = LoggerFactory.getLogger(OSKGravityModel.class);
     /** Order of spherical harmonic. */
-    @Manipulatable private int order;
+    @Manipulatable private int order = 8; // hardcoded for now 
     /** Degree of spherical harmonic. */
-    @Manipulatable private int degree;
+    @Manipulatable private int degree = 8; // hardcoded for now 
     /**Earth gravity acceleration: Value and direction vector in ECI. 
        Vector components in [m/s^ 2] */
     @Readable private double[] gravAcceleration = new double[4];
@@ -87,7 +87,8 @@ public class OSKGravityModel extends BaseModel {
     /** Gravity vector in ECI as JAT class. */
     private VectorN gravityVector;
     /** Time handler object. */
-    private final TimeHandler timeHandler;
+    @Inject
+    private TimeHandler timeHandler;
     /** OSK SRT time in converted format. */
     Time convertedMissionTime;
     
@@ -122,10 +123,9 @@ public class OSKGravityModel extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-    public OSKGravityModel(final String name, final Kernel kernel) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-
-        timeHandler = kernel.getTimeHandler();
+    public OSKGravityModel() {
+        super("OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        name = "OSKGravityModel";
     }
 
 

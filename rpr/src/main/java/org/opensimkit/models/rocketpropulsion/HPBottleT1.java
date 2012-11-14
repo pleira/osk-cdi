@@ -90,15 +90,17 @@ package org.opensimkit.models.rocketpropulsion;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.GLoad;
 import org.opensimkit.HeliumJKC;
-import org.opensimkit.Kernel;
+import org.opensimkit.MaterialProperties;
+import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.PureGasPort;
-import org.opensimkit.MaterialProperties;
-import org.opensimkit.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,7 +188,7 @@ public abstract class HPBottleT1 extends BaseModel {
     * re-calculated after the change of a manipulatable variable (but in this
     * case the init method must be called manually!).
     */
-    @Override
+    @PostConstruct
     public void init() {
         MaterialProperties helium = new MaterialProperties();
         double radius;
@@ -485,4 +487,40 @@ public abstract class HPBottleT1 extends BaseModel {
         outFile.write("HPBottleT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+	public double getMass() {
+		return mass;
+	}
+	public void setMass(double mass) {
+		this.mass = mass;
+	}
+	public double getVolume() {
+		return volume;
+	}
+	public void setVolume(double volume) {
+		this.volume = volume;
+	}
+	public double getSpecificHeatCapacity() {
+		return specificHeatCapacity;
+	}
+	public void setSpecificHeatCapacity(double specificHeatCapacity) {
+		this.specificHeatCapacity = specificHeatCapacity;
+	}
+	public double getPtotal() {
+		return ptotal;
+	}
+	public void setPtotal(double ptotal) {
+		this.ptotal = ptotal;
+	}
+	public double getTtotal() {
+		return ttotal;
+	}
+	public void setTtotal(double ttotal) {
+		this.ttotal = ttotal;
+	}
+	public String getFluid() {
+		return fluid;
+	}
+	public void setFluid(String fluid) {
+		this.fluid = fluid;
+	}
 }
