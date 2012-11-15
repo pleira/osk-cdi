@@ -230,12 +230,6 @@ public class CelestiaCoordinatestTransmitter implements Model {
 }
 
 	@Override
-	public int initCalcSteps(CTimeStep ctime, CRegulStep cregul) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;

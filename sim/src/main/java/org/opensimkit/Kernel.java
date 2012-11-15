@@ -83,10 +83,8 @@ import java.io.OutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Manipulator;
 import org.opensimkit.providerSubscriber.ProviderSubscriber;
@@ -114,15 +112,14 @@ public class Kernel {
 
     @Inject TimeHandler  timeHandler;
         
-    @Inject TabGenerator tabGenerator;
+//    @Inject TabGenerator tabGenerator;
     @Inject ProviderSubscriber providerSubscriber;
 
     private final String name  = "SimKernel";
     
     @Inject ComHandler   compColl;
     @Inject PortHandler  portColl;
-    @Inject MeshHandler  meshColl;
-    @Inject SeqModSim    simul;
+//    @Inject SeqModSim    simul;
 //    @Inject Instance<StaxInput> staxInput;
 
     private       FileWriter   outTabStream;
@@ -199,23 +196,23 @@ public class Kernel {
 
 // Open ouput table file and init TabGenerator
 //-----------------------------------------------------------------------------
-    public int openOutput(final String outTabName)
-        throws IOException {
-
-        LOG.debug(SimHeaders.DEBUG_SHORT, "Opening output file...");
-
-        if (inputOpenFlag == 0) {
-            return 1;
-        }
-        // opening the tabGenerator table file.
-        outTabStream = new FileWriter(outTabName, true);
-        if (tabGenerator.init(outTabStream) == 1) {
-            // Outfiles not properly opened
-            return 1;
-        }
-        tabOpenFlag = 1;
-        return 0;
-    }
+//    public int openOutput(final String outTabName)
+//        throws IOException {
+//
+//        LOG.debug(SimHeaders.DEBUG_SHORT, "Opening output file...");
+//
+//        if (inputOpenFlag == 0) {
+//            return 1;
+//        }
+//        // opening the tabGenerator table file.
+//        outTabStream = new FileWriter(outTabName, true);
+//        if (tabGenerator.init(outTabStream) == 1) {
+//            // Outfiles not properly opened
+//            return 1;
+//        }
+//        tabOpenFlag = 1;
+//        return 0;
+//    }
 
     public int load() throws IOException {
 
@@ -285,14 +282,6 @@ public class Kernel {
         LOG.debug(SimHeaders.DEBUG_SHORT,
                 "Simulation run data sucessfully loaded.");
 
-        // init the Calc.-Steps Time- and Regul
-        //--------------------------
-        if (simul.calcStepInit(compColl, meshColl, tabGenerator) == 1) {
-            return 1;
-        }
-        LOG.debug(SimHeaders.DEBUG_SHORT,
-                "Calculation Steps sucessfully initialized.");
-
         //
         // Loading the Table Output Generator Data
         //--------------------------
@@ -311,24 +300,24 @@ public class Kernel {
         return 0;
     }
 
-    public int compute() throws IOException {
-        LOG.debug(SimHeaders.DEBUG_SHORT, "Compute");
-
-        if (compFlag > 0) {
-            return 0;
-        }
-        if (loadFlag > 0) {
-            if (simul.compute() == 1) {
-                return 1;
-            }
-        } else {
-            LOG.error("No model successfully loaded yet!");
-            return 1;
-        }
-
-        compFlag = 1;
-        return 0;
-    }
+//    public int compute() throws IOException {
+//        LOG.debug(SimHeaders.DEBUG_SHORT, "Compute");
+//
+//        if (compFlag > 0) {
+//            return 0;
+//        }
+//        if (loadFlag > 0) {
+//            if (simul.compute() == 1) {
+//                return 1;
+//            }
+//        } else {
+//            LOG.error("No model successfully loaded yet!");
+//            return 1;
+//        }
+//
+//        compFlag = 1;
+//        return 0;
+//    }
 
     // Kernel parameters to be accessed by other objects
     //-------------------------------------------------------------------------
@@ -382,27 +371,27 @@ public class Kernel {
         final boolean isSimulationRunning) {
 
         this.isSimulationRunning = isSimulationRunning;
-        simul.setIsComputing(true);
+//        simul.setIsComputing(true);
     }
-
-    public synchronized void pauseSimulation() {
-        simul.setIsComputing(false);
-        simul.setStateToPaused();
-    }
-
-    public synchronized void stopSimulation() {
-        simul.setIsComputing(false);
-        simul.setStateToStopping();
-    }
-
-    public synchronized void resumeSimulation() {
-        simul.setIsComputing(true);
-        simul.setStateToRunning();
-    }
-
-    public synchronized SimulatorState getState() {
-        return simul.getState();
-    }
+//
+//    public synchronized void pauseSimulation() {
+//        simul.setIsComputing(false);
+//        simul.setStateToPaused();
+//    }
+//
+//    public synchronized void stopSimulation() {
+//        simul.setIsComputing(false);
+//        simul.setStateToStopping();
+//    }
+//
+//    public synchronized void resumeSimulation() {
+//        simul.setIsComputing(true);
+//        simul.setStateToRunning();
+//    }
+//
+//    public synchronized SimulatorState getState() {
+//        return simul.getState();
+//    }
 
     public void start() {
     }
@@ -419,21 +408,21 @@ public class Kernel {
         return compColl;
     }
 
-    public MeshHandler getMeshHandler() {
-        return meshColl;
-    }
+//    public MeshHandler getMeshHandler() {
+//        return meshColl;
+//    }
 
     public PortHandler getPortHandler() {
         return portColl;
     }
 
-    public TabGenerator getTabGenerator() {
-        return tabGenerator;
-    }
+//    public TabGenerator getTabGenerator() {
+//        return tabGenerator;
+//    }
 
-    public SeqModSim getSeqModSim() {
-        return simul;
-    }
+//    public SeqModSim getSeqModSim() {
+//        return simul;
+//    }
 
     public TimeHandler getTimeHandler() {
         return timeHandler;

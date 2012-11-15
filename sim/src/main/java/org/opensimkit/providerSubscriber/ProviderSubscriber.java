@@ -52,6 +52,9 @@ import org.slf4j.LoggerFactory;
  * @version 1.1
  * @since 3.7.0
  */
+// FIXME: This class should be replaced by a CDI event mechanism in the model.
+// That is, an object would update a value, and ,
+// it will fire a particular type of event to pass the new value to listeners
 @ApplicationScoped
 public class ProviderSubscriber {
     private static final Logger LOG

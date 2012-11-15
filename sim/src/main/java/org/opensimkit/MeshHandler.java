@@ -61,6 +61,8 @@ import org.opensimkit.steps.CIterationStep;
  * @version 1.0
  * @since  2.4.0
  */
+
+// FIXME: the mesh container should be given somewhere else
 @ApplicationScoped
 public class MeshHandler {
     protected String  name;

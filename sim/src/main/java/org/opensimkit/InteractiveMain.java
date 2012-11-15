@@ -120,15 +120,14 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class InteractiveMain {
     private static Logger LOG = LoggerFactory.getLogger(InteractiveMain.class);
-    private static SimCmdThread cmdThread;
-    static ComputeThread sCompThread;
-    @Inject ComputeThread compThread;
+//    private static SimCmdThread cmdThread;
+//    @Inject ComputeThread compThread;
  
     @Inject ParametersFactory pF;
      
     @Inject Kernel kernel;
     
-    @Inject Instance<SimVisThread> visThreadInstance;
+//    @Inject Instance<SimVisThread> visThreadInstance;
     
     static ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -138,13 +137,14 @@ public class InteractiveMain {
      * @param args ContainerInitialized init
      * @throws java.io.IOException
      */
-    public void initSim(@Observes ContainerInitialized init) throws IOException {
+    public void initSim(ContainerInitialized init) throws IOException {
+//    public void initSim(@Observes ContainerInitialized init) throws IOException {
 //    public void main(final String[] args) throws IOException {
         int cmdShutFlag;
         int compShutFlag;
         String[] foundLibraries;
         // static field was not initialized by CDI
-        sCompThread = compThread;
+//        sCompThread = compThread;
         cmdShutFlag = 0;
         compShutFlag = 0;
         
@@ -211,7 +211,7 @@ public class InteractiveMain {
             OutputStream writer = new FileOutputStream("simulation.log");
             kernel.setOutputWriter(writer);
 //            startSimulation();
-            sCompThread.run();
+//            sCompThread.run();
             
             while (true) {
                 try {
@@ -220,7 +220,7 @@ public class InteractiveMain {
                     LOG.error("Exception:", e);
                 }
                 // shutFlag = cmdThread.getstatus();
-                cmdShutFlag = cmdThread.getstatus();
+                //cmdShutFlag = cmdThread.getstatus();
                 //compShutFlag = compThread.isterminated();
                 if (cmdShutFlag > 0) {
                     break;
@@ -356,9 +356,9 @@ public class InteractiveMain {
     }
 
 
-    public static synchronized void startSimulation() {
-        executor.submit(sCompThread);
-    }
+//    public static synchronized void startSimulation() {
+//        executor.submit(sCompThread);
+//    }
 
 
     public static synchronized void shutdownSimulation() {

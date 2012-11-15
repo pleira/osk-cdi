@@ -1,5 +1,6 @@
 package org.opensimkit.models.astris;
 
+import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -8,6 +9,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.opensimkit.BaseModel;
 import org.opensimkit.Model;
 /**
  * This class is instantiated by the CDI container. 
@@ -45,6 +47,13 @@ public class AstrisRocket  {
   
   @Produces @Named("STRUCTURE_ITEMS_MAP")
   final SortedMap<String, Model> items = new TreeMap<String, Model>();
+
+  // This one might be used to iterate the models
+  @Produces
+  public Collection<Model> items() {
+  	return items.values();
+  }
+
  
 //	Use the annotated method to check the instantiation of the rocket model
 //    public void initSim(@Observes ContainerInitialized init) throws IOException {
@@ -101,5 +110,5 @@ public class AstrisRocket  {
     	  items.put( engineController21.getName(), engineController21);
     	  items.put( scStructure22.getName(), scStructure22);
     }
-
+    
 }

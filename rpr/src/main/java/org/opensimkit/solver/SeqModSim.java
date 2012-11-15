@@ -69,24 +69,27 @@
  *-----------------------------------------------------------------------------
  */
 
-package org.opensimkit;
-
-import java.io.*;
+package org.opensimkit.solver;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
-import org.opensimkit.providerSubscriber.ProviderSubscriber;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opensimkit.BaseModel;
+import org.opensimkit.Model;
+import org.opensimkit.SimHeaders;
+import org.opensimkit.SimulatorState;
+import org.opensimkit.TimeHandler;
 import org.opensimkit.steps.CIterationStep;
 import org.opensimkit.steps.CRegulStep;
-import org.opensimkit.steps.CTimeStep;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of a class for master objects of sequentially modular
@@ -115,22 +118,25 @@ public class SeqModSim {
     private int            lastop;
     private int            localNAckFlag;
     private long           startTime2;
-    private CTimeStep      tStep;
     private CRegulStep     rStep;
     private CIterationStep iStep;
     private Date           startTime;
-    @Inject PacketCreator  packetCreator;
+    //@Inject PacketCreator  packetCreator;
     private SimulatorState state;
-    private TabGenerator   outTab;
-    @Inject ProviderSubscriber providerSubscriber;
-
+//    private TabGenerator   outTab;
+//    @Inject ProviderSubscriber providerSubscriber;
+//    @Inject MeshHandler  meshColl;
+//    @Inject ComHandler   compColl;
+    
+    // This class iterates over the models 
+    @Inject Collection<Model> models;
+    
     @Inject
     public SeqModSim() {
         this.name        = "Simulation";
         //this.timeHandler = kernel.getTimeHandler();
         //this.providerSubscriber = kernel.getProviderSubscriber();
 
-        tStep = new CTimeStep("Time-Step-Object");
         rStep = new CRegulStep("Regul-Step-Object");
         iStep = new CIterationStep("Iteration-Step-Object");
 
@@ -140,36 +146,49 @@ public class SeqModSim {
         LOG.debug(SimHeaders.DEBUG_SHORT, "Constructor");
     }
 
+//    @PostConstruct
+//    void init() {
+//        // init the Calc.-Steps Time- and Regul
+//        //--------------------------
+//        if (calcStepInit() == 1) {
+//            LOG.error(SimHeaders.DEBUG_SHORT,
+//                    "Calculation Steps NOT sucessfully initialized.");
+//            return;
+//        }
+//        LOG.debug(SimHeaders.DEBUG_SHORT,
+//                "Calculation Steps sucessfully initialized.");
+//
+//    }
+    
     public void printSimSettings() {
         LOG.info("Simulation: Step size is: {}.",
                 timeHandler.getStepSizeAsDouble());
     }
 
-    public int calcStepInit(final ComHandler cHand, final MeshHandler mHand,
-        final TabGenerator tabGenerator) {
-        LOG.debug(SimHeaders.DEBUG_SHORT, "CalcStepInit");
-
-        if (cHand.calcStepInit(tStep, rStep) == 1) {
-            // Error message submitted by tstep and rstep obj.
-            return 1;
-        }
-        if (mHand.calcStepInit(iStep) == 1) {
-            // Error message submitted by istep obj.
-            return 1;
-        }
-        outTab = tabGenerator;
-        return 0;
-    }
+//    int calcStepInit() {
+//        LOG.debug(SimHeaders.DEBUG_SHORT, "CalcStepInit");
+//
+////        if (cHand.calcStepInit(tStep, rStep) == 1) {
+////            // Error message submitted by tstep and rstep obj.
+////            return 1;
+////        }
+////   FIXME: Here the mesh container is initialized. Could be done in the model.        
+////        if (meshColl.calcStepInit(iStep) == 1) {
+////            // Error message submitted by istep obj.
+////            return 1;
+////        }
+//  //      outTab = tabGenerator;
+//        return 0;
+//    }
 
 /* -------------------------------------------------------------------------- */
 /*                                Computation
 /* -------------------------------------------------------------------------- */
-    public int compute() throws IOException {
+    public void initSim(@Observes ContainerInitialized init) throws IOException {
+//    public int compute() throws IOException {
         startCompute();
         doCompute();
         stopCompute();
-
-        return 0;
     }
 
     private void startCompute() throws IOException {
@@ -185,7 +204,7 @@ public class SeqModSim {
         startTime2 = System.currentTimeMillis();
 
         // TODO: interceptor or decorator for report writing
-        outTab.tabInit();
+        //   outTab.tabInit();
 
         LOG.info("Initial system boundary condition iteration...\n");
         if (iStep.calc() == 1) {  // Iteration-Step t=0
@@ -194,10 +213,10 @@ public class SeqModSim {
             return;
         }
 
-        //outTab.tabWrite(timeHandler.getSimulatedMissionTime(),
+        ////   outTab.tabWrite(timeHandler.getSimulatedMissionTime(),
         //timeHandler.getStepSizeAsDouble());
-        outTab.tabWrite(timeHandler.getSimulatedMissionTime(),
-                timeHandler.getStepSizeAsDouble());
+        //   outTab.tabWrite(timeHandler.getSimulatedMissionTime(),
+        //        timeHandler.getStepSizeAsDouble());
     }
 
     private void doCompute() throws IOException {
@@ -215,17 +234,18 @@ public class SeqModSim {
                 beforeCalculation = System.currentTimeMillis();
 
                 LOG.debug(SimHeaders.DEBUG_SHORT, "TimeStep computation ");
-                if (tStep.calc(time, timeHandler.getStepSizeAsDouble()) == 1) {
+                if (calc(time, timeHandler.getStepSizeAsDouble()) == 1) {
                     // Error message submitted by tstep obj.
                     lastop = LAST_OP_STEP_TS;
                     return;
                 }
-                if (providerSubscriber != null) {
-                  providerSubscriber.calc();
-                }
-                else  {
-                  LOG.warn("No ProviderSubscriber instance existing.");
-                }
+                // FIXME: Here put the events to connect different objects
+//                if (providerSubscriber != null) {
+//                  providerSubscriber.calc();
+//                }
+//                else  {
+//                  LOG.warn("No ProviderSubscriber instance existing.");
+//                }
                 
                 LOG.debug(SimHeaders.DEBUG_SHORT, "RegulStep computation ");
                 if (rStep.calc() == 1) {
@@ -248,10 +268,11 @@ public class SeqModSim {
                 LOG.info("Time: {}",
                         String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
                         timeHandler.getSimulatedMissionTime()));
-                outTab.tabIntervalWrite(timeHandler.getSimulatedMissionTime(),
-                        timeHandler.getStepSizeAsDouble());
+                //   outTab.tabIntervalWrite(timeHandler.getSimulatedMissionTime(),
+                //        timeHandler.getStepSizeAsDouble());
                 
-                packetCreator.sendData();
+                // FIXME: CDI decorator here
+                // packetCreator.sendData();
 //                kernel.getOutputWriter().write(time + stepSize + "\r\n");
 //                kernel.getOutputWriter().flush();
 
@@ -289,8 +310,33 @@ public class SeqModSim {
         }
     }
 
+    public int calc(final double time, final double tStepSize)
+            throws IOException {
+
+            String thestring1;
+            String thestring2;
+
+            LOG.debug(SimHeaders.DEBUG_SHORT, "compute");
+
+            Iterator it = models.iterator();
+            while (it.hasNext()) {
+                BaseModel model = (BaseModel) it.next();
+                if (model.timeStep(time, tStepSize) != 0) { // A model found
+                                                                // an error in
+                                                                // computation
+                    LOG.info("Model  '" + model.getName()
+                        + "' - timestep error! time: " + time);
+                    thestring1 = model.getName();
+                    thestring2 = Double.toString(time);
+                    SimHeaders.negativeAckFlag = 1;
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
     private void stopCompute() throws IOException {
-        outTab.tabEndWrite(time, timeHandler.getStepSizeAsDouble());
+        //   outTab.tabEndWrite(time, timeHandler.getStepSizeAsDouble());
 
         LOG.info("Computation finished.");
         long endTime = System.currentTimeMillis();

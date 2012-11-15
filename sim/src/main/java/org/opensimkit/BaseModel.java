@@ -166,20 +166,22 @@ public class BaseModel implements Model {
      * @param cregul
      * @return error code
      */
-    public int initCalcSteps(final CTimeStep ctime, final CRegulStep cregul) {
-        LOG.debug(SimHeaders.DEBUG_SHORT, "InitCalcSteps {}", name);
-        if (tStep > 0) {
-            ctime.addItem(this);
-            LOG.debug(SimHeaders.DEBUG_SHORT,
-                    "BaseModel {} added to timestep.", name);
-        }
-        if (rStep > 0) {
-            cregul.addItem(this);
-            LOG.debug(SimHeaders.DEBUG_SHORT,
-                    "BaseModel {} added to regulstep.", name);
-        }
-        return 0;
-    }
+    // We try to have collections needed for the computation done in the
+    // model
+//    public int initCalcSteps(final CTimeStep ctime, final CRegulStep cregul) {
+//        LOG.debug(SimHeaders.DEBUG_SHORT, "InitCalcSteps {}", name);
+//        if (tStep > 0) {
+//            ctime.addItem(this);
+//            LOG.debug(SimHeaders.DEBUG_SHORT,
+//                    "BaseModel {} added to timestep.", name);
+//        }
+//        if (rStep > 0) {
+//            cregul.addItem(this);
+//            LOG.debug(SimHeaders.DEBUG_SHORT,
+//                    "BaseModel {} added to regulstep.", name);
+//        }
+//        return 0;
+//    }
 
     // Data that are to be accessed by special reply functions e.g. for Apple
     // Event access.

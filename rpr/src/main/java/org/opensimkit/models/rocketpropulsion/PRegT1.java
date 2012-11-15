@@ -344,7 +344,8 @@ public class PRegT1 extends BaseModel {
         tout = tout + DTEMP;
         tstatin = tout;
 
-        Helium = org.opensimkit.Helium.HELIUM(pout, tout, Helium);
+        // FIXME
+        double PK = org.opensimkit.Helium.HELIUM(pout, tout, Helium);
 
         GESCH = mfin
                 * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DICHTE);

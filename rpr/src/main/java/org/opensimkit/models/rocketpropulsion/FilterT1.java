@@ -292,7 +292,8 @@ public class FilterT1 extends BaseModel {
 
         ttotal = tin;
 
-        helium = org.opensimkit.Helium.HELIUM(pfluid, tin, helium);
+        // TODO: check pk is ok, and how it is used
+        double pk = org.opensimkit.Helium.HELIUM(pfluid, tin, helium);
 
         GESCH = mfin * 4
             / (innerDiameter * innerDiameter * Math.PI * helium.DICHTE);

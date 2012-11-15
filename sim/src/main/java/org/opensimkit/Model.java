@@ -21,8 +21,6 @@
  */
 package org.opensimkit;
 
-import org.opensimkit.steps.CRegulStep;
-import org.opensimkit.steps.CTimeStep;
 
 /**
  * Interface including the basic methods to qualify a class as simulator
@@ -33,7 +31,7 @@ import org.opensimkit.steps.CTimeStep;
  * @since 2.4.6
  */
 public interface Model {
-    public int initCalcSteps(CTimeStep ctime, CRegulStep cregul);
+//    public int initCalcSteps(CTimeStep ctime, CRegulStep cregul);
     public String getName();
     public String getType();
     public void init();

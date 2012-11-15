@@ -73,12 +73,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.opensimkit.steps.CRegulStep;
-import org.opensimkit.steps.CTimeStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +88,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.1
  * @since 2.4.0
  */
-@ApplicationScoped
+//@ApplicationScoped
 public class ComHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ComHandler.class);
 //    private final Kernel kernel;
@@ -102,7 +96,7 @@ public class ComHandler {
     private String  name = "Model-Collection";
 //    private int     id;
     private String  comment = "none";
-    @Inject @Named("ALL_ITEMS_MAP")
+//    @Inject @Named("ALL_ITEMS_MAP")
     private SortedMap<String, Model> items; // = new TreeMap<String, Model>();
 
     /**
@@ -129,17 +123,17 @@ public class ComHandler {
      * @param cregul
      * @return error code
      */
-    public int calcStepInit(final CTimeStep ctime, final CRegulStep cregul) {
-        Iterator it = items.keySet().iterator();
-        while (it.hasNext()) {
-            Model model = items.get((String) it.next());
-            if (model.initCalcSteps(ctime, cregul) == 1) {
-                // Error message not necessary
-                return 1;
-            }
-        }
-        return 0;
-    }
+//    public int calcStepInit(final CTimeStep ctime, final CRegulStep cregul) {
+//        Iterator it = items.keySet().iterator();
+//        while (it.hasNext()) {
+//            Model model = items.get((String) it.next());
+//            if (model.initCalcSteps(ctime, cregul) == 1) {
+//                // Error message not necessary
+//                return 1;
+//            }
+//        }
+//        return 0;
+//    }
 
     /**
      *

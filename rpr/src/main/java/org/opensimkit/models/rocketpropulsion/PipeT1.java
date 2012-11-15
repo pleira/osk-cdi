@@ -280,7 +280,8 @@ public class PipeT1 extends BaseModel {
         RSPEZ = 2077;
         CP = 5223.2;
 
-        Helium = org.opensimkit.Helium.HELIUM(pin, tin, Helium);
+        // FIXME
+        double PK = org.opensimkit.Helium.HELIUM(pin, tin, Helium);
 
         GESCH = 4. * mfin
                 / (Helium.DICHTE*3.1415*Math.pow(innerDiameter, 2));

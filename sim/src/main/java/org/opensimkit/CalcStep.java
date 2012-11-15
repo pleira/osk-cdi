@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.4.0
  */
+// FIXME: This class is not needed: could be replaced by a method in the model
+// supplying the list
 public class CalcStep {
     private static final Logger LOG = LoggerFactory.getLogger(CalcStep.class);
     protected String name;
