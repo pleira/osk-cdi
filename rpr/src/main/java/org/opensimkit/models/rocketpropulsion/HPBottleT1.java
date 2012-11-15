@@ -352,7 +352,9 @@ public abstract class HPBottleT1 extends BaseModel {
         PLANF=.7*helium.DICHTE*RSPEZ*ttotal;
         PLEND=pinit*1.1;
         ST=1E6;
-        for(PLAUF=PLANF;PLAUF<PLEND;PLAUF+=ST) {
+        // FIXME: check for maximum 100 iterations
+        int i = 0;
+        for(PLAUF=PLANF;PLAUF<PLEND && i<100;PLAUF+=ST, i++) {
 
             helium.Z=1.0+FAKTOR*PLAUF/1E5;
             P=helium.Z*helium.DICHTE*RSPEZ*ttotal;
@@ -367,7 +369,9 @@ public abstract class HPBottleT1 extends BaseModel {
                 PLAUF=PLANF;
                 }
         }
-
+        if (i>=100) {
+        	LOG.warn("Problem iterating the Pressure for " + getName());
+        }
         //ptotal=P;
 
         /**********************************************************************/

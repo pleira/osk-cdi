@@ -92,8 +92,6 @@
  
 package org.opensimkit.models.structure;
 
-import jat.spacetime.Time;
-
 import javax.inject.Inject;
 
 import org.opensimkit.BaseModel;
@@ -183,9 +181,6 @@ public class ScStructure extends BaseModel {
      */
     public ScStructure(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-
-        LOG.info("Generating visualization thread for " + name);
-//        visThread = new SimVisThread(kernel, name, visSocketNumber);
     }
 
 
