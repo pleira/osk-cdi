@@ -44,10 +44,16 @@ import jat.spacetime.Time;
 import java.io.File;
 import java.io.IOException;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.TimeHandler;
+import org.opensimkit.events.D4Value;
+import org.opensimkit.events.ECI;
+import org.opensimkit.events.Gravity;
+import org.opensimkit.events.ScPV;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
@@ -99,6 +105,7 @@ public class OSKGravityModel extends BaseModel {
     private static final int TIMESTEP = 1;
     private static final int REGULSTEP = 0;
 
+    @Inject @Gravity Event<D4Value> event;
     
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -209,6 +216,16 @@ public class OSKGravityModel extends BaseModel {
         gravAcceleration[2] = scAcceleration[1];
         gravAcceleration[3] = scAcceleration[2];
 
+        event.fire(new D4Value(gravAcceleration));
+        
         return 0;
     }
+    
+	public void pvHandler(@Observes @ECI ScPV posVel) {
+		double[] p = posVel.getScPosition();
+		assert p.length == 3;
+		for (int i=0; i<3; i++) {
+			scPositionECI[i] = p[i];
+		}		
+	}
 }

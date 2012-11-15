@@ -92,10 +92,17 @@
  
 package org.opensimkit.models.structure;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.TimeHandler;
+import org.opensimkit.events.D4Value;
+import org.opensimkit.events.ECI;
+import org.opensimkit.events.Gravity;
+import org.opensimkit.events.ScPV;
+import org.opensimkit.events.Thrust;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
@@ -127,7 +134,7 @@ public class ScStructure extends BaseModel {
     /** Structure SCPosition in ECI frame. */
     @Manipulatable private double[] scPositionECI = new double[3];
     /**Thrust: Value and direction vector in SC body frame. Vector components in [N] */
-    @Manipulatable private double[] tVec = new double[4];
+    @Manipulatable private final double[] tVec = new double[4];
 
 
     /** scPosition of previous timestep. */
@@ -155,6 +162,8 @@ public class ScStructure extends BaseModel {
     private static final int TIMESTEP = 1;
     private static final int REGULSTEP = 0;
 
+    // The ECI annotiation implies that the events are related to ECI coord.
+    @Inject @ECI Event<ScPV> scPVEvent;
 
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -262,11 +271,12 @@ public class ScStructure extends BaseModel {
             scPositionECI[i] = result[i];
         }
         
-        // Up to here, we have calculated thrust, S/C position and velocity
+        // Up to here, we have calculated S/C position and velocity
         // in ECI coordinates. This method should be just considered done.
-        // Probably, the old next stuff is regarding with Attitude and other
-        // frames of reference. Those should be moved to another class.
+        // Those methods involving calculations
+        // in other reference frames (EDEF) are moved to other classes.
         
+        scPVEvent.fire(new ScPV(scPositionECI, scVelocityECI));
         
         return 0;
     }
@@ -491,4 +501,20 @@ public class ScStructure extends BaseModel {
 		this.scPositionECI = scPositionECI;
 	}
 
+	public void thrustHandler(@Observes @Thrust D4Value thrust) {
+		double[] t = thrust.getValue();
+		assert t.length == 4;
+		for (int i=0; i<4; i++) {
+			tVec[i] = t[i];
+		}		
+	}
+
+	public void gravityHandler(@Observes @Gravity D4Value gravity) {
+		double[] g = gravity.getValue();
+		assert g.length == 4;
+		for (int i=0; i<4; i++) {
+			gravityAccel[i] = g[i];
+		}		
+	}
+	
 }

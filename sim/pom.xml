@@ -46,6 +46,16 @@
 	</dependency>
  -->
     <dependency>
+      <groupId>jat.vecmath</groupId>
+      <artifactId>vecmath</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jat.osk</groupId>
+      <artifactId>jat-osk</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.opensimkit</groupId>
       <artifactId>pkt</artifactId>
       <version>0.1-SNAPSHOT</version>

@@ -59,8 +59,15 @@ package org.opensimkit.models.rocketpropulsion;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
+import org.opensimkit.events.D4Value;
+import org.opensimkit.events.ECEFpv;
+import org.opensimkit.events.Thrust;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.PureLiquidPort;
@@ -143,6 +150,8 @@ public abstract class Engine extends BaseModel {
 
     @Manipulatable private final PureLiquidPort inputPortFuel;
     @Manipulatable private final PureLiquidPort inputPortOxidizer;
+    
+    @Inject @Thrust Event<D4Value> events;
     
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -336,6 +345,9 @@ public abstract class Engine extends BaseModel {
             thrustVector[1] = 1;
             thrustVector[2] = 0;
             thrustVector[2] = 0;
+            
+            events.fire(new D4Value(thrustVector));
+            
             return 0;
         }
     }
@@ -454,4 +466,8 @@ public abstract class Engine extends BaseModel {
 
         return 0;
     }
+    
+	public void altitudeHandler(@Observes ECEFpv pv) {
+		alt = pv.getAltitude();
+	}    
 }
