@@ -126,6 +126,7 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
+import java.awt.image.Kernel;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -135,7 +136,6 @@ import org.opensimkit.BaseModel;
 import org.opensimkit.DEQClient;
 import org.opensimkit.DEqSys;
 import org.opensimkit.GLoad;
-import org.opensimkit.Kernel;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;

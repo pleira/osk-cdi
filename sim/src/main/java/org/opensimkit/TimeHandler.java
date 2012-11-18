@@ -38,9 +38,11 @@ import java.text.SimpleDateFormat;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-import org.jboss.weld.environment.se.events.ContainerInitialized;
+import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
+import org.opensimkit.config.NumberConfig;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
@@ -84,9 +86,9 @@ public class TimeHandler {
     private final long[] time = new long[3];
     private DateFormat formatCel;
 
-    @Manipulatable private String simulatedMissionTimeString = "2010-03-01T22:55:00.000+0000";
-    @Manipulatable private long interval;
-    @Manipulatable private long stepSize;
+    @Manipulatable private String simulatedMissionTimeString; // = "2010-03-01T22:55:00.000+0000";
+    @Manipulatable private int interval;
+    @Manipulatable private int stepSize;
 
     @Readable private long simulatedMissionTime;
     @Readable private long systemTime;
@@ -164,5 +166,25 @@ public class TimeHandler {
     public String getName() {
         return name;
     }
+
+	public String getSimulatedMissionTimeString() {
+		return simulatedMissionTimeString;
+	}
+
+	@Inject
+	public void setSimulatedMissionTimeString(
+			@ConfigProperty(name = "time.simulatedMissionTimeString") String simulatedMissionTimeString) {
+		this.simulatedMissionTimeString = simulatedMissionTimeString;
+	}
+
+	@Inject
+	public void initInterval(@NumberConfig(name = "time.interval") Integer interval) {
+		this.interval = interval;
+	}
+
+	@Inject
+	public void setStepSize(@NumberConfig(name = "time.stepSize") Integer stepSize) {
+		this.stepSize = stepSize;
+	}
 
 }

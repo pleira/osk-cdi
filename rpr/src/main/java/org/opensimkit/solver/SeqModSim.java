@@ -86,8 +86,6 @@ import org.opensimkit.Model;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.SimulatorState;
 import org.opensimkit.TimeHandler;
-import org.opensimkit.steps.CIterationStep;
-import org.opensimkit.steps.CRegulStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,32 +116,22 @@ public class SeqModSim {
     private int            lastop;
     private int            localNAckFlag;
     private long           startTime2;
-    private CRegulStep     rStep;
-    private CIterationStep iStep;
     private Date           startTime;
     //@Inject PacketCreator  packetCreator;
     private SimulatorState state;
-//    private TabGenerator   outTab;
-//    @Inject ProviderSubscriber providerSubscriber;
 //    @Inject MeshHandler  meshColl;
-//    @Inject ComHandler   compColl;
-    
+   
     // This class iterates over the models 
     @Inject Collection<Model> models;
+    @Inject SimHeaders simHeaders;
     
     @Inject
     public SeqModSim() {
         this.name        = "Simulation";
-        //this.timeHandler = kernel.getTimeHandler();
-        //this.providerSubscriber = kernel.getProviderSubscriber();
-
-        rStep = new CRegulStep("Regul-Step-Object");
-        iStep = new CIterationStep("Iteration-Step-Object");
-
         isComputing = true;
         state = SimulatorState.NOT_RUNNING;
 
-        LOG.debug(SimHeaders.DEBUG_SHORT, "Constructor");
+        LOG.debug(simHeaders.DEBUG_SHORT, "Constructor");
     }
 
 //    @PostConstruct
@@ -151,11 +139,11 @@ public class SeqModSim {
 //        // init the Calc.-Steps Time- and Regul
 //        //--------------------------
 //        if (calcStepInit() == 1) {
-//            LOG.error(SimHeaders.DEBUG_SHORT,
+//            LOG.error(simHeaders.DEBUG_SHORT,
 //                    "Calculation Steps NOT sucessfully initialized.");
 //            return;
 //        }
-//        LOG.debug(SimHeaders.DEBUG_SHORT,
+//        LOG.debug(simHeaders.DEBUG_SHORT,
 //                "Calculation Steps sucessfully initialized.");
 //
 //    }
@@ -166,7 +154,7 @@ public class SeqModSim {
     }
 
 //    int calcStepInit() {
-//        LOG.debug(SimHeaders.DEBUG_SHORT, "CalcStepInit");
+//        LOG.debug(simHeaders.DEBUG_SHORT, "CalcStepInit");
 //
 ////        if (cHand.calcStepInit(tStep, rStep) == 1) {
 ////            // Error message submitted by tstep and rstep obj.
@@ -192,7 +180,7 @@ public class SeqModSim {
     }
 
     private void startCompute() throws IOException {
-        LOG.debug(SimHeaders.DEBUG_SHORT, "Compute");
+        LOG.debug(simHeaders.DEBUG_SHORT, "Compute");
 
         setStateToRunning();
 
@@ -202,21 +190,13 @@ public class SeqModSim {
         LOG.info("Starting simulation...\n");
         LOG.info("Time: {}", time);
         startTime2 = System.currentTimeMillis();
-
-        // TODO: interceptor or decorator for report writing
-        //   outTab.tabInit();
-
+        
         LOG.info("Initial system boundary condition iteration...\n");
-        if (iStep.calc() == 1) {  // Iteration-Step t=0
+        if (iterationCalc() == 1) {  // Iteration-Step t=0
             // Error message submitted by istep obj.
             lastop = LAST_OP_STEP_INIT;
             return;
         }
-
-        ////   outTab.tabWrite(timeHandler.getSimulatedMissionTime(),
-        //timeHandler.getStepSizeAsDouble());
-        //   outTab.tabWrite(timeHandler.getSimulatedMissionTime(),
-        //        timeHandler.getStepSizeAsDouble());
     }
 
     private void doCompute() throws IOException {
@@ -233,29 +213,23 @@ public class SeqModSim {
             if (getState() == SimulatorState.RUNNING) {
                 beforeCalculation = System.currentTimeMillis();
 
-                LOG.debug(SimHeaders.DEBUG_SHORT, "TimeStep computation ");
+                LOG.debug(simHeaders.DEBUG_SHORT, "TimeStep computation ");
                 if (calc(time, timeHandler.getStepSizeAsDouble()) == 1) {
                     // Error message submitted by tstep obj.
                     lastop = LAST_OP_STEP_TS;
                     return;
                 }
-                // FIXME: Here put the events to connect different objects
-//                if (providerSubscriber != null) {
-//                  providerSubscriber.calc();
-//                }
-//                else  {
-//                  LOG.warn("No ProviderSubscriber instance existing.");
-//                }
+                // We have done events connecting the different objects
                 
-                LOG.debug(SimHeaders.DEBUG_SHORT, "RegulStep computation ");
-                if (rStep.calc() == 1) {
+                LOG.debug(simHeaders.DEBUG_SHORT, "RegulStep computation ");
+                if (regulationCalc() == 1) {
                     // Error message submitted by rstep obj.
                     lastop = LAST_OP_STEP_RS;
                     return;
                 }
                 
-                LOG.debug(SimHeaders.DEBUG_SHORT, "IterationStep computation ");
-                if (iStep.calc() == 1) {
+                LOG.debug(simHeaders.DEBUG_SHORT, "IterationStep computation ");
+                if (iterationCalc() == 1) {
                     // Error message submitted by istep obj.
                     lastop = LAST_OP_STEP_IS;
                     return;
@@ -270,11 +244,6 @@ public class SeqModSim {
                         timeHandler.getSimulatedMissionTime()));
                 //   outTab.tabIntervalWrite(timeHandler.getSimulatedMissionTime(),
                 //        timeHandler.getStepSizeAsDouble());
-                
-                // FIXME: CDI decorator here
-                // packetCreator.sendData();
-//                kernel.getOutputWriter().write(time + stepSize + "\r\n");
-//                kernel.getOutputWriter().flush();
 
                 afterCalculation = System.currentTimeMillis();
 
@@ -310,13 +279,46 @@ public class SeqModSim {
         }
     }
 
-    public int calc(final double time, final double tStepSize)
+    private int iterationCalc() {
+            LOG.debug(simHeaders.DEBUG_SHORT, "compute");
+
+            Iterator it = models.iterator();
+            while (it.hasNext()) {
+                BaseModel model = (BaseModel) it.next();
+                if (model.iterationStep() != 0) {
+                    // The only registered object is the main mesh.
+                    // Error messages generated by this object.
+                    return 1;
+                }
+            }
+            return 0;
+	}
+
+	private int regulationCalc() {
+
+            LOG.debug(simHeaders.DEBUG_SHORT, "compute");
+
+            Iterator it = models.iterator();
+            while (it.hasNext()) {
+                BaseModel model = (BaseModel) it.next();
+                if (model.regulStep() != 0) {   // A model found an error in
+                    // computation
+                    LOG.info("Model  '" + model.getName()
+                        + "' - regulation step error!");
+                    simHeaders.negativeAckFlag = 1;
+                    return 1;
+                }
+            }
+            return 0;
+	}
+
+	private int calc(final double time, final double tStepSize)
             throws IOException {
 
             String thestring1;
             String thestring2;
 
-            LOG.debug(SimHeaders.DEBUG_SHORT, "compute");
+            LOG.debug(simHeaders.DEBUG_SHORT, "compute");
 
             Iterator it = models.iterator();
             while (it.hasNext()) {
@@ -328,7 +330,7 @@ public class SeqModSim {
                         + "' - timestep error! time: " + time);
                     thestring1 = model.getName();
                     thestring2 = Double.toString(time);
-                    SimHeaders.negativeAckFlag = 1;
+                    simHeaders.negativeAckFlag = 1;
                     return 1;
                 }
             }

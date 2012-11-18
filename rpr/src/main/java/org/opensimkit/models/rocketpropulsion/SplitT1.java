@@ -84,8 +84,8 @@ package org.opensimkit.models.rocketpropulsion;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
 import org.opensimkit.BaseModel;
-import org.opensimkit.Kernel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.ports.PureGasPort;

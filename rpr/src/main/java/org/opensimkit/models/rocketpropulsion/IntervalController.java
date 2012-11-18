@@ -27,15 +27,16 @@
  */
  package org.opensimkit.models.rocketpropulsion;
 
- import java.io.FileWriter;
- import java.io.IOException;
- import org.opensimkit.BaseModel;
- import org.opensimkit.Kernel;
- import org.opensimkit.manipulation.Manipulatable;
- import org.opensimkit.manipulation.Readable;
+ import java.awt.image.Kernel;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.opensimkit.BaseModel;
+import org.opensimkit.SimHeaders;
+import org.opensimkit.manipulation.Manipulatable;
+import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.AnalogPort;
- import org.opensimkit.SimHeaders;
- import org.slf4j.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -97,7 +98,7 @@ public class IntervalController extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-     public IntervalController(final String name, final Kernel kernel) {
+     public IntervalController(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
     }
 

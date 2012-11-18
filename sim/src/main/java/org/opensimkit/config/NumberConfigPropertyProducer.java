@@ -72,5 +72,41 @@ public class NumberConfigPropertyProducer extends BaseConfigPropertyProducer
         DecimalFormat df = new DecimalFormat(metaData.pattern(), new DecimalFormatSymbols(Locale.US));
         return df.parse(configuredValue).floatValue();
     }
-    
+
+    @Produces
+    @Dependent
+    @NumberConfig(name = "unused")
+    public int produceIntNumberProperty(InjectionPoint injectionPoint) throws ParseException
+    {
+        // resolve the annotation
+        NumberConfig metaData = getAnnotation(injectionPoint, NumberConfig.class);
+
+        // get the configured value from the underlying configuration system
+        String configuredValue = getPropertyValue(metaData.name(), metaData.defaultValue());
+        if (configuredValue == null)
+        {
+            return -99999999;
+        }
+
+        // format according to the given pattern
+        DecimalFormat df = new DecimalFormat(metaData.pattern(), new DecimalFormatSymbols(Locale.US));
+        return df.parse(configuredValue).intValue();
+    }
+
+    public long produceLongNumberProperty(InjectionPoint injectionPoint) throws ParseException
+    {
+        // resolve the annotation
+        NumberConfig metaData = getAnnotation(injectionPoint, NumberConfig.class);
+
+        // get the configured value from the underlying configuration system
+        String configuredValue = getPropertyValue(metaData.name(), metaData.defaultValue());
+        if (configuredValue == null)
+        {
+            return -9999999999999L;
+        }
+
+        // format according to the given pattern
+        DecimalFormat df = new DecimalFormat(metaData.pattern(), new DecimalFormatSymbols(Locale.US));
+        return df.parse(configuredValue).longValue();
+    }
 }

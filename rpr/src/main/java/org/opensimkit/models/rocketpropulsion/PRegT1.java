@@ -96,13 +96,13 @@ package org.opensimkit.models.rocketpropulsion;
 
 import java.io.FileWriter;
 import java.io.IOException;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.HeliumJKC;
-import org.opensimkit.Kernel;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.ports.PureGasPort;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
+import org.opensimkit.manipulation.Manipulatable;
+import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

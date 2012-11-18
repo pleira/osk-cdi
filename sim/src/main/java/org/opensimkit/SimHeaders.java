@@ -1,5 +1,5 @@
 /*
- * SimHeaders.java
+ * this.java
  *
  * Created on 3. Juli 2007, 22:40
  *
@@ -50,6 +50,11 @@
 package org.opensimkit;
 
 import java.io.FileWriter;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.opensimkit.config.NumberConfig;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
@@ -63,7 +68,8 @@ import org.slf4j.MarkerFactory;
  * @version 1.1
  * @since 2.4.0
  */
-public final class SimHeaders {
+@ApplicationScoped
+public class SimHeaders {
 
     /* ---------- Flags ----------------*/
     /** Negative acknowledge flag - error. */
@@ -75,21 +81,20 @@ public final class SimHeaders {
     /* -------- File Stuff -------------*/
     /* The log file all objects have    */
     /* access to during computation.    */
-    /* Opened and closed by Main        */
     public static FileWriter logFile;
 
     /* String for Input File Name       */
     public static String myInFileName;
 
     /* String for Output Table Filename  */
-    public static String myOutFileName = "mysimulation.txt"; 
+    public static String myOutFileName; 
 
     /* ----- Precision Settings --------*/
     /* relative accuracy of computation */
-    public static double epsrel;
+    public static double epsrel = 0.05; 
 
     /* absolute accuracy of computation */
-    public static double epsabs;
+    public static double epsabs = 0.0;
 
     /* Get the line seperator of the current OS. */
     public static final String NEWLINE = System.getProperty("line.separator");
@@ -98,7 +103,46 @@ public final class SimHeaders {
     public static final Marker DEBUG_SHORT
             = MarkerFactory.getMarker("DBGSHORT");
 
-    /** Creates a new instance of Globals. */
-    private SimHeaders() {
-    }
+	public  FileWriter getLogFile() {
+		return logFile;
+	}
+
+	public  void setLogFile(FileWriter logFile) {
+		this.logFile = logFile;
+	}
+
+	public  String getMyInFileName() {
+		return myInFileName;
+	}
+
+	public  void setMyInFileName(String myInFileName) {
+		this.myInFileName = myInFileName;
+	}
+
+	public  String getMyOutFileName() {
+		return myOutFileName;
+	}
+
+	public  void setMyOutFileName(String myOutFileName) {
+		this.myOutFileName = myOutFileName;
+	}
+
+	public  double getEpsrel() {
+		return epsrel;
+	}
+
+	@Inject
+	public  void setEpsrel(@NumberConfig(name="sim.epsrel") Double epsrel) {
+		this.epsrel = epsrel;
+	}
+
+	public  double getEpsabs() {
+		return epsabs;
+	}
+
+	@Inject
+	public  void setEpsabs(@NumberConfig(name="sim.epsabs") Double epsabs) {
+		this.epsabs = epsabs;
+	}
+
 }
