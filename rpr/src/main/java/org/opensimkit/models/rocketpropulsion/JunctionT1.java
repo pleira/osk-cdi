@@ -90,7 +90,6 @@ import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,42 +105,42 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public class JunctionT1 extends BaseModel {
-    /** Logger instance for the JunctionT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(JunctionT1.class);
-    /** Relation of inbound massflows in actual iteration step. */
-    private double splitfactor;
-    /** Relation of inbound massflows in previous iteration step. */
-    private double oldsplitfactor;
-    /** Hydraulic residuum of actual iteration step. */
-    private double hydrError;
-    /** Hydraulic residuum of previous iteration step. */
-    private double oldhydrError;
-    /** Stepsize for iterating inbound mass flow ratios. */
-    private double stepsize;
-    /** Flag needed for mesh iteration. */
-    private int    startflag;
+	/** Logger instance for the JunctionT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(JunctionT1.class);
+	/** Relation of inbound massflows in actual iteration step. */
+	private double splitfactor;
+	/** Relation of inbound massflows in previous iteration step. */
+	private double oldsplitfactor;
+	/** Hydraulic residuum of actual iteration step. */
+	private double hydrError;
+	/** Hydraulic residuum of previous iteration step. */
+	private double oldhydrError;
+	/** Stepsize for iterating inbound mass flow ratios. */
+	private double stepsize;
+	/** Flag needed for mesh iteration. */
+	private int startflag;
 
-    /** Fluid parameters of in- and outbound flows (p, t, mflow). */
-     private double pinLeft;
-     private double tinLeft;
-     private double mfinLeft;
-     private double pinRight;
-     private double tinRight;
-     private double mfinRight;
-     private double pout;
-     private double tout;
-     private double mfout;
+	/** Fluid parameters of in- and outbound flows (p, t, mflow). */
+	private double pinLeft;
+	private double tinLeft;
+	private double mfinLeft;
+	private double pinRight;
+	private double tinRight;
+	private double mfinRight;
+	private double pout;
+	private double tout;
+	private double mfout;
 
-    private static final String TYPE      = "JunctionT1";
-    private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 1.0E6;
-    private static final double MINTSTEP  = 1.0E-6;
-    private static final int    TIMESTEP  = 0;
-    private static final int    REGULSTEP = 0;
+	private static final String TYPE = "JunctionT1";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 1.0E6;
+	private static final double MINTSTEP = 1.0E-6;
+	private static final int TIMESTEP = 0;
+	private static final int REGULSTEP = 0;
 
-     private PureGasPort inputPortLeft;
-     private PureGasPort inputPortRight;
-     private PureGasPort outputPort;
+	private PureGasPort inputPortLeft;
+	private PureGasPort inputPortRight;
+	private PureGasPort outputPort;
 
     
     public JunctionT1(final String name, PureGasPort inputPortLeft, 

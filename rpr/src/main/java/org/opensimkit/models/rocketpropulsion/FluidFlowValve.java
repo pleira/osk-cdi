@@ -79,34 +79,31 @@ public abstract class FluidFlowValve extends BaseModel {
     /** Logger instance for the FluidFlowValve. */
     private static final Logger LOG
             = LoggerFactory.getLogger(FluidFlowValve.class);
-    /** Commandeable mass flow. */
-     private double massflow;
-     private double referencePressureLoss;
-     private double referenceMassFlow;
-          private String fluid;
-          private double pin;
-          private double tin;
-          private double mfin;
-          private double pout;
-          private double tout;
-          private double mfout;
-          private double localtime;
-          private double controlValue;
-          private double DP;
 
-    private static final String TYPE      = "FluidFlowValve";
-    private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private double massflow;
+	private double referencePressureLoss;
+	private double referenceMassFlow;
+	private String fluid;
+	private double pin;
+	private double tin;
+	private double mfin;
+	private double pout;
+	private double tout;
+	private double mfout;
+	private double localtime;
+	private double controlValue;
+	private double DP;
 
-     protected PureLiquidPort inputPort;
+	private static final String TYPE = "FluidFlowValve";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
+	private static final int TIMESTEP = 1;
+	private static final int REGULSTEP = 0;
 
-	 protected PureLiquidPort outputPort;
-	
-	 protected AnalogPort     controlPort;
-
+	protected final PureLiquidPort inputPort;
+	protected final PureLiquidPort outputPort;
+	protected final AnalogPort controlPort;
 	
     public FluidFlowValve(String name, PureLiquidPort inputPort,
 			PureLiquidPort outputPort, AnalogPort controlPort) {
@@ -120,8 +117,6 @@ public abstract class FluidFlowValve extends BaseModel {
 	@PostConstruct
     public void init() {
     	completeConnections();
-        /* Computation of derived initialization parameters. */
-        /* Initializing mass flow. */
         massflow = 0.0;
         localtime = 0.0;
         //controlValue = 0.0;
@@ -417,32 +412,5 @@ public abstract class FluidFlowValve extends BaseModel {
 	public void setReferenceMassFlow(double referenceMassFlow) {
 		this.referenceMassFlow = referenceMassFlow;
 	}
-
-	@ManagedAttribute
-	public PureLiquidPort getInputPort() {
-		return inputPort;
-	}
-
-	@ManagedAttribute
-	public PureLiquidPort getOutputPort() {
-		return outputPort;
-	}
-
-	@ManagedAttribute
-	public AnalogPort getControlPort() {
-		return controlPort;
-	}
-
-	public void setInputPort(PureLiquidPort inputPort) {
-		this.inputPort = inputPort;
-	}
-
-	public void setOutputPort(PureLiquidPort outputPort) {
-		this.outputPort = outputPort;
-	}
-
-	public void setControlPort(AnalogPort controlPort) {
-		this.controlPort = controlPort;
-	}
-        
+       
 }

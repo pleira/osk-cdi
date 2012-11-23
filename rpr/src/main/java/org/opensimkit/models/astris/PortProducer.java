@@ -13,7 +13,9 @@ import org.opensimkit.ports.PureLiquidPort;
  * the model. Nobody calls directly this class, only the CDI container
  * to fectch the ports.
  * 
- * The use of @ApplicationScoped is needed (even if recommended), because Weld creates instances of this class  
+ * The use of @ApplicationScoped is needed (even if recommended), because otherwise
+ * Weld would create several instances of this class and therefore there would be 
+ * several producers for the structural elements. 
  *  
  * @author P. Pita
  */

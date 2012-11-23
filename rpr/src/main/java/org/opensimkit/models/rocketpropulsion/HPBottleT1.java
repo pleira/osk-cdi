@@ -116,56 +116,56 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public abstract class HPBottleT1 extends BaseModel {
-    /** Logger instance for the HPBottleT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(HPBottleT1.class);
-    /** Mass of pressure vessel. */
-     private double mass;
-    /** Volume of vessel. */
-     private double volume;
-    /** Specific. heat capacity of vessel. */
-     private double specificHeatCapacity;
-    /** Diameter of vessel. */
-    private double diam;
-    /** Surface of vessel (spherical bottle assumed). */
-    private double surface;
-    /** Pressure of gas in vessel. */
-     private double ptotal;
-    /** Temperature of gas in vessel. */
-     private double ttotal;
-    /** Vessel wall temperature. */
-     private double twall;
-    /** Value of pressure of gas in vessel from previous timestep. */
-    private double pold;
-    /** Value of temperature of gas in vessel from previous timestep. */
-    private double told;
-    /** Value of vessel wall temperature from previous timestep. */
-    private double twold;
-    /** Gradient of pressure of gas in vessel. */
-     private double pgrad;
-    /** Gradient of temperature of gas in vessel. */
-     private double tgrad;
-    /** Gradient of vessel wall temperature. */
+	/** Logger instance for the HPBottleT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(HPBottleT1.class);
+	/** Mass of pressure vessel. */
+	private double mass;
+	/** Volume of vessel. */
+	private double volume;
+	/** Specific. heat capacity of vessel. */
+	private double specificHeatCapacity;
+	/** Diameter of vessel. */
+	private double diam;
+	/** Surface of vessel (spherical bottle assumed). */
+	private double surface;
+	/** Pressure of gas in vessel. */
+	private double ptotal;
+	/** Temperature of gas in vessel. */
+	private double ttotal;
+	/** Vessel wall temperature. */
+	private double twall;
+	/** Value of pressure of gas in vessel from previous timestep. */
+	private double pold;
+	/** Value of temperature of gas in vessel from previous timestep. */
+	private double told;
+	/** Value of vessel wall temperature from previous timestep. */
+	private double twold;
+	/** Gradient of pressure of gas in vessel. */
+	private double pgrad;
+	/** Gradient of temperature of gas in vessel. */
+	private double tgrad;
+	/** Gradient of vessel wall temperature. */
 
-     private double twgrad;
-    /** Mass of gas in vessel. */
-     private double mtotal;
-    /** Mass flow of gas into pipe. */
-     private double mftotal;
-    /** Gas in vessel. */
-     private String fluid;
-    /** Heat flow from wall to fluid for pressure regul. elements. */
-    private double qHFlow;
-    /** Initial pressure of gas in vessel. */
-    private double pinit;
+	private double twgrad;
+	/** Mass of gas in vessel. */
+	private double mtotal;
+	/** Mass flow of gas into pipe. */
+	private double mftotal;
+	/** Gas in vessel. */
+	private String fluid;
+	/** Heat flow from wall to fluid for pressure regul. elements. */
+	private double qHFlow;
+	/** Initial pressure of gas in vessel. */
+	private double pinit;
 
-    private static final String TYPE      = "HPBottleT1";
-    private static final String SOLVER    = "Euler";
-    private static final double MAXTSTEP  = 5.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private static final String TYPE = "HPBottleT1";
+	private static final String SOLVER = "Euler";
+	private static final double MAXTSTEP = 5.0;
+	private static final double MINTSTEP = 0.001;
+	private static final int TIMESTEP = 1;
+	private static final int REGULSTEP = 0;
 
-     private PureGasPort outputPort;
+	private final PureGasPort outputPort;
 
     public HPBottleT1(final String name,PureGasPort outputPort) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
@@ -619,11 +619,5 @@ public abstract class HPBottleT1 extends BaseModel {
 	public void setPinit(double pinit) {
 		this.pinit = pinit;
 	}
-	@ManagedAttribute
-	public PureGasPort getOutputPort() {
-		return outputPort;
-	}
-	public void setOutputPort(PureGasPort outputPort) {
-		this.outputPort = outputPort;
-	}
+
 }
