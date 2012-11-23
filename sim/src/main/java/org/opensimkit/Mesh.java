@@ -109,6 +109,14 @@ public final class Mesh extends BaseModel {
             LOG.error("Wrong level!");
         }
     }
+    public void add(Model model) {
+        if (model == null) {
+            /* Model not found. */
+            LOG.error("Model does not exist.");
+            localNAckFlag = 1;
+        }
+        items.add(model);
+    }
 
     public void initMeshModel(final String modelName,
             final ComHandler modelHandler) {

@@ -79,6 +79,10 @@ package org.opensimkit.models.rocketpropulsion;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
+
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
@@ -101,34 +105,34 @@ public class FilterT1 extends BaseModel {
     /** Logger instance for the FilterT1. */
     private static final Logger LOG = LoggerFactory.getLogger(FilterT1.class);
     /** Diameter of filter. */
-    @Manipulatable private double innerDiameter;
+     private double innerDiameter;
     /** Length of filter. */
-    @Manipulatable private double length;
+     private double length;
     /** Length specific mass. */
-    @Manipulatable private double specificMass;
+     private double specificMass;
     /** Specific. heat capacity. */
-    @Manipulatable private double specificHeatCapacity;
+     private double specificHeatCapacity;
     /** Temperature of filter elements. */
-    @Manipulatable private double temperature;
+     private double temperature;
     /** Reference pressure loss. */
-    @Manipulatable private double referencePressureLoss;
+     private double referencePressureLoss;
     /** Corresponding mass flow for ref. pressure loss. */
-    @Manipulatable private double referenceMassFlow;
+     private double referenceMassFlow;
     /** Internal variables of in- and outflow. */
-    @Readable      private double pin;
-    @Readable      private double tin;
-    @Readable      private double mfin;
-    @Readable      private double pout;
-    @Readable      private double tout;
+          private double pin;
+          private double tin;
+          private double mfin;
+          private double pout;
+          private double tout;
     /** Heat flow from wall to fluid for filter elements. */
                    private double qHFlow;
     /** Heat transfer coefficient between filter housing and fluid. */
                    private double alfa;
     /** Mass of filter. */
                    private double mass;
-    @Manipulatable private double pUpBackiter;
-    @Manipulatable private double tUpBackiter;
-    @Manipulatable private double mfUpBackiter;
+     private double pUpBackiter;
+     private double tUpBackiter;
+     private double mfUpBackiter;
 
 
     private static final String TYPE      = "FilterT1";
@@ -138,8 +142,8 @@ public class FilterT1 extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private PureGasPort inputPort;
-    @Manipulatable private PureGasPort outputPort;
+     private PureGasPort inputPort;
+     private PureGasPort outputPort;
 
     /**
      * Creates a new instance of the Filter.
@@ -147,24 +151,19 @@ public class FilterT1 extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-    public FilterT1(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
+//    public FilterT1(final String name) {
+//        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+//    }
     public FilterT1(final String name,PureGasPort inputPort, PureGasPort outputPort) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
         this.inputPort = inputPort;
         this.outputPort = outputPort;
     }
 
-    /**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
     @Override
+    @PostConstruct
     public void init() {
+    	completeConnections();
         /* Computation of derived initialization parameters. */
         /* Initializing heat flow. */
         qHFlow = 0.0;
@@ -183,6 +182,11 @@ public class FilterT1 extends BaseModel {
         LOG.debug(" -> tfilter := {}", temperature);
     }
 
+    void completeConnections() {
+    	outputPort.setFromModel(this);
+        inputPort.setToModel(this);
+    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPort.getName() + ")" );
+    }
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -434,4 +438,148 @@ public class FilterT1 extends BaseModel {
         outFile.write("FilterT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+
+    //----------------------------------------
+    // Methods added for JMX monitoring	
+	@ManagedAttribute    
+    public double getInnerDiameter() {
+		return innerDiameter;
+	}
+	public void setInnerDiameter(double innerDiameter) {
+		this.innerDiameter = innerDiameter;
+	}
+	@ManagedAttribute
+	public double getLength() {
+		return length;
+	}
+	public void setLength(double length) {
+		this.length = length;
+	}
+	@ManagedAttribute
+	public double getSpecificMass() {
+		return specificMass;
+	}
+	public void setSpecificMass(double specificMass) {
+		this.specificMass = specificMass;
+	}
+	@ManagedAttribute
+	public double getSpecificHeatCapacity() {
+		return specificHeatCapacity;
+	}
+	public void setSpecificHeatCapacity(double specificHeatCapacity) {
+		this.specificHeatCapacity = specificHeatCapacity;
+	}
+	@ManagedAttribute
+	public double getTemperature() {
+		return temperature;
+	}
+	public void setTemperature(double temperature) {
+		this.temperature = temperature;
+	}
+	@ManagedAttribute
+	public double getReferencePressureLoss() {
+		return referencePressureLoss;
+	}
+	public void setReferencePressureLoss(double referencePressureLoss) {
+		this.referencePressureLoss = referencePressureLoss;
+	}
+	@ManagedAttribute
+	public double getReferenceMassFlow() {
+		return referenceMassFlow;
+	}
+	public void setReferenceMassFlow(double referenceMassFlow) {
+		this.referenceMassFlow = referenceMassFlow;
+	}
+	@ManagedAttribute
+	public double getPin() {
+		return pin;
+	}
+	public void setPin(double pin) {
+		this.pin = pin;
+	}
+	@ManagedAttribute
+	public double getTin() {
+		return tin;
+	}
+	public void setTin(double tin) {
+		this.tin = tin;
+	}
+	@ManagedAttribute
+	public double getMfin() {
+		return mfin;
+	}
+	public void setMfin(double mfin) {
+		this.mfin = mfin;
+	}
+	@ManagedAttribute
+	public double getPout() {
+		return pout;
+	}
+	public void setPout(double pout) {
+		this.pout = pout;
+	}
+	@ManagedAttribute
+	public double getTout() {
+		return tout;
+	}
+	public void setTout(double tout) {
+		this.tout = tout;
+	}
+	@ManagedAttribute
+	public double getqHFlow() {
+		return qHFlow;
+	}
+	public void setqHFlow(double qHFlow) {
+		this.qHFlow = qHFlow;
+	}
+	@ManagedAttribute
+	public double getAlfa() {
+		return alfa;
+	}
+	public void setAlfa(double alfa) {
+		this.alfa = alfa;
+	}
+	@ManagedAttribute
+	public double getMass() {
+		return mass;
+	}
+	public void setMass(double mass) {
+		this.mass = mass;
+	}
+	@ManagedAttribute
+	public double getpUpBackiter() {
+		return pUpBackiter;
+	}
+	public void setpUpBackiter(double pUpBackiter) {
+		this.pUpBackiter = pUpBackiter;
+	}
+	@ManagedAttribute
+	public double gettUpBackiter() {
+		return tUpBackiter;
+	}
+	public void settUpBackiter(double tUpBackiter) {
+		this.tUpBackiter = tUpBackiter;
+	}
+	@ManagedAttribute
+	public double getMfUpBackiter() {
+		return mfUpBackiter;
+	}
+	public void setMfUpBackiter(double mfUpBackiter) {
+		this.mfUpBackiter = mfUpBackiter;
+	}
+	@ManagedAttribute
+	public PureGasPort getInputPort() {
+		return inputPort;
+	}
+	public void setInputPort(PureGasPort inputPort) {
+		this.inputPort = inputPort;
+	}
+	@ManagedAttribute
+	public PureGasPort getOutputPort() {
+		return outputPort;
+	}
+	public void setOutputPort(PureGasPort outputPort) {
+		this.outputPort = outputPort;
+	}
+	   
 }

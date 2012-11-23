@@ -86,13 +86,13 @@ public class TimeHandler {
     private final long[] time = new long[3];
     private DateFormat formatCel;
 
-    @Manipulatable private String simulatedMissionTimeString; // = "2010-03-01T22:55:00.000+0000";
-    @Manipulatable private int interval;
-    @Manipulatable private int stepSize;
+     private String simulatedMissionTimeString; // = "2010-03-01T22:55:00.000+0000";
+     private int interval;
+     private int stepSize;
 
-    @Readable private long simulatedMissionTime;
-    @Readable private long systemTime;
-    @Readable private long integrationSteps;
+     private long simulatedMissionTime;
+     private long systemTime;
+     private long integrationSteps;
 
 //    public TimeHandler(final String name) {
 //        this.name = name;

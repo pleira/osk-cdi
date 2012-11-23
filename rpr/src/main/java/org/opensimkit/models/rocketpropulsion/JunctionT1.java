@@ -84,6 +84,10 @@ package org.opensimkit.models.rocketpropulsion;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
+
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
@@ -118,15 +122,15 @@ public class JunctionT1 extends BaseModel {
     private int    startflag;
 
     /** Fluid parameters of in- and outbound flows (p, t, mflow). */
-    @Manipulatable private double pinLeft;
-    @Manipulatable private double tinLeft;
-    @Manipulatable private double mfinLeft;
-    @Manipulatable private double pinRight;
-    @Manipulatable private double tinRight;
-    @Manipulatable private double mfinRight;
-    @Manipulatable private double pout;
-    @Manipulatable private double tout;
-    @Manipulatable private double mfout;
+     private double pinLeft;
+     private double tinLeft;
+     private double mfinLeft;
+     private double pinRight;
+     private double tinRight;
+     private double mfinRight;
+     private double pout;
+     private double tout;
+     private double mfout;
 
     private static final String TYPE      = "JunctionT1";
     private static final String SOLVER    = "none";
@@ -135,19 +139,11 @@ public class JunctionT1 extends BaseModel {
     private static final int    TIMESTEP  = 0;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private PureGasPort inputPortLeft;
-    @Manipulatable private PureGasPort inputPortRight;
-    @Manipulatable private PureGasPort outputPort;
+     private PureGasPort inputPortLeft;
+     private PureGasPort inputPortRight;
+     private PureGasPort outputPort;
 
-    /**
-     * Creates a new instance of the Junction.
-     *
-     * @param name Name of the instance.
-     */
-    public JunctionT1(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
-
+    
     public JunctionT1(final String name, PureGasPort inputPortLeft, 
     		PureGasPort inputPortRight, PureGasPort outputPort) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
@@ -156,16 +152,10 @@ public class JunctionT1 extends BaseModel {
         this.inputPortRight = inputPortRight;
     }
 
-
-    /**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
     @Override
+    @PostConstruct
     public void init() {
+    	completeConnections();
         /* Computation of derived initialization parameters. */
         /* Initializing split factor. */
         splitfactor = 0.5;
@@ -174,6 +164,11 @@ public class JunctionT1 extends BaseModel {
         startflag = 0;
     }
 
+    void completeConnections() {
+     	inputPortLeft.setToModel(this);
+     	inputPortRight.setToModel(this);
+    	LOG.info("completeConnections for " + name + ", (" + inputPortLeft.getName()  + "," + inputPortRight.getName() + ")" );
+     }
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -333,4 +328,108 @@ public class JunctionT1 extends BaseModel {
         outFile.write("JunctionT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+
+    //-----------------------------------------------------------------------------------
+    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+
+	@ManagedAttribute
+	public double getPinLeft() {
+		return pinLeft;
+	}
+
+	public void setPinLeft(double pinLeft) {
+		this.pinLeft = pinLeft;
+	}
+
+	@ManagedAttribute
+	public double getTinLeft() {
+		return tinLeft;
+	}
+
+	public void setTinLeft(double tinLeft) {
+		this.tinLeft = tinLeft;
+	}
+
+	@ManagedAttribute
+	public double getMfinLeft() {
+		return mfinLeft;
+	}
+
+	public void setMfinLeft(double mfinLeft) {
+		this.mfinLeft = mfinLeft;
+	}
+
+	@ManagedAttribute
+	public double getPinRight() {
+		return pinRight;
+	}
+
+	public void setPinRight(double pinRight) {
+		this.pinRight = pinRight;
+	}
+
+	@ManagedAttribute
+	public double getTinRight() {
+		return tinRight;
+	}
+
+	public void setTinRight(double tinRight) {
+		this.tinRight = tinRight;
+	}
+
+	@ManagedAttribute
+	public double getMfinRight() {
+		return mfinRight;
+	}
+
+	public void setMfinRight(double mfinRight) {
+		this.mfinRight = mfinRight;
+	}
+
+	@ManagedAttribute
+	public double getTout() {
+		return tout;
+	}
+
+	public void setTout(double tout) {
+		this.tout = tout;
+	}
+
+	@ManagedAttribute
+	public double getMfout() {
+		return mfout;
+	}
+
+	public void setMfout(double mfout) {
+		this.mfout = mfout;
+	}
+
+	@ManagedAttribute
+	public PureGasPort getInputPortLeft() {
+		return inputPortLeft;
+	}
+
+	public void setInputPortLeft(PureGasPort inputPortLeft) {
+		this.inputPortLeft = inputPortLeft;
+	}
+
+	@ManagedAttribute
+	public PureGasPort getInputPortRight() {
+		return inputPortRight;
+	}
+
+	public void setInputPortRight(PureGasPort inputPortRight) {
+		this.inputPortRight = inputPortRight;
+	}
+
+	@ManagedAttribute
+	public PureGasPort getOutputPort() {
+		return outputPort;
+	}
+
+	public void setOutputPort(PureGasPort outputPort) {
+		this.outputPort = outputPort;
+	}
+    
+    
 }

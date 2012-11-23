@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class AnalogPort extends BasePort {
     private static final Logger LOG = LoggerFactory.getLogger(AnalogPort.class);
-    @Manipulatable private double analogValue;
+     private double analogValue;
 
     /**
      * This constructor is needed for the AnalogPort initialisation during

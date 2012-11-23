@@ -5,12 +5,41 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.management.InstanceAlreadyExistsException;
 
-import org.opensimkit.BaseModel;
+import net.gescobar.jmx.Management;
+import net.gescobar.jmx.ManagementException;
+
+import org.opensimkit.Mesh;
 import org.opensimkit.Model;
+import org.opensimkit.models.astris.parts.Engine20;
+import org.opensimkit.models.astris.parts.EngineController21;
+import org.opensimkit.models.astris.parts.FFV18;
+import org.opensimkit.models.astris.parts.FFV19;
+import org.opensimkit.models.astris.parts.Filter06;
+import org.opensimkit.models.astris.parts.HPBottle00;
+import org.opensimkit.models.astris.parts.HPBottle01;
+import org.opensimkit.models.astris.parts.Junction04;
+import org.opensimkit.models.astris.parts.PReg08;
+import org.opensimkit.models.astris.parts.PReg12;
+import org.opensimkit.models.astris.parts.PReg15;
+import org.opensimkit.models.astris.parts.Pipe02;
+import org.opensimkit.models.astris.parts.Pipe03;
+import org.opensimkit.models.astris.parts.Pipe05;
+import org.opensimkit.models.astris.parts.Pipe07;
+import org.opensimkit.models.astris.parts.Pipe09;
+import org.opensimkit.models.astris.parts.Pipe11;
+import org.opensimkit.models.astris.parts.Pipe13;
+import org.opensimkit.models.astris.parts.Pipe14;
+import org.opensimkit.models.astris.parts.Pipe16;
+import org.opensimkit.models.astris.parts.ScStructure22;
+import org.opensimkit.models.astris.parts.Split10;
+import org.opensimkit.models.astris.parts.Tank17;
+import org.opensimkit.models.environment.OSKGravityModel;
 /**
  * This class is instantiated by the CDI container. 
  * Itself, it instantiates the different elements of the rocket model.
@@ -19,8 +48,10 @@ import org.opensimkit.Model;
  * @author P. Pita
  * 
  */
+@ApplicationScoped
 public class AstrisRocket  {
 
+	// Structural items in the numerical simulation
   @Inject FFV18 fflow18;
   @Inject FFV19 fflow19;
   @Inject Pipe02 pipe02;
@@ -44,6 +75,14 @@ public class AstrisRocket  {
   @Inject Engine20 engine20;
   @Inject EngineController21 engineController21;
   @Inject ScStructure22 scStructure22;
+  
+  @Inject OSKGravityModel gravityModel23;
+
+  // Boundary conditions 
+	Mesh mesh0 = new Mesh("mesh_0", "top");
+
+	Mesh mesh1 = new Mesh("mesh_1", "sub");
+	Mesh mesh2 = new Mesh("mesh_2", "sub");
   
   @Produces @Named("STRUCTURE_ITEMS_MAP")
   final SortedMap<String, Model> items = new TreeMap<String, Model>();
@@ -85,6 +124,15 @@ public class AstrisRocket  {
 //    }
     
     @PostConstruct
+    void initNumericalSimulation() {
+       initItems();
+       initBoundaryConditions();
+
+       // fire a CDI event to say that the model is ready for starting the simulation?
+ 	   registerMBeans();
+
+    }
+    
     void initItems() {
     	  items.put( fflow18.getName(), fflow18);
     	  items.put( fflow19.getName(), fflow19);
@@ -109,6 +157,58 @@ public class AstrisRocket  {
     	  items.put( engine20.getName(), engine20);
     	  items.put( engineController21.getName(), engineController21);
     	  items.put( scStructure22.getName(), scStructure22);
+  		  items.put( gravityModel23.getName(), gravityModel23);
+  		  items.put(mesh0.getName(), mesh0);
+  		  items.put(mesh1.getName(), mesh1);
+  		  items.put(mesh2.getName(), mesh2);
+     }
+
+    void initBoundaryConditions() {
+  	  // initialize the meshes with the elements contained in each
+      // the solver will impose the boundary conditions. 
+      // order matters
+  	  mesh0.add(engineController21);
+      mesh0.add(mesh1);
+      mesh0.add(scStructure22);
+      mesh0.add(gravityModel23);
+      
+      mesh1.add(mesh2);
+      mesh1.add(pipe05);      
+      mesh1.add(filter06); 
+      mesh1.add(pipe07); 
+      mesh1.add(preg08); 
+      mesh1.add(pipe09); 
+      mesh1.add(split10); 
+      mesh1.add(pipe11); 
+      mesh1.add(preg12); 
+      mesh1.add(pipe13); 
+      mesh1.add(pipe14); 
+      mesh1.add(preg15); 
+      mesh1.add(pipe16); 
+      mesh1.add(tank17); 
+      mesh1.add(fflow18); 
+      mesh1.add(fflow19); 
+      mesh1.add(engine20);
+      
+      mesh2.add(hpbottle00);
+      mesh2.add(hpbottle01);
+      mesh2.add(pipe02);
+      mesh2.add(pipe03);
+      mesh2.add(junction04);
+      
     }
+    
+    // move this method out of this class (catch an event and then, register? 
+	private void registerMBeans() {
+		for (Model model: items.values()) {
+		try {
+			Management.register(model, "org.opensimkit:type=" + model.getType() + ",name=" + model.getName());
+		} catch (InstanceAlreadyExistsException e) {
+			e.printStackTrace();
+		} catch (ManagementException e) {
+			e.printStackTrace();
+		}
+		}
+	}
     
 }

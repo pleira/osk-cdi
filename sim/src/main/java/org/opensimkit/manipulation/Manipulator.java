@@ -151,7 +151,7 @@ public class Manipulator {
     /**
      * Updates the given instance. This is usefull if there are non-primitive
      * Manipulatable or Readable Fields which were previously null. Example:
-     * @Manipulatable Port inputPort;
+     *  Port inputPort;
      * During the first registering of the Class the Port is null as it is not
      * yet injected by the input XML parser. Later it will be injected and an
      * update registers the inputPort of the instances.

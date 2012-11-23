@@ -9,20 +9,22 @@ import org.opensimkit.manipulation.Manipulatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 /**
  *
  * @author A. Brandt
  */
 public class FluidPort extends BasePort {
     private static final Logger LOG = LoggerFactory.getLogger(FluidPort.class);
-    @Manipulatable private String fluid;
-    @Manipulatable private double pressure;
-    @Manipulatable private double temperature;
-    @Manipulatable private double massflow;
-    @Manipulatable private String boundaryFluid;
-    @Manipulatable private double boundaryPressure;
-    @Manipulatable private double boundaryTemperature;
-    @Manipulatable private double boundaryMassflow;
+     private String fluid;
+     private double pressure;
+     private double temperature;
+     private double massflow;
+     private String boundaryFluid;
+     private double boundaryPressure;
+     private double boundaryTemperature;
+     private double boundaryMassflow;
 
     /**
      * This constructor is needed for the FluidPort initialisation during
@@ -64,34 +66,42 @@ public class FluidPort extends BasePort {
         this.boundaryMassflow = boundaryMassflow;
     }
 
+    @ManagedAttribute
     public String getFluid() {
         return fluid;
     }
 
+    @ManagedAttribute
     public double getPressure() {
         return pressure;
     }
 
+    @ManagedAttribute
     public double getTemperature() {
         return temperature;
     }
 
+    @ManagedAttribute
     public double getMassflow() {
         return massflow;
     }
 
+    @ManagedAttribute
     public String getBoundaryFluid() {
         return boundaryFluid;
     }
 
+    @ManagedAttribute
     public double getBoundaryPressure() {
         return boundaryPressure;
     }
 
+    @ManagedAttribute
     public double getBoundaryTemperature() {
         return boundaryTemperature;
     }
 
+    @ManagedAttribute
     public double getBoundaryMassflow() {
         return boundaryMassflow;
     }

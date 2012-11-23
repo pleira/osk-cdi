@@ -173,10 +173,12 @@ public class SeqModSim {
 /*                                Computation
 /* -------------------------------------------------------------------------- */
     public void initSim(@Observes ContainerInitialized init) throws IOException {
-//    public int compute() throws IOException {
-        startCompute();
+        // Here, we have initialised all our components
+    	// in debug mode, the initial values of the models should be checked 
+    	// before doing the computations
+    	startCompute();
         doCompute();
-        stopCompute();
+//        stopCompute();
     }
 
     private void startCompute() throws IOException {
@@ -336,21 +338,21 @@ public class SeqModSim {
             }
             return 0;
         }
-
-    private void stopCompute() throws IOException {
-        //   outTab.tabEndWrite(time, timeHandler.getStepSizeAsDouble());
-
-        LOG.info("Computation finished.");
-        long endTime = System.currentTimeMillis();
-        LOG.info("Simulation duration: {}d {}h {}m {}s {}ms", new Object[] {
-            ((endTime - startTime2) / 86400000), //days
-            ((endTime - startTime2) / 3600000), //hours
-            ((endTime - startTime2) / 60000),   //minutes
-            ((endTime - startTime2) / 1000),    //seconds
-             (endTime - startTime2)});          //microseconds
-
-        setStateToNotRunning();
-    }
+// FIXME: this should be a CDI Interceptor
+//    private void stopCompute() throws IOException {
+//        //   outTab.tabEndWrite(time, timeHandler.getStepSizeAsDouble());
+//
+//        LOG.info("Computation finished.");
+//        long endTime = System.currentTimeMillis();
+//        LOG.info("Simulation duration: {}d {}h {}m {}s {}ms", new Object[] {
+//            ((endTime - startTime2) / 86400000), //days
+//            ((endTime - startTime2) / 3600000), //hours
+//            ((endTime - startTime2) / 60000),   //minutes
+//            ((endTime - startTime2) / 1000),    //seconds
+//             (endTime - startTime2)});          //microseconds
+//
+//        setStateToNotRunning();
+//    }
 
     public String getName() {
         return name;

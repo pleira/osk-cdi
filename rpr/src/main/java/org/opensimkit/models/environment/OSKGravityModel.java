@@ -48,14 +48,14 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.TimeHandler;
 import org.opensimkit.events.D4Value;
 import org.opensimkit.events.ECI;
 import org.opensimkit.events.Gravity;
 import org.opensimkit.events.ScPV;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,14 +74,14 @@ public class OSKGravityModel extends BaseModel {
     /** Logger instance for the OSKGravityModel. */
     private static final Logger LOG = LoggerFactory.getLogger(OSKGravityModel.class);
     /** Order of spherical harmonic. */
-    @Manipulatable private int order = 8; // hardcoded for now 
+     private int order = 8; // hardcoded for now 
     /** Degree of spherical harmonic. */
-    @Manipulatable private int degree = 8; // hardcoded for now 
+     private int degree = 8; // hardcoded for now 
     /**Earth gravity acceleration: Value and direction vector in ECI. 
        Vector components in [m/s^ 2] */
-    @Readable private double[] gravAcceleration = new double[4];
+     private double[] gravAcceleration = new double[4];
     /** Structure SCPosition in ECI frame. */
-    @Manipulatable private double[] scPositionECI = new double[3];
+     private double[] scPositionECI = new double[3];
     /** JAT Class of S/C position vector in ECI. */
     private VectorN  scPositionVector;
     /** JAT Earth reference frame. */
@@ -131,7 +131,7 @@ public class OSKGravityModel extends BaseModel {
      * @param kernel Reference to the kernel.
      */
     public OSKGravityModel() {
-        super("OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super("23_OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
         name = "OSKGravityModel";
     }
 
@@ -228,4 +228,49 @@ public class OSKGravityModel extends BaseModel {
 			scPositionECI[i] = p[i];
 		}		
 	}
+
+	//----------------------------------------
+    // Methods added for JMX monitoring	
+
+	@ManagedAttribute
+	public double[] getScPositionECI() {
+		return scPositionECI;
+	}
+
+
+	public void setScPositionECI(double[] scPositionECI) {
+		this.scPositionECI = scPositionECI;
+	}
+
+	@ManagedAttribute
+	public int getOrder() {
+		return order;
+	}
+
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	@ManagedAttribute
+	public int getDegree() {
+		return degree;
+	}
+
+
+	public void setDegree(int degree) {
+		this.degree = degree;
+	}
+
+	@ManagedAttribute
+	public double[] getGravAcceleration() {
+		return gravAcceleration;
+	}
+
+
+	public void setGravAcceleration(double[] gravAcceleration) {
+		this.gravAcceleration = gravAcceleration;
+	}
+	
+	
 }

@@ -41,6 +41,10 @@
  import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
+
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
@@ -63,14 +67,14 @@ public abstract class EngineController extends BaseModel {
     private static final Logger LOG
             = LoggerFactory.getLogger(EngineController.class);
     /** Commandeable control value. */
-    @Manipulatable private double controlRangeMax;
-    @Manipulatable private double controlRangeMin;
-    @Manipulatable private double controlValue1Nom;
-    @Manipulatable private double controlValue2Nom;
-    @Readable private double controlValueActual;
-    @Readable private double controlValue1;
-    @Readable private double controlValue2;
-    @Readable private double localtime;
+     private double controlRangeMax;
+     private double controlRangeMin;
+     private double controlValue1Nom;
+     private double controlValue2Nom;
+     private double controlValueActual;
+     private double controlValue1;
+     private double controlValue2;
+     private double localtime;
 
     private static final String TYPE      = "EngineController";
     private static final String SOLVER    = "none";
@@ -79,26 +83,32 @@ public abstract class EngineController extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 1;
 
-    @Manipulatable final AnalogPort controlPort1;
-    @Manipulatable final AnalogPort controlPort2;
+     final AnalogPort controlPort1;
+     final AnalogPort controlPort2;
 
-    /**
-     * Creates a new instance of the engine controller.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
-//     public EngineController(final String name) {
-//        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-//       	System.out.println("EngineController " + name);
-//     }
-     public EngineController(final String name, AnalogPort controlPort1, AnalogPort controlPort2) {
+    public EngineController(final String name, AnalogPort controlPort1, AnalogPort controlPort2) {
          super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
          this.controlPort1 = controlPort1;
          this.controlPort2 = controlPort2;
-        	System.out.println("EngineController " + name);
-      }
+    }
+
+    @Override
+    @PostConstruct
+    public void init() {
+        /* Computation of derived initialization parameters. */
+        localtime = 0.0;
+        controlValueActual = controlRangeMax;
+        controlValue1 = controlValueActual * controlValue1Nom;
+        controlValue2 = controlValueActual * controlValue2Nom;
+     	completeConnections();
+    }
     
+    void completeConnections() {
+    	controlPort1.setToModel(this);
+    	controlPort2.setToModel(this);
+    	LOG.info("completeConnections for " + name + ", (" + controlPort1.getName()  + "," + controlPort2.getName() + ")" );
+    }
+
     public double getControlRangeMax() {
 		return controlRangeMax;
 	}
@@ -130,27 +140,6 @@ public abstract class EngineController extends BaseModel {
 	public void setControlValue2Nom(double controlValue2Nom) {
 		this.controlValue2Nom = controlValue2Nom;
 	}
-
-	/**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
-    @Override
- //   @PostConstruct
-    public void init() {
-//    	controlPort1.setFromModel(this);
-//    	controlPort2.setToModel(this);
-    	System.out.println(controlPort1.getName() + " " + controlPort2.getName() + " "  );
-        /* Computation of derived initialization parameters. */
-        localtime = 0.0;
-        controlValueActual = controlRangeMax;
-        controlValue1 = controlValueActual * controlValue1Nom;
-        controlValue2 = controlValueActual * controlValue2Nom;
-    }
-
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -217,4 +206,54 @@ public abstract class EngineController extends BaseModel {
 
         return 0;
     }
+
+
+	//----------------------------------------
+    // Methods added for JMX monitoring	
+
+	@ManagedAttribute
+	public double getControlValueActual() {
+		return controlValueActual;
+	}
+
+	public void setControlValueActual(double controlValueActual) {
+		this.controlValueActual = controlValueActual;
+	}
+
+	@ManagedAttribute
+	public double getControlValue1() {
+		return controlValue1;
+	}
+
+	public void setControlValue1(double controlValue1) {
+		this.controlValue1 = controlValue1;
+	}
+
+	@ManagedAttribute
+	public double getControlValue2() {
+		return controlValue2;
+	}
+
+	public void setControlValue2(double controlValue2) {
+		this.controlValue2 = controlValue2;
+	}
+
+	@ManagedAttribute
+	public double getLocaltime() {
+		return localtime;
+	}
+
+	public void setLocaltime(double localtime) {
+		this.localtime = localtime;
+	}
+
+	@ManagedAttribute
+	public AnalogPort getControlPort1() {
+		return controlPort1;
+	}
+
+	public AnalogPort getControlPort2() {
+		return controlPort2;
+	}
+    
 }

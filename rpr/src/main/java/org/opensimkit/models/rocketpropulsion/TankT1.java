@@ -126,11 +126,12 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.awt.image.Kernel;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
+
+import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.DEQClient;
@@ -159,12 +160,14 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
     /** Logger instance for the TankT1. */
     private static final Logger LOG = LoggerFactory.getLogger(TankT1.class);
     /** Fuel type. */
-    @Manipulatable private String fuel;
+     private String fuel;
+	/** Oxidizer type. */
+     private String oxidizer;
 
 	/** Pressure gas for fuel compartment. */
-    @Manipulatable private String fuPressGas;
+     private String fuPressGas;
     /** Pressure gas for oxidizer compartment. */
-    @Manipulatable private String oxPressGas;
+     private String oxPressGas;
     /** Massflow boundary condition at fuel outlet. */
     private double mfBoundFuelPress;
     /** Massflow boundary condition at oxidizer outlet. */
@@ -180,75 +183,75 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
     /** Fluid states for pressurization gas inflows and fuel/oxidizer liquid
      * outflows. */
-    @Manipulatable private double pinFPG;
-    @Manipulatable private double tinFPG;
-    @Manipulatable private double mfinFPG;
-    @Manipulatable private double pinOPG;
-    @Manipulatable private double tinOPG;
-    @Manipulatable private double mfinOPG;
-    @Manipulatable private double poutFuel;
-    @Manipulatable private double toutFuel;
-    @Manipulatable private double mfoutFuel;
-    @Manipulatable private double poutOxidizer;
-    @Manipulatable private double toutOxidizer;
-    @Manipulatable private double mfoutOxidizer;
+     private double pinFPG;
+     private double tinFPG;
+     private double mfinFPG;
+     private double pinOPG;
+     private double tinOPG;
+     private double mfinOPG;
+     private double poutFuel;
+     private double toutFuel;
+     private double mfoutFuel;
+     private double poutOxidizer;
+     private double toutOxidizer;
+     private double mfoutOxidizer;
 
     /** Volume of fuel tank. */
-    @Manipulatable private double VTBR;
+     private double VTBR;
         
 	/** Volume of oxidizer tank. */
-    @Manipulatable private double VTOX;
+     private double VTOX;
 
     /** Outer wall surface of oxidizer compartment. */
     /** Outer wall surface of oxidizer tank. */
-    @Manipulatable private double FAWO;
+     private double FAWO;
     /** Separation wall surface of oxidizer tank. */
-    @Manipulatable private double FTWO;
+     private double FTWO;
     /** Outer wall surface of fuel tank. */
-    @Manipulatable private double FAWB;
+     private double FAWB;
     /** Sep. wall surface of fuel tank. */
-    @Manipulatable private double FTWB;
+     private double FTWB;
     /** Boundary fill level of oxidizer.
      * Empty to boundary fill level other polynomials for Surface interpolations
      * are used than for bound. level to full tank - see tank sketch at top of
      * this file. */
-    @Manipulatable private double HGOX;
+     private double HGOX;
     /** Boundary fill level of fuel.
      * Empty to boundary fill level other polynomials for surface interpolations
      * are used than for bound. level to full tank - see tank sketch at top of
      * this file. */
-    @Manipulatable private double HGBR;
+     private double HGBR;
     /** Characteristic measure for Ox. tank - diameter. */
-    @Manipulatable private double CHARMO;
+     private double CHARMO;
     /** Characteristic measure for fuel tank - diameter. */
-    @Manipulatable private double CHARMB;
+     private double CHARMB;
     /** Area specific mass of outer wall of ox compartment. */
-    @Manipulatable private double FMAWO;
+     private double FMAWO;
     /** Area specific mass of separation wall. */
-    @Manipulatable private double FMTW;
+     private double FMTW;
     /** Area specific mass of outer wall of fuel compartment. */
-    @Manipulatable private double FMAWB;
+     private double FMAWB;
     /** Specific heat capacity of oxidizer. */
-    @Manipulatable private double SPWKO;
+     private double SPWKO;
     /**  Specific heat capacity of fuel. */
-    @Manipulatable private double SPWKB;
+     private double SPWKB;
 
     /** Nominal pressure in ox. compartment. */
-    @Manipulatable private double PTO;
+     private double PTO;
     /** Pressure of ox at blowdown end. */
-    @Manipulatable private double PENDOX;
+     private double PENDOX;
     /** Nominal pressure in fuel compartment. */
-    @Manipulatable private double PTB;
+     private double PTB;
     /** Pressure of fuel at blowdown end. */
-    @Manipulatable private double PENDBR;
+     private double PENDBR;
     /** Ox volume at start. */
-    @Manipulatable private double VANFOX;
+     private double VANFOX;
     /** Ox. temp at start. */
-    @Manipulatable private double TANFOX;
+     private double TANFOX;
     /** Fuel volume at start. */
-    @Manipulatable private double VANFBR;
+     private double VANFBR;
     /** Temp. of fuel at start. */
-    @Manipulatable private double TANFBR;
+     private double TANFBR;
 
     private double PVO;
     private double AO,BO;
@@ -301,57 +304,57 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
      *   ====================================================
      *
      *   Fuel filling level [m] as function of volume [m^3]. */
-    @Manipulatable private double fuLevel[] = new double[8];
+     private double fuLevel[] = new double[8];
     /** Fuel covered outer wall surface [m^2] as function of filling level [m].
      */
-    @Manipulatable private double fuCOutWSfc[] = new double[8];
+     private double fuCOutWSfc[] = new double[8];
     /** Fuel covered separ. wall surface [m^2] as function of filling level [m].
      */
-    @Manipulatable private double fuCSepWSfc[] = new double[8];
+     private double fuCSepWSfc[] = new double[8];
     /** Free surface of liquid fuel [m^2] as function of filling level [m]. */
-    @Manipulatable private double fuSfc[] = new double[8];
+     private double fuSfc[] = new double[8];
     /**
      * For levels below boundary level:
      * --------------------------------
      * Fuel covered outer wall surface [m^2] as function of filling level [m].
      */
-    @Manipulatable private double fuCOutWSfc2[] = new double[8];
+     private double fuCOutWSfc2[] = new double[8];
     /** Fuel covered separ. wall surface [m^2] as function of filling level [m].
      */
-    @Manipulatable private double fuCSepWSfc2[] = new double[8];
+     private double fuCSepWSfc2[] = new double[8];
     /** Free surface of liquid fuel [m^2] as function of filling level [m]. */
-    @Manipulatable private double fuSfc2[] = new double[8];
+     private double fuSfc2[] = new double[8];
 
     /**  Polynomial approximations for oxidizer compartment:
      *   ====================================================
      *
      *   Oxidizer filling level [m] as function of volume [m^3]. */
-    @Manipulatable private double oxLevel[] = new double[8];
+     private double oxLevel[] = new double[8];
     /** Oxidizer covered outer wall surface [m^2] as function of filling
      * level [m]. */
-    @Manipulatable private double oxCOutWSfc[] = new double[8];
+     private double oxCOutWSfc[] = new double[8];
     /** Oxidizer covered separ. wall surface [m^2] as function of filling
      * level [m]. */
-    @Manipulatable private double oxCSepWSfc[] = new double[8];
+     private double oxCSepWSfc[] = new double[8];
     /** Free surface of liquid oxidizer [m^2] as function of filling level [m].
      */
-    @Manipulatable private double oxSfc[] = new double[8];
+     private double oxSfc[] = new double[8];
 
     /**  For levels below boundary level:
      *   --------------------------------
      *
      * Oxidizer covered outer wall surface [m^2] as function of filling
      * level [m]. */
-    @Manipulatable private double oxCOutWSfc2[] = new double[8];
+     private double oxCOutWSfc2[] = new double[8];
     /** Oxidizer covered separ. wall surface [m^2] as function of filling
      * level [m]. */
-    @Manipulatable private double oxCSepWSfc2[] = new double[8];
+     private double oxCSepWSfc2[] = new double[8];
     /** Free surface of liquid oxidizer [m^2] as function of filling level [m].
      */
-    @Manipulatable private double oxSfc2[] = new double[8];
+     private double oxSfc2[] = new double[8];
 
     /** State variables vector of tank DEQ system. */
-    @Manipulatable private double YK[] = new double[20];
+     private double YK[] = new double[20];
     /** Max. num. of calls of the Diff() method within one integ. step. */
     private int IFMAX;
     /** Number of necessary calls. */
@@ -363,12 +366,12 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
     private int BDFLAG;
 
     /** For printout of TabGenerator. */
-    @Readable private double poxt;
-    @Readable private double tGOxT;
-    @Readable private double tLOxT;
-    @Readable private double PFuT;
-    @Readable private double tGFuT;
-    @Readable private double tLFuT;
+     private double poxt;
+     private double tGOxT;
+     private double tLOxT;
+     private double PFuT;
+     private double tGFuT;
+     private double tLFuT;
 
     private static final String TYPE      = "TankT1";
     private static final String SOLVER    = "RKF-4/5";
@@ -377,21 +380,11 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private PureGasPort inputPortFuelPressureGas;
-    @Manipulatable private PureGasPort inputPortOxidizerPressureGas;
-    @Manipulatable private PureLiquidPort outputPortFuel;
-    @Manipulatable private PureLiquidPort outputPortOxidizer;
+     private PureGasPort inputPortFuelPressureGas;
+     private PureGasPort inputPortOxidizerPressureGas;
+     private PureLiquidPort outputPortFuel;
+     private PureLiquidPort outputPortOxidizer;
 
-
-    /**
-     * Creates a new instance of the tank.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
-    public TankT1(final String name, final Kernel kernel) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
     public TankT1(String name, 
     		PureLiquidPort outputPortFuel, PureLiquidPort outputPortOxidizer, 
     		PureGasPort inputPortFuelPressureGas, PureGasPort inputPortOxidizerPressureGas) {
@@ -402,24 +395,11 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
  		this.inputPortOxidizerPressureGas = inputPortOxidizerPressureGas;
  	}
 
- 	@PostConstruct
-    public void completeConnections() {
-     	LOG.info("completeConnections for " + name);
-     	inputPortFuelPressureGas.setToModel(this);
-     	inputPortOxidizerPressureGas.setToModel(this);
-     	outputPortFuel.setFromModel(this);
-     	outputPortOxidizer.setFromModel(this);
-     }
-
-    /**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
     @Override
+ 	@PostConstruct
     public void init() {
+    	completeConnections();
+    	
         double RSPOXD = 90.372;
         double RSPHE  = 2077;
 
@@ -518,6 +498,13 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         ZEITA=-.5;
     }
 
+    void completeConnections() {
+     	inputPortFuelPressureGas.setToModel(this);
+     	inputPortOxidizerPressureGas.setToModel(this);
+     	outputPortFuel.setFromModel(this);
+     	outputPortOxidizer.setFromModel(this);
+    	LOG.info("completeConnections for " + name + ", (" + inputPortFuelPressureGas.getName()  + "," + inputPortOxidizerPressureGas.getName() + "," + outputPortFuel.getName() + "," + outputPortOxidizer.getName() + ")" );
+     }
 
     public int DEQDeriv(final double X, final double Y[], final int N,
             final double F[]) {
@@ -1350,549 +1337,642 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         outFile.write("TankT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+    
+    //-----------------------------------------------------------------------------------
+    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+
+	@ManagedAttribute    
     public String getFuel() {
 		return fuel;
 	}
 	public void setFuel(String fuel) {
 		this.fuel = fuel;
 	}
-
-	/** Oxidizer type. */
-    @Manipulatable private String oxidizer;
+    
+	@ManagedAttribute    
     public String getOxidizer() {
 		return oxidizer;
 	}
 	public void setOxidizer(String oxidizer) {
 		this.oxidizer = oxidizer;
 	}
+	@ManagedAttribute    
 	public String getFuPressGas() {
 		return fuPressGas;
 	}
 	public void setFuPressGas(String fuPressGas) {
 		this.fuPressGas = fuPressGas;
 	}
+	@ManagedAttribute    
 	public String getOxPressGas() {
 		return oxPressGas;
 	}
 	public void setOxPressGas(String oxPressGas) {
 		this.oxPressGas = oxPressGas;
 	}
+	@ManagedAttribute    
 	public double getMfBoundFuelPress() {
 		return mfBoundFuelPress;
 	}
 	public void setMfBoundFuelPress(double mfBoundFuelPress) {
 		this.mfBoundFuelPress = mfBoundFuelPress;
 	}
+	@ManagedAttribute    
 	public double getMfBoundOxPress() {
 		return mfBoundOxPress;
 	}
 	public void setMfBoundOxPress(double mfBoundOxPress) {
 		this.mfBoundOxPress = mfBoundOxPress;
 	}
+	@ManagedAttribute    
 	public double getpBoundFuelPress() {
 		return pBoundFuelPress;
 	}
 	public void setpBoundFuelPress(double pBoundFuelPress) {
 		this.pBoundFuelPress = pBoundFuelPress;
 	}
+	@ManagedAttribute    
 	public double getpBoundOxPress() {
 		return pBoundOxPress;
 	}
 	public void setpBoundOxPress(double pBoundOxPress) {
 		this.pBoundOxPress = pBoundOxPress;
 	}
+	@ManagedAttribute    
 	public double getMfBoundFuel() {
 		return mfBoundFuel;
 	}
 	public void setMfBoundFuel(double mfBoundFuel) {
 		this.mfBoundFuel = mfBoundFuel;
 	}
+	@ManagedAttribute    
 	public double getMfBoundOx() {
 		return mfBoundOx;
 	}
 	public void setMfBoundOx(double mfBoundOx) {
 		this.mfBoundOx = mfBoundOx;
 	}
+	@ManagedAttribute    
 	public double getPinFPG() {
 		return pinFPG;
 	}
 	public void setPinFPG(double pinFPG) {
 		this.pinFPG = pinFPG;
 	}
+	@ManagedAttribute    
 	public double getTinFPG() {
 		return tinFPG;
 	}
 	public void setTinFPG(double tinFPG) {
 		this.tinFPG = tinFPG;
 	}
+	@ManagedAttribute    
 	public double getMfinFPG() {
 		return mfinFPG;
 	}
 	public void setMfinFPG(double mfinFPG) {
 		this.mfinFPG = mfinFPG;
 	}
+	@ManagedAttribute    
 	public double getPinOPG() {
 		return pinOPG;
 	}
 	public void setPinOPG(double pinOPG) {
 		this.pinOPG = pinOPG;
 	}
+	@ManagedAttribute    
 	public double getTinOPG() {
 		return tinOPG;
 	}
 	public void setTinOPG(double tinOPG) {
 		this.tinOPG = tinOPG;
 	}
+	@ManagedAttribute    
 	public double getMfinOPG() {
 		return mfinOPG;
 	}
 	public void setMfinOPG(double mfinOPG) {
 		this.mfinOPG = mfinOPG;
 	}
+	@ManagedAttribute    
 	public double getPoutFuel() {
 		return poutFuel;
 	}
 	public void setPoutFuel(double poutFuel) {
 		this.poutFuel = poutFuel;
 	}
+	@ManagedAttribute    
 	public double getToutFuel() {
 		return toutFuel;
 	}
 	public void setToutFuel(double toutFuel) {
 		this.toutFuel = toutFuel;
 	}
+	@ManagedAttribute    
 	public double getMfoutFuel() {
 		return mfoutFuel;
 	}
 	public void setMfoutFuel(double mfoutFuel) {
 		this.mfoutFuel = mfoutFuel;
 	}
+	@ManagedAttribute    
 	public double getPoutOxidizer() {
 		return poutOxidizer;
 	}
 	public void setPoutOxidizer(double poutOxidizer) {
 		this.poutOxidizer = poutOxidizer;
 	}
+	@ManagedAttribute    
 	public double getToutOxidizer() {
 		return toutOxidizer;
 	}
 	public void setToutOxidizer(double toutOxidizer) {
 		this.toutOxidizer = toutOxidizer;
 	}
+	@ManagedAttribute    
 	public double getMfoutOxidizer() {
 		return mfoutOxidizer;
 	}
 	public void setMfoutOxidizer(double mfoutOxidizer) {
 		this.mfoutOxidizer = mfoutOxidizer;
 	}
+	@ManagedAttribute    
 	public double getVTBR() {
 		return VTBR;
 	}
 	public void setVTBR(double vTBR) {
 		VTBR = vTBR;
 	}
+	@ManagedAttribute    
 	public double getVTOX() {
 		return VTOX;
 	}
 	public void setVTOX(double vTOX) {
 		VTOX = vTOX;
 	}
+	@ManagedAttribute    
 	public double getFAWO() {
 		return FAWO;
 	}
 	public void setFAWO(double fAWO) {
 		FAWO = fAWO;
 	}
+	@ManagedAttribute    
 	public double getFTWO() {
 		return FTWO;
 	}
 	public void setFTWO(double fTWO) {
 		FTWO = fTWO;
 	}
+	@ManagedAttribute    
 	public double getFAWB() {
 		return FAWB;
 	}
 	public void setFAWB(double fAWB) {
 		FAWB = fAWB;
 	}
+	@ManagedAttribute    
 	public double getFTWB() {
 		return FTWB;
 	}
 	public void setFTWB(double fTWB) {
 		FTWB = fTWB;
 	}
+	@ManagedAttribute    
 	public double getHGOX() {
 		return HGOX;
 	}
 	public void setHGOX(double hGOX) {
 		HGOX = hGOX;
 	}
+	@ManagedAttribute    
 	public double getHGBR() {
 		return HGBR;
 	}
 	public void setHGBR(double hGBR) {
 		HGBR = hGBR;
 	}
+	@ManagedAttribute    
 	public double getCHARMO() {
 		return CHARMO;
 	}
 	public void setCHARMO(double cHARMO) {
 		CHARMO = cHARMO;
 	}
+	@ManagedAttribute    
 	public double getCHARMB() {
 		return CHARMB;
 	}
 	public void setCHARMB(double cHARMB) {
 		CHARMB = cHARMB;
 	}
+	@ManagedAttribute    
 	public double getFMAWO() {
 		return FMAWO;
 	}
 	public void setFMAWO(double fMAWO) {
 		FMAWO = fMAWO;
 	}
+	@ManagedAttribute    
 	public double getFMTW() {
 		return FMTW;
 	}
 	public void setFMTW(double fMTW) {
 		FMTW = fMTW;
 	}
+	@ManagedAttribute    
 	public double getFMAWB() {
 		return FMAWB;
 	}
 	public void setFMAWB(double fMAWB) {
 		FMAWB = fMAWB;
 	}
+	@ManagedAttribute    
 	public double getSPWKO() {
 		return SPWKO;
 	}
 	public void setSPWKO(double sPWKO) {
 		SPWKO = sPWKO;
 	}
+	@ManagedAttribute    
 	public double getSPWKB() {
 		return SPWKB;
 	}
 	public void setSPWKB(double sPWKB) {
 		SPWKB = sPWKB;
 	}
+	@ManagedAttribute    
 	public double getPTO() {
 		return PTO;
 	}
 	public void setPTO(double pTO) {
 		PTO = pTO;
 	}
+	@ManagedAttribute    
 	public double getPENDOX() {
 		return PENDOX;
 	}
 	public void setPENDOX(double pENDOX) {
 		PENDOX = pENDOX;
 	}
+	@ManagedAttribute    
 	public double getPTB() {
 		return PTB;
 	}
 	public void setPTB(double pTB) {
 		PTB = pTB;
 	}
+	@ManagedAttribute    
 	public double getPENDBR() {
 		return PENDBR;
 	}
 	public void setPENDBR(double pENDBR) {
 		PENDBR = pENDBR;
 	}
+	@ManagedAttribute    
 	public double getVANFOX() {
 		return VANFOX;
 	}
 	public void setVANFOX(double vANFOX) {
 		VANFOX = vANFOX;
 	}
+	@ManagedAttribute    
 	public double getTANFOX() {
 		return TANFOX;
 	}
 	public void setTANFOX(double tANFOX) {
 		TANFOX = tANFOX;
 	}
+	@ManagedAttribute    
 	public double getVANFBR() {
 		return VANFBR;
 	}
 	public void setVANFBR(double vANFBR) {
 		VANFBR = vANFBR;
 	}
+	@ManagedAttribute    
 	public double getTANFBR() {
 		return TANFBR;
 	}
 	public void setTANFBR(double tANFBR) {
 		TANFBR = tANFBR;
 	}
+	@ManagedAttribute    
 	public double getPVO() {
 		return PVO;
 	}
 	public void setPVO(double pVO) {
 		PVO = pVO;
 	}
+	@ManagedAttribute    
 	public double getTHEINO() {
 		return THEINO;
 	}
 	public void setTHEINO(double tHEINO) {
 		THEINO = tHEINO;
 	}
+	@ManagedAttribute    
 	public double getTHEINB() {
 		return THEINB;
 	}
 	public void setTHEINB(double tHEINB) {
 		THEINB = tHEINB;
 	}
+	@ManagedAttribute    
 	public double getMAWGO() {
 		return MAWGO;
 	}
 	public void setMAWGO(double mAWGO) {
 		MAWGO = mAWGO;
 	}
+	@ManagedAttribute    
 	public double getMTWGO() {
 		return MTWGO;
 	}
 	public void setMTWGO(double mTWGO) {
 		MTWGO = mTWGO;
 	}
+	@ManagedAttribute    
 	public double getMAWGB() {
 		return MAWGB;
 	}
 	public void setMAWGB(double mAWGB) {
 		MAWGB = mAWGB;
 	}
+	@ManagedAttribute    
 	public double getMTWGB() {
 		return MTWGB;
 	}
 	public void setMTWGB(double mTWGB) {
 		MTWGB = mTWGB;
 	}
+	@ManagedAttribute    
 	public double getMPHEOX() {
 		return MPHEOX;
 	}
 	public void setMPHEOX(double mPHEOX) {
 		MPHEOX = mPHEOX;
 	}
+	@ManagedAttribute    
 	public double getMPHEBR() {
 		return MPHEBR;
 	}
 	public void setMPHEBR(double mPHEBR) {
 		MPHEBR = mPHEBR;
 	}
+	@ManagedAttribute    
 	public double getMAWGOA() {
 		return MAWGOA;
 	}
 	public void setMAWGOA(double mAWGOA) {
 		MAWGOA = mAWGOA;
 	}
+	@ManagedAttribute    
 	public double getMTWGOA() {
 		return MTWGOA;
 	}
 	public void setMTWGOA(double mTWGOA) {
 		MTWGOA = mTWGOA;
 	}
+	@ManagedAttribute    
 	public double getMAWGBA() {
 		return MAWGBA;
 	}
 	public void setMAWGBA(double mAWGBA) {
 		MAWGBA = mAWGBA;
 	}
+	@ManagedAttribute    
 	public double getMTWGBA() {
 		return MTWGBA;
 	}
 	public void setMTWGBA(double mTWGBA) {
 		MTWGBA = mTWGBA;
 	}
+	@ManagedAttribute    
 	public double getMLOX() {
 		return MLOX;
 	}
 	public void setMLOX(double mLOX) {
 		MLOX = mLOX;
 	}
+	@ManagedAttribute    
 	public double getMLBR() {
 		return MLBR;
 	}
 	public void setMLBR(double mLBR) {
 		MLBR = mLBR;
 	}
+	@ManagedAttribute    
 	public double getMPKTLO() {
 		return MPKTLO;
 	}
 	public void setMPKTLO(double mPKTLO) {
 		MPKTLO = mPKTLO;
 	}
+	@ManagedAttribute    
 	public double getMPKTLB() {
 		return MPKTLB;
 	}
 	public void setMPKTLB(double mPKTLB) {
 		MPKTLB = mPKTLB;
 	}
+	@ManagedAttribute    
 	public double getMDO() {
 		return MDO;
 	}
 	public void setMDO(double mDO) {
 		MDO = mDO;
 	}
+	@ManagedAttribute    
 	public double getMHEOXA() {
 		return MHEOXA;
 	}
 	public void setMHEOXA(double mHEOXA) {
 		MHEOXA = mHEOXA;
 	}
+	@ManagedAttribute    
 	public double getMHEBRA() {
 		return MHEBRA;
 	}
 	public void setMHEBRA(double mHEBRA) {
 		MHEBRA = mHEBRA;
 	}
+	@ManagedAttribute    
 	public double[] getFuLevel() {
 		return fuLevel;
 	}
 	public void setFuLevel(double[] fuLevel) {
 		this.fuLevel = fuLevel;
 	}
+	@ManagedAttribute    
 	public double[] getFuCOutWSfc() {
 		return fuCOutWSfc;
 	}
 	public void setFuCOutWSfc(double[] fuCOutWSfc) {
 		this.fuCOutWSfc = fuCOutWSfc;
 	}
+	@ManagedAttribute    
 	public double[] getFuCSepWSfc() {
 		return fuCSepWSfc;
 	}
 	public void setFuCSepWSfc(double[] fuCSepWSfc) {
 		this.fuCSepWSfc = fuCSepWSfc;
 	}
+	@ManagedAttribute    
 	public double[] getFuSfc() {
 		return fuSfc;
 	}
 	public void setFuSfc(double[] fuSfc) {
 		this.fuSfc = fuSfc;
 	}
+	@ManagedAttribute    
 	public double[] getFuCOutWSfc2() {
 		return fuCOutWSfc2;
 	}
 	public void setFuCOutWSfc2(double[] fuCOutWSfc2) {
 		this.fuCOutWSfc2 = fuCOutWSfc2;
 	}
+	@ManagedAttribute    
 	public double[] getFuCSepWSfc2() {
 		return fuCSepWSfc2;
 	}
 	public void setFuCSepWSfc2(double[] fuCSepWSfc2) {
 		this.fuCSepWSfc2 = fuCSepWSfc2;
 	}
+	@ManagedAttribute    
 	public double[] getFuSfc2() {
 		return fuSfc2;
 	}
 	public void setFuSfc2(double[] fuSfc2) {
 		this.fuSfc2 = fuSfc2;
 	}
+	@ManagedAttribute    
 	public double[] getOxLevel() {
 		return oxLevel;
 	}
 	public void setOxLevel(double[] oxLevel) {
 		this.oxLevel = oxLevel;
 	}
+	@ManagedAttribute    
 	public double[] getOxCOutWSfc() {
 		return oxCOutWSfc;
 	}
 	public void setOxCOutWSfc(double[] oxCOutWSfc) {
 		this.oxCOutWSfc = oxCOutWSfc;
 	}
+	@ManagedAttribute    
 	public double[] getOxCSepWSfc() {
 		return oxCSepWSfc;
 	}
 	public void setOxCSepWSfc(double[] oxCSepWSfc) {
 		this.oxCSepWSfc = oxCSepWSfc;
 	}
+	@ManagedAttribute    
 	public double[] getOxSfc() {
 		return oxSfc;
 	}
 	public void setOxSfc(double[] oxSfc) {
 		this.oxSfc = oxSfc;
 	}
+	@ManagedAttribute    
 	public double[] getOxCOutWSfc2() {
 		return oxCOutWSfc2;
 	}
 	public void setOxCOutWSfc2(double[] oxCOutWSfc2) {
 		this.oxCOutWSfc2 = oxCOutWSfc2;
 	}
+	@ManagedAttribute    
 	public double[] getOxCSepWSfc2() {
 		return oxCSepWSfc2;
 	}
 	public void setOxCSepWSfc2(double[] oxCSepWSfc2) {
 		this.oxCSepWSfc2 = oxCSepWSfc2;
 	}
+	@ManagedAttribute    
 	public double[] getOxSfc2() {
 		return oxSfc2;
 	}
 	public void setOxSfc2(double[] oxSfc2) {
 		this.oxSfc2 = oxSfc2;
 	}
+	@ManagedAttribute    
 	public int getIFMAX() {
 		return IFMAX;
 	}
 	public void setIFMAX(int iFMAX) {
 		IFMAX = iFMAX;
 	}
+	@ManagedAttribute    
 	public int getIFANZ() {
 		return IFANZ;
 	}
 	public void setIFANZ(int iFANZ) {
 		IFANZ = iFANZ;
 	}
+	@ManagedAttribute    
 	public int getIFEHL() {
 		return IFEHL;
 	}
 	public void setIFEHL(int iFEHL) {
 		IFEHL = iFEHL;
 	}
+	@ManagedAttribute    
 	public int getBDFLAG() {
 		return BDFLAG;
 	}
 	public void setBDFLAG(int bDFLAG) {
 		BDFLAG = bDFLAG;
 	}
+	@ManagedAttribute    
 	public double getPoxt() {
 		return poxt;
 	}
 	public void setPoxt(double poxt) {
 		this.poxt = poxt;
 	}
+	@ManagedAttribute    
 	public double gettGOxT() {
 		return tGOxT;
 	}
 	public void settGOxT(double tGOxT) {
 		this.tGOxT = tGOxT;
 	}
+	@ManagedAttribute    
 	public double gettLOxT() {
 		return tLOxT;
 	}
 	public void settLOxT(double tLOxT) {
 		this.tLOxT = tLOxT;
 	}
+	@ManagedAttribute    
 	public double getPFuT() {
 		return PFuT;
 	}
 	public void setPFuT(double pFuT) {
 		PFuT = pFuT;
 	}
+	@ManagedAttribute    
 	public double gettGFuT() {
 		return tGFuT;
 	}
 	public void settGFuT(double tGFuT) {
 		this.tGFuT = tGFuT;
 	}
+	@ManagedAttribute    
 	public double gettLFuT() {
 		return tLFuT;
 	}
 	public void settLFuT(double tLFuT) {
 		this.tLFuT = tLFuT;
 	}
+	@ManagedAttribute    
 	public PureGasPort getInputPortFuelPressureGas() {
 		return inputPortFuelPressureGas;
 	}
 	public void setInputPortFuelPressureGas(PureGasPort inputPortFuelPressureGas) {
 		this.inputPortFuelPressureGas = inputPortFuelPressureGas;
 	}
+	@ManagedAttribute    
 	public PureGasPort getInputPortOxidizerPressureGas() {
 		return inputPortOxidizerPressureGas;
 	}
@@ -1900,12 +1980,14 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 			PureGasPort inputPortOxidizerPressureGas) {
 		this.inputPortOxidizerPressureGas = inputPortOxidizerPressureGas;
 	}
+	@ManagedAttribute    
 	public PureLiquidPort getOutputPortFuel() {
 		return outputPortFuel;
 	}
 	public void setOutputPortFuel(PureLiquidPort outputPortFuel) {
 		this.outputPortFuel = outputPortFuel;
 	}
+	@ManagedAttribute    
 	public PureLiquidPort getOutputPortOxidizer() {
 		return outputPortOxidizer;
 	}

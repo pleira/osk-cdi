@@ -63,6 +63,8 @@
  */
 package org.opensimkit.ports;
 
+import java.io.Serializable;
+
 import org.opensimkit.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +80,8 @@ import org.slf4j.LoggerFactory;
  * @version 1.2
  * @since 2.4.0
  */
-public class BasePort implements Port {
-    private static final Logger LOG = LoggerFactory.getLogger(BasePort.class);
+public class BasePort implements Port, Serializable {
+    private transient static final Logger LOG = LoggerFactory.getLogger(BasePort.class);
     String name;
     private String id;
     private String description;

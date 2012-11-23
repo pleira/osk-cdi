@@ -57,6 +57,8 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.manipulation.Manipulatable;
@@ -78,19 +80,19 @@ public abstract class FluidFlowValve extends BaseModel {
     private static final Logger LOG
             = LoggerFactory.getLogger(FluidFlowValve.class);
     /** Commandeable mass flow. */
-    @Manipulatable private double massflow;
-    @Manipulatable private double referencePressureLoss;
-    @Manipulatable private double referenceMassFlow;
-    @Readable      private String fluid;
-    @Readable      private double pin;
-    @Readable      private double tin;
-    @Readable      private double mfin;
-    @Readable      private double pout;
-    @Readable      private double tout;
-    @Readable      private double mfout;
-    @Readable      private double localtime;
-    @Readable      private double controlValue;
-    @Readable      private double DP;
+     private double massflow;
+     private double referencePressureLoss;
+     private double referenceMassFlow;
+          private String fluid;
+          private double pin;
+          private double tin;
+          private double mfin;
+          private double pout;
+          private double tout;
+          private double mfout;
+          private double localtime;
+          private double controlValue;
+          private double DP;
 
     private static final String TYPE      = "FluidFlowValve";
     private static final String SOLVER    = "none";
@@ -99,26 +101,13 @@ public abstract class FluidFlowValve extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable protected PureLiquidPort inputPort;
+     protected PureLiquidPort inputPort;
 
-	@Manipulatable protected PureLiquidPort outputPort;
+	 protected PureLiquidPort outputPort;
 	
-	@Manipulatable protected AnalogPort     controlPort;
+	 protected AnalogPort     controlPort;
 
-   public FluidFlowValve(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
-
-    /**
-     * Creates a new instance of the Fluid Flow Valve.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
-//    public FluidFlowValve(final String name, final Kernel kernel) {
-//        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-//    }
-
+	
     public FluidFlowValve(String name, PureLiquidPort inputPort,
 			PureLiquidPort outputPort, AnalogPort controlPort) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
@@ -127,50 +116,8 @@ public abstract class FluidFlowValve extends BaseModel {
 		this.controlPort = controlPort;		
 	}
 
-	public double getReferencePressureLoss() {
-		return referencePressureLoss;
-	}
-
-	public void setReferencePressureLoss(double referencePressureLoss) {
-		this.referencePressureLoss = referencePressureLoss;
-	}
-
-	public double getReferenceMassFlow() {
-		return referenceMassFlow;
-	}
-
-	public void setReferenceMassFlow(double referenceMassFlow) {
-		this.referenceMassFlow = referenceMassFlow;
-	}
-
-	@PostConstruct
-    public void completeConnections() {
-    	LOG.info("completeConnections for " + name);
-        inputPort.setToModel(this);
-        outputPort.setFromModel(this);
-        controlPort.setFromModel(this);
-    }
-    
-	public PureLiquidPort getInputPort() {
-		return inputPort;
-	}
-
-	public PureLiquidPort getOutputPort() {
-		return outputPort;
-	}
-
-	public AnalogPort getControlPort() {
-		return controlPort;
-	}
-
-	/**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
     @Override    
+	@PostConstruct
     public void init() {
     	completeConnections();
         /* Computation of derived initialization parameters. */
@@ -184,6 +131,12 @@ public abstract class FluidFlowValve extends BaseModel {
         referencePressureLoss = referencePressureLoss * 1.E5;
     }
 
+    void completeConnections() {
+        inputPort.setToModel(this);
+        outputPort.setFromModel(this);
+        controlPort.setFromModel(this);
+    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPort.getName()  + "," + controlPort.getName() + ")" );
+    }
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -345,4 +298,151 @@ public abstract class FluidFlowValve extends BaseModel {
         outFile.write("FluidFlowValve: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+
+    //-----------------------------------------------------------------------------------
+    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+
+	@ManagedAttribute
+	public double getMassflow() {
+		return massflow;
+	}
+
+	public void setMassflow(double massflow) {
+		this.massflow = massflow;
+	}
+
+	@ManagedAttribute
+	public String getFluid() {
+		return fluid;
+	}
+
+	public void setFluid(String fluid) {
+		this.fluid = fluid;
+	}
+
+	@ManagedAttribute
+	public double getPin() {
+		return pin;
+	}
+
+	public void setPin(double pin) {
+		this.pin = pin;
+	}
+
+	@ManagedAttribute
+	public double getTin() {
+		return tin;
+	}
+
+	public void setTin(double tin) {
+		this.tin = tin;
+	}
+
+	@ManagedAttribute
+	public double getMfin() {
+		return mfin;
+	}
+
+	public void setMfin(double mfin) {
+		this.mfin = mfin;
+	}
+
+	@ManagedAttribute
+	public double getPout() {
+		return pout;
+	}
+
+	public void setPout(double pout) {
+		this.pout = pout;
+	}
+
+	@ManagedAttribute
+	public double getTout() {
+		return tout;
+	}
+
+	public void setTout(double tout) {
+		this.tout = tout;
+	}
+
+	@ManagedAttribute
+	public double getMfout() {
+		return mfout;
+	}
+
+	public void setMfout(double mfout) {
+		this.mfout = mfout;
+	}
+
+	@ManagedAttribute
+	public double getLocaltime() {
+		return localtime;
+	}
+
+	public void setLocaltime(double localtime) {
+		this.localtime = localtime;
+	}
+
+	@ManagedAttribute
+	public double getControlValue() {
+		return controlValue;
+	}
+
+	public void setControlValue(double controlValue) {
+		this.controlValue = controlValue;
+	}
+
+	@ManagedAttribute
+	public double getDP() {
+		return DP;
+	}
+
+	public void setDP(double dP) {
+		DP = dP;
+	}
+    
+	@ManagedAttribute
+	public double getReferencePressureLoss() {
+		return referencePressureLoss;
+	}
+
+	public void setReferencePressureLoss(double referencePressureLoss) {
+		this.referencePressureLoss = referencePressureLoss;
+	}
+	@ManagedAttribute
+	public double getReferenceMassFlow() {
+		return referenceMassFlow;
+	}
+
+	public void setReferenceMassFlow(double referenceMassFlow) {
+		this.referenceMassFlow = referenceMassFlow;
+	}
+
+	@ManagedAttribute
+	public PureLiquidPort getInputPort() {
+		return inputPort;
+	}
+
+	@ManagedAttribute
+	public PureLiquidPort getOutputPort() {
+		return outputPort;
+	}
+
+	@ManagedAttribute
+	public AnalogPort getControlPort() {
+		return controlPort;
+	}
+
+	public void setInputPort(PureLiquidPort inputPort) {
+		this.inputPort = inputPort;
+	}
+
+	public void setOutputPort(PureLiquidPort outputPort) {
+		this.outputPort = outputPort;
+	}
+
+	public void setControlPort(AnalogPort controlPort) {
+		this.controlPort = controlPort;
+	}
+        
 }

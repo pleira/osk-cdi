@@ -53,13 +53,15 @@ package org.opensimkit;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
+
 import org.opensimkit.manipulation.Callable;
 import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.manipulation.Readable;
-import org.opensimkit.steps.CRegulStep;
-import org.opensimkit.steps.CTimeStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Implementation of an abstract model class.
@@ -70,22 +72,22 @@ import org.slf4j.LoggerFactory;
  * @version 1.3
  * @since 2.4.0
  */
-public class BaseModel implements Model {
-    private static final Logger LOG = LoggerFactory.getLogger(BaseModel.class);
+public class BaseModel implements Model, Serializable {
+    private transient static final Logger LOG = LoggerFactory.getLogger(BaseModel.class);
     /** Name of the Model. */
-    @Readable      protected String   name;
+          protected String   name;
     /** Description of the Model. */
-    @Manipulatable protected String   description;
+     protected String   description;
     /** Type of the Model. */
-    @Manipulatable protected String   type;
-    @Readable      protected String   numSolverType;
-    @Readable      protected double   maxIntegStepSize;
-    @Readable      protected double   minIntegStepSize;
+     protected String   type;
+          protected String   numSolverType;
+          protected double   maxIntegStepSize;
+          protected double   minIntegStepSize;
                    protected int      localNAckFlag;
     /** If the Model has to compute in... */
-    @Readable      private   int      rStep;
+          private   int      rStep;
     /** If the Model has to compute in... */
-    @Readable      private   int      tStep;
+          private   int      tStep;
 
     /**
      * Creates a new instance of BaseModel.
@@ -187,32 +189,68 @@ public class BaseModel implements Model {
     // Event access.
     //-------------------------------------------------------------------------
 
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getNumSolverType() {
-        return numSolverType;
-    }
-
-    public double getMaxIntegStepSize() {
-        return maxIntegStepSize;
-    }
-
-    public double getMinIntegStepSize() {
-        return minIntegStepSize;
-    }
-
-    /**
+	/**
      *
      * @return error code
      */
     public int backIterStep() {
         return 0;
     }
+
+    //-----------------------------------------------------------------------------------
+    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+
+	@ManagedAttribute
+    public String getName() {
+        return name;
+    }
+
+	@ManagedAttribute
+    public String getType() {
+        return type;
+    }
+
+	@ManagedAttribute
+    public String getNumSolverType() {
+        return numSolverType;
+    }
+
+	@ManagedAttribute
+    public double getMaxIntegStepSize() {
+        return maxIntegStepSize;
+    }
+
+	@ManagedAttribute
+    public double getMinIntegStepSize() {
+        return minIntegStepSize;
+    }
+
+	@ManagedAttribute
+    public String getDescription() {
+		return description;
+	}
+
+	@ManagedAttribute
+	public int getLocalNAckFlag() {
+		return localNAckFlag;
+	}
+
+	@ManagedAttribute
+	public int getrStep() {
+		return rStep;
+	}
+
+	@ManagedAttribute
+	public int gettStep() {
+		return tStep;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 }

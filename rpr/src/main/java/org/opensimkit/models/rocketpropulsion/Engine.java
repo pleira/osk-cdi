@@ -59,9 +59,12 @@ package org.opensimkit.models.rocketpropulsion;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+
+import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
@@ -87,59 +90,59 @@ public abstract class Engine extends BaseModel {
     /** Logger instance for the Engine. */
     private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
     /** Reference force. */
-    //@Manipulatable private double referenceForce = 0;
+    // private double referenceForce = 0;
     /** Fuel flow at ingnition [kg/s]. */
-    @Manipulatable private double ignitionFuelFlow = 0;
+     private double ignitionFuelFlow = 0;
     /** Ox flow at ingnition [kg/s]. */
-    @Manipulatable private double ignitionOxidizerFlow = 0;
+     private double ignitionOxidizerFlow = 0;
     /** Altitude above ground [ m ] */
-    @Manipulatable private double alt = 1600000;
+     private double alt = 1600000;
     /** Specific impulse [s] */
-    @Readable private double ISP;
+     private double ISP;
     /** Fuel inflow pressure [Pa] */
-    @Readable private double pin0;
+     private double pin0;
     /** Fuel inflow temperature [K] */
-    @Readable private double tin0;
+     private double tin0;
     /** Ox inflow pressure [Pa] */
-    @Readable private double pin1;
+     private double pin1;
     /** Ox inflow temperature [K] */
-    @Readable private double tin1;
+     private double tin1;
     /** Fuel flow [kg/s] */
-    @Readable private double mfin0;
+     private double mfin0;
     /** Ox flow [kg/s] */
-    @Readable private double mfin1;
+     private double mfin1;
     /** Requested fuel flow [kg/s] */
-    @Readable private double requestedFuelFlow;
+     private double requestedFuelFlow;
     /** Requested ox flow [kg/s] */
-    @Readable private double requestedOxFlow;
+     private double requestedOxFlow;
     /** Engine thrust [ N ] */
-    @Readable private double thrust;
+     private double thrust;
     /** Mixture ratio Oxidizer to fuel */
-    @Readable private double OF;
+     private double OF;
     /** Local time */
-    @Readable private double localtime;
+     private double localtime;
     /**Temperature in [ °C ] */
-    @Readable private double Ta;       
+     private double Ta;       
     /**Temperature in [ Pa ] */
-    @Readable private double pa;
+     private double pa;
     /**Temperature in [ g/m^3 ] */
-    @Readable private double rhoa;
+     private double rhoa;
     /**Characteristic vel. [ m/s ] */
-    @Readable private double cstar;
+     private double cstar;
     /**Thrust factor [ - ] */
-    @Readable private double cf;
+     private double cf;
     /**Nozzle area ratio(assumed) */
-    @Readable private double areaRatio = 100.0;
+     private double areaRatio = 100.0;
     /**Combustion efficiency   */
-    @Readable private double etaCstar= 0.94;
+     private double etaCstar= 0.94;
     /**Thrust factor efficiency*/
-    @Readable private double etaCf = 0.99;
+     private double etaCf = 0.99;
     /**Thrust: Value and direction vector in SC body frame. Vector components in [N] */
-    @Readable private double[] thrustVector = new double[4];
+     private double[] thrustVector = new double[4];
 
-    @Readable private double pc;
-    @Readable private double pe;
-    @Readable private double k;
+     private double pc;
+     private double pe;
+     private double k;
 
     private static final String TYPE      = "Engine";
     private static final String SOLVER    = "none";
@@ -148,8 +151,8 @@ public abstract class Engine extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private final PureLiquidPort inputPortFuel;
-    @Manipulatable private final PureLiquidPort inputPortOxidizer;
+     private final PureLiquidPort inputPortFuel;
+     private final PureLiquidPort inputPortOxidizer;
     
     @Inject @Thrust Event<D4Value> events;
     
@@ -169,57 +172,15 @@ public abstract class Engine extends BaseModel {
     input file.
     ----------------------------------------------------------------------*/
 
-
-    /**
-     * Creates a new instance of the engine.
-     *
-     * @param name Name of the instance.
-     */
-    public Engine(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-        inputPortFuel = null;
-        inputPortOxidizer = null;
-    }
-
     public Engine(final String name, PureLiquidPort inputPortOxidizer, 
     		PureLiquidPort inputPortFuel) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
         this.inputPortOxidizer = inputPortOxidizer;
         this.inputPortFuel = inputPortFuel;
     }
-    
-    public double getIgnitionFuelFlow() {
-		return ignitionFuelFlow;
-	}
 
-	public void setIgnitionFuelFlow(double ingnitionFuelFlow) {
-		this.ignitionFuelFlow = ingnitionFuelFlow;
-	}
-
-	public double getIgnitionOxidizerFlow() {
-		return ignitionOxidizerFlow;
-	}
-
-	public void setIgnitionOxidizerFlow(double ingnitionOxidizerFlow) {
-		this.ignitionOxidizerFlow = ingnitionOxidizerFlow;
-	}
-
-	public double getAlt() {
-		return alt;
-	}
-
-	public void setAlt(double alt) {
-		this.alt = alt;
-	}
-
-	/**
-     * The initialization of the Component takes place in this method. It is
-     * called after the creation of the instance and the loading of its default
-     * values so that derived variables can be calculated after loading or
-     * re-calculated after the change of a manipulatable variable (but in this
-     * case the init method must be called manually!).
-     */
     @Override
+    @PostConstruct
     public void init() {
         LOG.debug("% {} Init-Computation", name);
         localtime = 0.0;
@@ -227,8 +188,38 @@ public abstract class Engine extends BaseModel {
         thrustVector[1] = 1;
         thrustVector[2] = 0;
         thrustVector[3] = 0;
+    	completeConnections();
     }
 
+    void completeConnections() {
+    	inputPortFuel.setToModel(this);
+        inputPortOxidizer.setToModel(this);
+    	LOG.info("completeConnections for " + name + ", (" + inputPortFuel.getName()  + "," + inputPortOxidizer.getName() + ")" );
+    }
+    
+    @ManagedAttribute
+    public double getIgnitionFuelFlow() {
+		return ignitionFuelFlow;
+	}
+	public void setIgnitionFuelFlow(double ingnitionFuelFlow) {
+		this.ignitionFuelFlow = ingnitionFuelFlow;
+	}
+
+    @ManagedAttribute
+	public double getIgnitionOxidizerFlow() {
+		return ignitionOxidizerFlow;
+	}
+	public void setIgnitionOxidizerFlow(double ingnitionOxidizerFlow) {
+		this.ignitionOxidizerFlow = ingnitionOxidizerFlow;
+	}
+
+	@ManagedAttribute
+	public double getAlt() {
+		return alt;
+	}
+	public void setAlt(double alt) {
+		this.alt = alt;
+	}
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -469,5 +460,203 @@ public abstract class Engine extends BaseModel {
     
 	public void altitudeHandler(@Observes ECEFpv pv) {
 		alt = pv.getAltitude();
-	}    
+	}
+
+	
+	//----------------------------------------
+    // Methods added for JMX monitoring	
+
+	@ManagedAttribute
+	public double getISP() {
+		return ISP;
+	}
+
+	public void setISP(double iSP) {
+		ISP = iSP;
+	}
+	@ManagedAttribute
+	public double getPin0() {
+		return pin0;
+	}
+
+	public void setPin0(double pin0) {
+		this.pin0 = pin0;
+	}
+	@ManagedAttribute
+	public double getTin0() {
+		return tin0;
+	}
+
+	public void setTin0(double tin0) {
+		this.tin0 = tin0;
+	}
+	@ManagedAttribute
+	public double getPin1() {
+		return pin1;
+	}
+
+	public void setPin1(double pin1) {
+		this.pin1 = pin1;
+	}
+	@ManagedAttribute
+	public double getTin1() {
+		return tin1;
+	}
+
+	public void setTin1(double tin1) {
+		this.tin1 = tin1;
+	}
+	@ManagedAttribute
+	public double getMfin0() {
+		return mfin0;
+	}
+
+	public void setMfin0(double mfin0) {
+		this.mfin0 = mfin0;
+	}
+	@ManagedAttribute
+	public double getMfin1() {
+		return mfin1;
+	}
+
+	public void setMfin1(double mfin1) {
+		this.mfin1 = mfin1;
+	}
+	@ManagedAttribute
+	public double getRequestedFuelFlow() {
+		return requestedFuelFlow;
+	}
+
+	public void setRequestedFuelFlow(double requestedFuelFlow) {
+		this.requestedFuelFlow = requestedFuelFlow;
+	}
+	@ManagedAttribute
+	public double getRequestedOxFlow() {
+		return requestedOxFlow;
+	}
+
+	public void setRequestedOxFlow(double requestedOxFlow) {
+		this.requestedOxFlow = requestedOxFlow;
+	}
+	@ManagedAttribute
+	public double getThrust() {
+		return thrust;
+	}
+
+	public void setThrust(double thrust) {
+		this.thrust = thrust;
+	}
+	@ManagedAttribute
+	public double getOF() {
+		return OF;
+	}
+
+	public void setOF(double oF) {
+		OF = oF;
+	}
+	@ManagedAttribute
+	public double getLocaltime() {
+		return localtime;
+	}
+
+	public void setLocaltime(double localtime) {
+		this.localtime = localtime;
+	}
+	@ManagedAttribute
+	public double getTa() {
+		return Ta;
+	}
+
+	public void setTa(double ta) {
+		Ta = ta;
+	}
+	@ManagedAttribute
+	public double getPa() {
+		return pa;
+	}
+
+	public void setPa(double pa) {
+		this.pa = pa;
+	}
+	@ManagedAttribute
+	public double getRhoa() {
+		return rhoa;
+	}
+
+	public void setRhoa(double rhoa) {
+		this.rhoa = rhoa;
+	}
+	@ManagedAttribute
+	public double getCstar() {
+		return cstar;
+	}
+
+	public void setCstar(double cstar) {
+		this.cstar = cstar;
+	}
+	@ManagedAttribute
+	public double getCf() {
+		return cf;
+	}
+
+	public void setCf(double cf) {
+		this.cf = cf;
+	}
+	@ManagedAttribute
+	public double getAreaRatio() {
+		return areaRatio;
+	}
+
+	public void setAreaRatio(double areaRatio) {
+		this.areaRatio = areaRatio;
+	}
+	@ManagedAttribute
+	public double getEtaCstar() {
+		return etaCstar;
+	}
+
+	public void setEtaCstar(double etaCstar) {
+		this.etaCstar = etaCstar;
+	}
+	@ManagedAttribute
+	public double getEtaCf() {
+		return etaCf;
+	}
+
+	public void setEtaCf(double etaCf) {
+		this.etaCf = etaCf;
+	}
+	@ManagedAttribute
+	public double[] getThrustVector() {
+		return thrustVector;
+	}
+
+	public void setThrustVector(double[] thrustVector) {
+		this.thrustVector = thrustVector;
+	}
+	@ManagedAttribute
+	public double getPc() {
+		return pc;
+	}
+
+	public void setPc(double pc) {
+		this.pc = pc;
+	}
+	@ManagedAttribute
+	public double getPe() {
+		return pe;
+	}
+
+	public void setPe(double pe) {
+		this.pe = pe;
+	}
+	@ManagedAttribute
+	public double getK() {
+		return k;
+	}
+
+	public void setK(double k) {
+		this.k = k;
+	}
+	
 }

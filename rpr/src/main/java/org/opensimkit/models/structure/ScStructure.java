@@ -125,16 +125,16 @@ public class ScStructure extends BaseModel {
 	/** Logger instance for the ScStructure. */
     private static final Logger LOG = LoggerFactory.getLogger(ScStructure.class);
     /** Gravity acceleration imposed onto structure. */
-    @Manipulatable private double[] gravityAccel = new double[4];
+     private double[] gravityAccel = new double[4];
     /** Structure mass. */
-    @Manipulatable private double scMass;
+     private double scMass;
     
     /** Structure SCVelocity in ECI frame. */
-    @Manipulatable private double[] scVelocityECI = new double[3];
+     private double[] scVelocityECI = new double[3];
     /** Structure SCPosition in ECI frame. */
-    @Manipulatable private double[] scPositionECI = new double[3];
+     private double[] scPositionECI = new double[3];
     /**Thrust: Value and direction vector in SC body frame. Vector components in [N] */
-    @Manipulatable private final double[] tVec = new double[4];
+     private final double[] tVec = new double[4];
 
 
     /** scPosition of previous timestep. */
@@ -142,8 +142,8 @@ public class ScStructure extends BaseModel {
     /** scVelocity of previous timestep. */
     private double[] scVelocityECI_prev = new double[3];
 
-    @Readable private double scVelocityX, scVelocityY, scVelocityZ;
-    @Readable private double scPositionX, scPositionY, scPositionZ;
+     private double scVelocityX, scVelocityY, scVelocityZ;
+     private double scPositionX, scPositionY, scPositionZ;
 
     /** Time handler object. */
     @Inject

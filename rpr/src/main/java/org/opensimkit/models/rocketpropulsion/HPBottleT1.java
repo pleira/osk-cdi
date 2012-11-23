@@ -93,6 +93,8 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.opensimkit.BaseModel;
 import org.opensimkit.GLoad;
 import org.opensimkit.HeliumJKC;
@@ -117,21 +119,21 @@ public abstract class HPBottleT1 extends BaseModel {
     /** Logger instance for the HPBottleT1. */
     private static final Logger LOG = LoggerFactory.getLogger(HPBottleT1.class);
     /** Mass of pressure vessel. */
-    @Manipulatable private double mass;
+     private double mass;
     /** Volume of vessel. */
-    @Manipulatable private double volume;
+     private double volume;
     /** Specific. heat capacity of vessel. */
-    @Manipulatable private double specificHeatCapacity;
+     private double specificHeatCapacity;
     /** Diameter of vessel. */
     private double diam;
     /** Surface of vessel (spherical bottle assumed). */
     private double surface;
     /** Pressure of gas in vessel. */
-    @Manipulatable private double ptotal;
+     private double ptotal;
     /** Temperature of gas in vessel. */
-    @Manipulatable private double ttotal;
+     private double ttotal;
     /** Vessel wall temperature. */
-    @Manipulatable private double twall;
+     private double twall;
     /** Value of pressure of gas in vessel from previous timestep. */
     private double pold;
     /** Value of temperature of gas in vessel from previous timestep. */
@@ -139,18 +141,18 @@ public abstract class HPBottleT1 extends BaseModel {
     /** Value of vessel wall temperature from previous timestep. */
     private double twold;
     /** Gradient of pressure of gas in vessel. */
-    @Readable private double pgrad;
+     private double pgrad;
     /** Gradient of temperature of gas in vessel. */
-    @Readable private double tgrad;
+     private double tgrad;
     /** Gradient of vessel wall temperature. */
 
-    @Readable private double twgrad;
+     private double twgrad;
     /** Mass of gas in vessel. */
-    @Readable private double mtotal;
+     private double mtotal;
     /** Mass flow of gas into pipe. */
-    @Readable private double mftotal;
+     private double mftotal;
     /** Gas in vessel. */
-    @Manipulatable private String fluid;
+     private String fluid;
     /** Heat flow from wall to fluid for pressure regul. elements. */
     private double qHFlow;
     /** Initial pressure of gas in vessel. */
@@ -163,33 +165,17 @@ public abstract class HPBottleT1 extends BaseModel {
     private static final int    TIMESTEP  = 1;
     private static final int    REGULSTEP = 0;
 
-    @Manipulatable private PureGasPort outputPort;
+     private PureGasPort outputPort;
 
-
-    /**
-     * Creates a new instance of HP bottle.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
-    public HPBottleT1(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
     public HPBottleT1(final String name,PureGasPort outputPort) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
         this.outputPort = outputPort;
     }
 
-
-    /**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
     @PostConstruct
+    @Override
     public void init() {
+    	completeConnections();
         MaterialProperties helium = new MaterialProperties();
         double radius;
 
@@ -235,6 +221,11 @@ public abstract class HPBottleT1 extends BaseModel {
         LOG.debug("ptotal : {}", ptotal);
         LOG.debug("ttotal : {}", ttotal);
         LOG.debug("fluid : {}", fluid);
+    }
+
+    void completeConnections() {
+        outputPort.setFromModel(this);
+    	LOG.info("completeConnections for " + name + "(" +  outputPort.getName() + ")");
     }
 
 
@@ -491,40 +482,148 @@ public abstract class HPBottleT1 extends BaseModel {
         outFile.write("HPBottleT1: '" + name + "'" + SimHeaders.NEWLINE);
         return 0;
     }
+    
+    //-----------------------------------------------------------------------------------
+    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+
+	@ManagedAttribute
 	public double getMass() {
 		return mass;
 	}
 	public void setMass(double mass) {
 		this.mass = mass;
 	}
+	@ManagedAttribute	
 	public double getVolume() {
 		return volume;
 	}
 	public void setVolume(double volume) {
 		this.volume = volume;
 	}
+	@ManagedAttribute
 	public double getSpecificHeatCapacity() {
 		return specificHeatCapacity;
 	}
 	public void setSpecificHeatCapacity(double specificHeatCapacity) {
 		this.specificHeatCapacity = specificHeatCapacity;
 	}
+	@ManagedAttribute
 	public double getPtotal() {
 		return ptotal;
 	}
 	public void setPtotal(double ptotal) {
 		this.ptotal = ptotal;
 	}
+	@ManagedAttribute
 	public double getTtotal() {
 		return ttotal;
 	}
 	public void setTtotal(double ttotal) {
 		this.ttotal = ttotal;
 	}
+	@ManagedAttribute
 	public String getFluid() {
 		return fluid;
 	}
 	public void setFluid(String fluid) {
 		this.fluid = fluid;
+	}
+	@ManagedAttribute
+	public double getDiam() {
+		return diam;
+	}
+	public void setDiam(double diam) {
+		this.diam = diam;
+	}
+	@ManagedAttribute
+	public double getSurface() {
+		return surface;
+	}
+	public void setSurface(double surface) {
+		this.surface = surface;
+	}
+	@ManagedAttribute
+	public double getTwall() {
+		return twall;
+	}
+	public void setTwall(double twall) {
+		this.twall = twall;
+	}
+	@ManagedAttribute
+	public double getPold() {
+		return pold;
+	}
+	public void setPold(double pold) {
+		this.pold = pold;
+	}
+	@ManagedAttribute
+	public double getTold() {
+		return told;
+	}
+	public void setTold(double told) {
+		this.told = told;
+	}
+	@ManagedAttribute
+	public double getTwold() {
+		return twold;
+	}
+	public void setTwold(double twold) {
+		this.twold = twold;
+	}
+	@ManagedAttribute
+	public double getPgrad() {
+		return pgrad;
+	}
+	public void setPgrad(double pgrad) {
+		this.pgrad = pgrad;
+	}
+	@ManagedAttribute
+	public double getTgrad() {
+		return tgrad;
+	}
+	public void setTgrad(double tgrad) {
+		this.tgrad = tgrad;
+	}
+	@ManagedAttribute
+	public double getTwgrad() {
+		return twgrad;
+	}
+	public void setTwgrad(double twgrad) {
+		this.twgrad = twgrad;
+	}
+	@ManagedAttribute
+	public double getMtotal() {
+		return mtotal;
+	}
+	public void setMtotal(double mtotal) {
+		this.mtotal = mtotal;
+	}
+	@ManagedAttribute
+	public double getMftotal() {
+		return mftotal;
+	}
+	public void setMftotal(double mftotal) {
+		this.mftotal = mftotal;
+	}
+	@ManagedAttribute
+	public double getqHFlow() {
+		return qHFlow;
+	}
+	public void setqHFlow(double qHFlow) {
+		this.qHFlow = qHFlow;
+	}
+	@ManagedAttribute
+	public double getPinit() {
+		return pinit;
+	}
+	public void setPinit(double pinit) {
+		this.pinit = pinit;
+	}
+	@ManagedAttribute
+	public PureGasPort getOutputPort() {
+		return outputPort;
+	}
+	public void setOutputPort(PureGasPort outputPort) {
+		this.outputPort = outputPort;
 	}
 }
