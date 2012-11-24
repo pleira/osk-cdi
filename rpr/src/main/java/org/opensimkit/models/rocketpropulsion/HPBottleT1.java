@@ -215,12 +215,12 @@ public abstract class HPBottleT1 extends BaseModel {
         /* Initializing default value for mass flow. */
         mftotal = 0.01;
 
-        LOG.debug("mass : {}", mass);
-        LOG.debug("volume : {}", volume);
-        LOG.debug("cbottle : {}", specificHeatCapacity);
-        LOG.debug("ptotal : {}", ptotal);
-        LOG.debug("ttotal : {}", ttotal);
-        LOG.debug("fluid : {}", fluid);
+        LOG.info("mass : {}", mass);
+        LOG.info("volume : {}", volume);
+        LOG.info("cbottle : {}", specificHeatCapacity);
+        LOG.info("ptotal : {}", ptotal);
+        LOG.info("ttotal : {}", ttotal);
+        LOG.info("fluid : {}", fluid);
     }
 
     void completeConnections() {
@@ -231,7 +231,7 @@ public abstract class HPBottleT1 extends BaseModel {
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         MaterialProperties helium = new MaterialProperties();
         double RALLG, RSPEZ, CP, CV;
@@ -242,11 +242,11 @@ public abstract class HPBottleT1 extends BaseModel {
         double FAKTOR, ST, PLANF, PLEND, PLAUF, P = 0, Wert;
         double gload, PRAN, GRAS, NU, ALFA, QLEIST, q;
 
-        LOG.debug("% Start Conditions...");
-        LOG.debug("ptotal : {}", ptotal);
-        LOG.debug("ttotal : {}", ttotal);
-        LOG.debug("mtotal : {}", mtotal);
-        LOG.debug("mftotal : {}", mftotal);
+        LOG.info("% Start Conditions...");
+        LOG.info("ptotal : {}", ptotal);
+        LOG.info("ttotal : {}", ttotal);
+        LOG.info("mtotal : {}", mtotal);
+        LOG.info("mftotal : {}", mftotal);
 
         RALLG = 8314.3;
         RSPEZ = 2077;
@@ -411,11 +411,11 @@ public abstract class HPBottleT1 extends BaseModel {
         told = ttotal;
         twold = twall;
 
-        LOG.debug("% End Conditions...");
-        LOG.debug("ptotal : {}", ptotal);
-        LOG.debug("ttotal : {}", ttotal);
-        LOG.debug("mtotal : {}", mtotal);
-        LOG.debug("mftotal : {}", mftotal);
+        LOG.info("% End Conditions...");
+        LOG.info("ptotal : {}", ptotal);
+        LOG.info("ttotal : {}", ttotal);
+        LOG.info("mtotal : {}", mtotal);
+        LOG.info("mftotal : {}", mftotal);
 
         return 0;
     }
@@ -423,12 +423,12 @@ public abstract class HPBottleT1 extends BaseModel {
 
     @Override
     public int iterationStep() {
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
-        LOG.debug("ptotal : {}", ptotal);
-        LOG.debug("ttotal : {}", ttotal);
-        LOG.debug("mtotal : {}", mtotal);
-        LOG.debug("mftotal : {}", mftotal);
+        LOG.info("ptotal : {}", ptotal);
+        LOG.info("ttotal : {}", ttotal);
+        LOG.info("mtotal : {}", mtotal);
+        LOG.info("mftotal : {}", mftotal);
 
         outputPort.setFluid(fluid);
         outputPort.setPressure(ptotal);
@@ -445,7 +445,7 @@ public abstract class HPBottleT1 extends BaseModel {
 
         result = 0;
 
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         mftotal = outputPort.getBoundaryMassflow();
 
@@ -461,10 +461,10 @@ public abstract class HPBottleT1 extends BaseModel {
             result = 1;
         }
 
-        LOG.debug("ptotal : {}", ptotal);
-        LOG.debug("ttotal : {}", ttotal);
-        LOG.debug("mtotal : {}", mtotal);
-        LOG.debug("mftotal : {}", mftotal);
+        LOG.info("ptotal : {}", ptotal);
+        LOG.info("ttotal : {}", ttotal);
+        LOG.info("mtotal : {}", mtotal);
+        LOG.info("mftotal : {}", mftotal);
 
         return result;
     }
@@ -472,7 +472,7 @@ public abstract class HPBottleT1 extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

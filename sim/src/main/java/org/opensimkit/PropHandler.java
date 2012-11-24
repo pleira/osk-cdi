@@ -67,18 +67,18 @@ public final class PropHandler {
 
     public PropHandler(final String name) {
         this.name = name;
-        LOG.debug("{}:\t{}", this.name, "constructor");
+        LOG.info("{}:\t{}", this.name, "constructor");
     }
 
     public int pureGas() { //  (MixFlag, Medium, P, T) {
-        LOG.debug("{}:\t{}", this.name, "pureGas");
+        LOG.info("{}:\t{}", this.name, "pureGas");
         LOG.error(
                 "Property Handler: Pure gas computations not yet implemented!");
         return 0;
     }
 
     public int mixedGas() {
-        LOG.debug("{}:\t{}", this.name, "mixedGas");
+        LOG.info("{}:\t{}", this.name, "mixedGas");
         LOG.error(
                "Property Handler: Mixed gas computations not yet implemented!");
         return 1;

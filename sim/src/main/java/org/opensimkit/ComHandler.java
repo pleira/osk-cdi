@@ -154,13 +154,13 @@ public class ComHandler {
 
         myWorkString.concat(")");
 
-        LOG.debug("myWorkString is: {}", myWorkString);
+        LOG.info("myWorkString is: {}", myWorkString);
 
         //FIXME: Evil magic number
         if (myWorkString.length() < 1024) {
             compList = myWorkString;
 
-            LOG.debug("compList is: {}", compList);
+            LOG.info("compList is: {}", compList);
         } else {
             LOG.error("Model list too long for internal string!");
             return 1;

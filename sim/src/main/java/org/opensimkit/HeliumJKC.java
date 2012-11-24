@@ -103,7 +103,7 @@ public final class HeliumJKC {
             }
 
             LOG.warn("Indices out of bounds in JKCParams");
-            LOG.debug("Indices out of bounds in JKCParams");
+            LOG.info("Indices out of bounds in JKCParams");
 
             value = KOEFF[i][j];
             return value;

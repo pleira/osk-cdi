@@ -34,7 +34,7 @@ public class Pipe03 extends PipeT1 {
 	}
 	
 	@Inject
-	void initSpecificHeatCapacity(@NumberConfig(name = "pipe3.specificHeatCapacity", defaultValue = "5ß0.0") Double value) {
+	void initSpecificHeatCapacity(@NumberConfig(name = "pipe3.specificHeatCapacity", defaultValue = "500.0") Double value) {
 	setSpecificHeatCapacity(value);
 	}
 	

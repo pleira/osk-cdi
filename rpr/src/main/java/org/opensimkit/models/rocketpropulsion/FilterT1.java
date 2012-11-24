@@ -173,13 +173,13 @@ public class FilterT1 extends BaseModel {
 
         referencePressureLoss = referencePressureLoss * 1.E5;
 
-        LOG.debug(" -> len := {}", length);
-        LOG.debug(" -> diam := {}", innerDiameter);
-        LOG.debug(" -> spmass := {}", specificMass);
-        LOG.debug(" -> cfilter := {}", specificHeatCapacity);
-        LOG.debug(" -> refPLoss := {}", referencePressureLoss);
-        LOG.debug(" -> refMassFlow := {}", referenceMassFlow);
-        LOG.debug(" -> tfilter := {}", temperature);
+        LOG.info(" -> len := {}", length);
+        LOG.info(" -> diam := {}", innerDiameter);
+        LOG.info(" -> spmass := {}", specificMass);
+        LOG.info(" -> cfilter := {}", specificHeatCapacity);
+        LOG.info(" -> refPLoss := {}", referencePressureLoss);
+        LOG.info(" -> refMassFlow := {}", referenceMassFlow);
+        LOG.info(" -> tfilter := {}", temperature);
     }
 
     void completeConnections() {
@@ -193,7 +193,7 @@ public class FilterT1 extends BaseModel {
         String fluid;
         double CP, Q, DTF, DTB, tstatin;
 
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
@@ -260,7 +260,7 @@ public class FilterT1 extends BaseModel {
         /* Fluid material properties for heat transfer computations. */
         MaterialProperties helium = new MaterialProperties();
 
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         pin   = inputPort.getPressure();
         tin   = inputPort.getTemperature();
@@ -321,7 +321,7 @@ public class FilterT1 extends BaseModel {
 
         if (RE > 2.E6) {
             LOG.info("Re number exceeding upper limit");
-            LOG.debug("Re number exceeding upper limit");
+            LOG.info("Re number exceeding upper limit");
             RE = 2.E6;
         } else if (RE < 2300.) {
             /*
@@ -364,7 +364,7 @@ public class FilterT1 extends BaseModel {
 
         if (DTF > 10.0) {
             LOG.info("Temp. change > 10 deg. in filter '"  + name);
-            LOG.debug("Temp. change > 10 deg. in pipe '{}'", name);
+            LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
         }
 
         /**********************************************************************/
@@ -380,9 +380,9 @@ public class FilterT1 extends BaseModel {
         outputPort.setTemperature(ttotal);
         outputPort.setMassflow(mfout);
 
-        LOG.debug(" -> ptotal := {}", ptotal);
-        LOG.debug(" -> ttotal := {}", ttotal);
-        LOG.debug(" -> mfin/out := {}", mfout);
+        LOG.info(" -> ptotal := {}", ptotal);
+        LOG.info(" -> ttotal := {}", ttotal);
+        LOG.info(" -> mfin/out := {}", mfout);
 
         pout = ptotal;
         tout = ttotal;
@@ -395,7 +395,7 @@ public class FilterT1 extends BaseModel {
         int result;
 
         result = 0;
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
             LOG.info("Error! Comp. '" + name
@@ -413,9 +413,9 @@ public class FilterT1 extends BaseModel {
         mfUpBackiter = outputPort.getBoundaryMassflow();
         pUpBackiter = outputPort.getBoundaryPressure();
         tUpBackiter = outputPort.getBoundaryTemperature();
-        LOG.debug(" -> pUpBackiter := {}", pUpBackiter);
-        LOG.debug(" -> tUpBackiter := {}", tUpBackiter);
-        LOG.debug(" -> mfUpBackiter := {}", mfUpBackiter);
+        LOG.info(" -> pUpBackiter := {}", pUpBackiter);
+        LOG.info(" -> tUpBackiter := {}", tUpBackiter);
+        LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
 
         inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
         inputPort.setBoundaryPressure(-999999.99);
@@ -428,7 +428,7 @@ public class FilterT1 extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

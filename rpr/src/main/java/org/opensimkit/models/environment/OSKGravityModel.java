@@ -44,6 +44,7 @@ import jat.spacetime.Time;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -132,20 +133,13 @@ public class OSKGravityModel extends BaseModel {
      */
     public OSKGravityModel() {
         super("23_OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-        name = "OSKGravityModel";
+        name = "23_OSKGravityModel";
     }
 
-
-     /**
-     * The initialization of the Component takes place in this method. It is
-     * called after the creation of the instance and the loading of its default
-     * values so that derived variables can be calculated after loading or
-     * re-calculated after the change of a manipulatable variable (but in this
-     * case the init method must be called manually!).
-     */
     @Override
+    @PostConstruct
     public void init() {
-        LOG.debug("% {} Init-Computation", name);
+        LOG.info("% {} Init-Computation", name);
 
         scPositionVector = new VectorN(3);
         gravityVector = new VectorN(3);
@@ -174,11 +168,11 @@ public class OSKGravityModel extends BaseModel {
         double[] scAcceleration = new double[3];
         double scAccelMag;
 
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
-        LOG.debug("scPositionECI[0]:  '{}' ", scPositionECI[0]);
-        LOG.debug("scPositionECI[1]:  '{}' ", scPositionECI[1]);
-        LOG.debug("scPositionECI[2]:  '{}' ", scPositionECI[2]);
+        LOG.info("scPositionECI[0]:  '{}' ", scPositionECI[0]);
+        LOG.info("scPositionECI[1]:  '{}' ", scPositionECI[1]);
+        LOG.info("scPositionECI[2]:  '{}' ", scPositionECI[2]);
 
         //Skip potential start condition where S/C Position is not yet valid:
         if (scPositionECI[0]==0 & scPositionECI[1]==0 & scPositionECI[2]==0) {

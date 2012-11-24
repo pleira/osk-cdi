@@ -171,7 +171,7 @@ public class JunctionT1 extends BaseModel {
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         return 0;
     }
@@ -183,7 +183,7 @@ public class JunctionT1 extends BaseModel {
         int    result;
         double newSplitfactor;
 
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         pinLeft   = inputPortLeft.getPressure();
         tinLeft   = inputPortLeft.getTemperature();
@@ -284,7 +284,7 @@ public class JunctionT1 extends BaseModel {
 
         result = 0;
 
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
             LOG.info("Error! Comp. '{}': Pressure request on port 2 cannot"
@@ -317,7 +317,7 @@ public class JunctionT1 extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

@@ -13,8 +13,8 @@ import org.opensimkit.ports.PureGasPort;
 public class Pipe05 extends PipeT1 {
 		
 	@Inject
-	public Pipe05(@Named("01_PureGasDat") PureGasPort inputPort,
-			@Named("03_PureGasDat") PureGasPort outputPort) {
+	public Pipe05(@Named("04_PureGasDat") PureGasPort inputPort,
+			@Named("05_PureGasDat") PureGasPort outputPort) {
 		super("Pipe05", inputPort, outputPort);
 	}
 	
@@ -34,7 +34,7 @@ public class Pipe05 extends PipeT1 {
 	}
 	
 	@Inject
-	void initSpecificHeatCapacity(@NumberConfig(name = "pipe5.specificHeatCapacity", defaultValue = "5ß0.0") Double value) {
+	void initSpecificHeatCapacity(@NumberConfig(name = "pipe5.specificHeatCapacity", defaultValue = "500.0") Double value) {
 	setSpecificHeatCapacity(value);
 	}
 	

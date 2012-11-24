@@ -32,7 +32,7 @@ public class HPBottle00 extends HPBottleT1 {
 	setTtotal(value);
 	}
 	@Inject
-	void initSpecificHeatCapacity(@NumberConfig(name = "hpb0.SpecificHeatCapacity", defaultValue = "28.0") Double value) {
+	void initSpecificHeatCapacity(@NumberConfig(name = "hpb0.specificHeatCapacity", defaultValue = "800.0") Double value) {
 	setSpecificHeatCapacity(value);
 	}
 	@Inject

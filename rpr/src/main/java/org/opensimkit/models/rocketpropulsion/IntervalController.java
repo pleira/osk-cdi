@@ -111,7 +111,7 @@ public class IntervalController extends BaseModel {
     	completeConnections();
         /* Computation of derived initialization parameters. */
         localtime = 0.0;
-        LOG.debug("% {} Init", name);
+        LOG.info("% {} Init", name);
         System.out.println("Time " + localtime);
         System.out.println("Init " + ctrlSet0Chan1[2]);
         System.out.println("Init " + ctrlSet0Chan2[2]);
@@ -234,10 +234,10 @@ public class IntervalController extends BaseModel {
             controlValue2 = controlRangeMax;
         }
 
-        LOG.debug("% {} TimeStep-Computation", name);
-        LOG.debug("time:  '{}' ", localtime);
-        LOG.debug("controlValue1:  '{}' ", controlValue1);
-        LOG.debug("controlValue2:  '{}' ", controlValue2);
+        LOG.info("% {} TimeStep-Computation", name);
+        LOG.info("time:  '{}' ", localtime);
+        LOG.info("controlValue1:  '{}' ", controlValue1);
+        LOG.info("controlValue2:  '{}' ", controlValue2);
 
         controlPort1.setAnalogValue(controlValue1);
         controlPort2.setAnalogValue(controlValue2);
@@ -248,7 +248,7 @@ public class IntervalController extends BaseModel {
 
     @Override
     public int iterationStep() {
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         return 0;
     }
@@ -256,9 +256,9 @@ public class IntervalController extends BaseModel {
 
     @Override
     public int backIterStep() {
-/*        LOG.debug("% {} BackiterStep-Computation", name);
-        LOG.debug("controlValue1:  '{}' ", controlValue1);
-        LOG.debug("controlValue2:  '{}' ", controlValue2);
+/*        LOG.info("% {} BackiterStep-Computation", name);
+        LOG.info("controlValue1:  '{}' ", controlValue1);
+        LOG.info("controlValue2:  '{}' ", controlValue2);
 
         System.out.println("BackiterStep" + controlValue1);
         System.out.println("BackiterStep" + controlValue2);
@@ -272,9 +272,9 @@ public class IntervalController extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
-        LOG.debug("controlValue1:  '{}' ", controlValue1);
-        LOG.debug("controlValue2:  '{}' ", controlValue2);
+        LOG.info("% {} RegulStep-Computation", name);
+        LOG.info("controlValue1:  '{}' ", controlValue1);
+        LOG.info("controlValue2:  '{}' ", controlValue2);
 
         controlPort1.setAnalogValue(controlValue1);
         controlPort2.setAnalogValue(controlValue2);

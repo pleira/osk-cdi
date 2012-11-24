@@ -91,7 +91,6 @@ import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,36 +106,35 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public class SplitT1 extends BaseModel {
-    /** Logger instance for the SplitT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(SplitT1.class);
-    /** Required outflow on port 1 (through backiter step). */
-    private double mfboundLeft;
-    /** Required outflow on port 2 (through backiter step). */
-    private double mfboundRight;
+	/** Logger instance for the SplitT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(SplitT1.class);
+	/** Required outflow on port 1 (through backiter step). */
+	private double mfboundLeft;
+	/** Required outflow on port 2 (through backiter step). */
+	private double mfboundRight;
 
-    /** Fluid parameters of in- and outflow(s). */
-     private double pin;
-     private double tin;
-     private double mfin;
-     private double pout;
-     private double tout;
-     private double mfoutLeft;
-     private double mfoutRight;
-     private double pUpBackiter;
-     private double tUpBackiter;
-     private double mfUpBackiter;
+	/** Fluid parameters of in- and outflow(s). */
+	private double pin;
+	private double tin;
+	private double mfin;
+	private double pout;
+	private double tout;
+	private double mfoutLeft;
+	private double mfoutRight;
+	private double pUpBackiter;
+	private double tUpBackiter;
+	private double mfUpBackiter;
 
-    private static final String TYPE      = "SplitT1";
-    private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 1.0E6;
-    private static final double MINTSTEP  = 1.0E-6;
-    private static final int    TIMESTEP  = 0;
-    private static final int    REGULSTEP = 0;
+	private static final String TYPE = "SplitT1";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 1.0E6;
+	private static final double MINTSTEP = 1.0E-6;
+	private static final int TIMESTEP = 0;
+	private static final int REGULSTEP = 0;
 
-     private PureGasPort inputPort;
-     private PureGasPort outputPortLeft;
-     private PureGasPort outputPortRight;
-
+	private PureGasPort inputPort;
+	private PureGasPort outputPortLeft;
+	private PureGasPort outputPortRight;
 
     public SplitT1(final String name, PureGasPort inputPort, 
     		PureGasPort outputPortLeft, PureGasPort outputPortRight) {
@@ -161,7 +159,7 @@ public class SplitT1 extends BaseModel {
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
         return 0;
     }
 
@@ -170,7 +168,7 @@ public class SplitT1 extends BaseModel {
     public int iterationStep() {
         String fluid;
 
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         pin   = inputPort.getPressure();
         tin   = inputPort.getTemperature();
@@ -199,10 +197,10 @@ public class SplitT1 extends BaseModel {
         outputPortRight.setTemperature(tout);
         outputPortRight.setMassflow(mfoutRight);
 
-        LOG.debug("pout : {}", pout);
-        LOG.debug("tout : {}", tout);
-        LOG.debug("mfoutLeft : {}", mfoutLeft);
-        LOG.debug("mfoutRight : {}", mfoutRight);
+        LOG.info("pout : {}", pout);
+        LOG.info("tout : {}", tout);
+        LOG.info("mfoutLeft : {}", mfoutLeft);
+        LOG.info("mfoutRight : {}", mfoutRight);
 
         return 0;
     }
@@ -214,7 +212,7 @@ public class SplitT1 extends BaseModel {
 
         result = 0;
 
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (outputPortLeft.getBoundaryPressure() >= 0.0) {
             LOG.info("Error! Comp. '{}': Pressure request on left port cannot"
@@ -245,11 +243,11 @@ public class SplitT1 extends BaseModel {
                 + outputPortRight.getBoundaryPressure()) / 2.;
         tUpBackiter = (outputPortLeft.getBoundaryTemperature()
                 + outputPortRight.getBoundaryTemperature()) / 2.;
-        LOG.debug("mfboundLeft : {}", mfboundLeft);
-        LOG.debug("mfboundRight : {}", mfboundRight);
-        LOG.debug("pUpBackiter : {}", pUpBackiter);
-        LOG.debug("tUpBackiter : {}", tUpBackiter);
-        LOG.debug("mfUpBackiter : {}", mfUpBackiter);
+        LOG.info("mfboundLeft : {}", mfboundLeft);
+        LOG.info("mfboundRight : {}", mfboundRight);
+        LOG.info("pUpBackiter : {}", pUpBackiter);
+        LOG.info("tUpBackiter : {}", tUpBackiter);
+        LOG.info("mfUpBackiter : {}", mfUpBackiter);
 
         inputPort.setBoundaryFluid(outputPortLeft.getBoundaryFluid());
         inputPort.setBoundaryPressure(pUpBackiter);
@@ -262,7 +260,7 @@ public class SplitT1 extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

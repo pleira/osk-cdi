@@ -105,7 +105,6 @@ import org.opensimkit.BaseModel;
 import org.opensimkit.HeliumJKC;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,46 +119,46 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public class PRegT1 extends BaseModel {
-    /** Logger instance for the PRegT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(PRegT1.class);
-    /** Diameter of pressure regul. */
-     private double innerDiameter;
-    /** Length of pressure regul. */
-     private double length;
-    /** Mass of pressure regul. */
-     private double mass;
-    /** Specific heat capacity. */
-     private double specificHeatCapacity;
-    /** Coefficients of pressure loss polynomial approximation. */
-     private double[] pcoeff = new double[4];
-    /** Temperature of pressure regul. elements. */
-     private double temperature;
-    /** Heat flow from wall to fluid for pressure regul. elements. */
-    private double qHFlow;
-    /** Heat transfer coefficient between pressure regul. housing and fluid. */
-    private double alfa;
-    /** Temperature of fluid expanded in pressure reg. in timestep. */
-    private double tstatin;
+	/** Logger instance for the PRegT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(PRegT1.class);
+	/** Diameter of pressure regul. */
+	private double innerDiameter;
+	/** Length of pressure regul. */
+	private double length;
+	/** Mass of pressure regul. */
+	private double mass;
+	/** Specific heat capacity. */
+	private double specificHeatCapacity;
+	/** Coefficients of pressure loss polynomial approximation. */
+	private double[] pcoeff = new double[4];
+	/** Temperature of pressure regul. elements. */
+	private double temperature;
+	/** Heat flow from wall to fluid for pressure regul. elements. */
+	private double qHFlow;
+	/** Heat transfer coefficient between pressure regul. housing and fluid. */
+	private double alfa;
+	/** Temperature of fluid expanded in pressure reg. in timestep. */
+	private double tstatin;
 
-    /** Internal variables of in- and outflow. */
-     private double pin;
-     private double tin;
-     private double mfin;
-     private double pout;
-     private double tout;
-     private double pUpBackiter;
-     private double tUpBackiter;
-     private double mfUpBackiter;
+	/** Internal variables of in- and outflow. */
+	private double pin;
+	private double tin;
+	private double mfin;
+	private double pout;
+	private double tout;
+	private double pUpBackiter;
+	private double tUpBackiter;
+	private double mfUpBackiter;
 
-    private static final String TYPE      = "PRegT1";
-    private static final String SOLVER    = "Euler";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private static final String TYPE = "PRegT1";
+	private static final String SOLVER = "Euler";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
+	private static final int TIMESTEP = 1;
+	private static final int REGULSTEP = 0;
 
-     private PureGasPort inputPort;
-     private PureGasPort outputPort;
+	private PureGasPort inputPort;
+	private PureGasPort outputPort;
 
 
     public PRegT1(final String name, PureGasPort inputPort, PureGasPort outputPort) {
@@ -193,7 +192,7 @@ public class PRegT1 extends BaseModel {
         double     DTF;
         double     DTB;
 
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
@@ -254,16 +253,16 @@ public class PRegT1 extends BaseModel {
         // Fluid material properties for heat transfer computations
         MaterialProperties Helium = new MaterialProperties();
 
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
         fluid = inputPort.getFluid();
 
-        LOG.debug("pin : {}", pin);
-        LOG.debug("tin : {}", tin);
-        LOG.debug("mfin/out : {}", mfin);
+        LOG.info("pin : {}", pin);
+        LOG.info("tin : {}", tin);
+        LOG.info("mfin/out : {}", mfin);
 
         //Skip iteration step computation if no flow in pressure regulator
         if (mfin <= 1.E-6) {
@@ -364,7 +363,7 @@ public class PRegT1 extends BaseModel {
         /**********************************************************************/
         if (RE > 2.E6) {
             LOG.info("Re number exceeding upper limit");
-            LOG.debug("Re number exceeding upper limit");
+            LOG.info("Re number exceeding upper limit");
             RE = 2.E6;
         } else if (RE < 2300.) {
             /* Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
@@ -416,9 +415,9 @@ public class PRegT1 extends BaseModel {
         outputPort.setTemperature(tout);
         outputPort.setMassflow(mfin);
 
-        LOG.debug("pout : {}", pout);
-        LOG.debug("tout : {}", tout);
-        LOG.debug("mfout : {}", mfin);
+        LOG.info("pout : {}", pout);
+        LOG.info("tout : {}", tout);
+        LOG.info("mfout : {}", mfin);
 
         return 0;
     }
@@ -430,7 +429,7 @@ public class PRegT1 extends BaseModel {
 
         result = 0;
 
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
             LOG.info("Error! Comp. '{}': Pressure request on port 1 cannot"
@@ -447,9 +446,9 @@ public class PRegT1 extends BaseModel {
         mfUpBackiter  = outputPort.getBoundaryMassflow();
         pUpBackiter = outputPort.getBoundaryPressure();
         tUpBackiter = outputPort.getBoundaryTemperature();
-        LOG.debug("pUpBackiter : {}", pUpBackiter);
-        LOG.debug("tUpBackiter : {}", tUpBackiter);
-        LOG.debug("mfUpBackiter : {}", mfUpBackiter);
+        LOG.info("pUpBackiter : {}", pUpBackiter);
+        LOG.info("tUpBackiter : {}", tUpBackiter);
+        LOG.info("mfUpBackiter : {}", mfUpBackiter);
 
         inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
         inputPort.setBoundaryPressure(-999999.99);
@@ -462,7 +461,7 @@ public class PRegT1 extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

@@ -5,11 +5,10 @@
 
 package org.opensimkit.ports;
 
-import org.opensimkit.manipulation.Manipulatable;
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.gescobar.jmx.annotation.ManagedAttribute;
 
 /**
  *
@@ -26,10 +25,6 @@ public class FluidPort extends BasePort {
      private double boundaryTemperature;
      private double boundaryMassflow;
 
-    /**
-     * This constructor is needed for the FluidPort initialisation during
-     * the XML file parsing.
-     */
     public FluidPort(final String name) {
         super(name);
     }

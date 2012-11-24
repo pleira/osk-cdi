@@ -111,7 +111,7 @@ public class BaseModel implements Model, Serializable {
         this.minIntegStepSize = mints;
         this.rStep = rs;
         this.tStep = ts;
-        LOG.debug(SimHeaders.DEBUG_SHORT, "Constructor Model {}", name);
+        LOG.info(SimHeaders.DEBUG_SHORT, "Constructor Model {}", name);
     }
 
     /**
@@ -171,15 +171,15 @@ public class BaseModel implements Model, Serializable {
     // We try to have collections needed for the computation done in the
     // model
 //    public int initCalcSteps(final CTimeStep ctime, final CRegulStep cregul) {
-//        LOG.debug(SimHeaders.DEBUG_SHORT, "InitCalcSteps {}", name);
+//        LOG.info(SimHeaders.DEBUG_SHORT, "InitCalcSteps {}", name);
 //        if (tStep > 0) {
 //            ctime.addItem(this);
-//            LOG.debug(SimHeaders.DEBUG_SHORT,
+//            LOG.info(SimHeaders.DEBUG_SHORT,
 //                    "BaseModel {} added to timestep.", name);
 //        }
 //        if (rStep > 0) {
 //            cregul.addItem(this);
-//            LOG.debug(SimHeaders.DEBUG_SHORT,
+//            LOG.info(SimHeaders.DEBUG_SHORT,
 //                    "BaseModel {} added to regulstep.", name);
 //        }
 //        return 0;

@@ -118,40 +118,16 @@ public final class Mesh extends BaseModel {
         items.add(model);
     }
 
-    public void initMeshModel(final String modelName,
-            final ComHandler modelHandler) {
-        Model model;
-
-        model = modelHandler.getItemKey(modelName);
-        if (model == null) {
-            /* Model not found. */
-            LOG.error("Model '{}' does not exist.", modelName);
-            localNAckFlag = 1;
-        }
-        items.add(model);
-    }
-
-    public void initMeshMesh(final String modelName,
-            final MeshHandler meshHandler) {
-        BaseModel model;
-        model = meshHandler.getItemKey(modelName);
-        if (model == null) {
-            /* Model not found. */
-            LOG.error("Mesh '{}' doesn't exist.", modelName);
-            localNAckFlag = 1;
-        }
-        items.add(model);
-    }
 
     /**
      *
      * @return error code
      */
     public int isInit() {
-        LOG.debug("ISInit");
+        LOG.info("ISInit");
         if (LOG.isDebugEnabled()) {
             for (Model model: items) {
-                LOG.debug("Items: {}", model.getName());
+                LOG.info("Items: {}", model.getName());
             }
         }
         if (topLevel == 1) {
@@ -173,19 +149,19 @@ public final class Mesh extends BaseModel {
         int compRtn;
         int meshConvFlag;
 
-        LOG.debug("\n Mesh iteration ....");
+        LOG.info("\n Mesh iteration ....");
 
         for (i = 0; i < maxCount; i++) {
             // Each iteration step computation begins with a backward iteration
             // to propagate the initial boundary values (or new boundary values
             // computed in previous timestep) up to the fulfilling models.
-            LOG.debug("\n Mesh '{}' - backiteration pass: {}", name, i);
+            LOG.info("\n Mesh '{}' - backiteration pass: {}", name, i);
             ListIterator<Model> backit = items.listIterator(items.size());
             while (backit.hasPrevious()) {
                 model = backit.previous();
 
                 if (model.getType().equals(MESH)) {
-                    LOG.debug("Sub-Mesh initial iteration: {}",
+                    LOG.info("Sub-Mesh initial iteration: {}",
                             model.getName());
                     if (model.iterationStep() == 1) {
                        /* A model found an error in computation. */
@@ -196,7 +172,7 @@ public final class Mesh extends BaseModel {
                         return 1;
                     }
                 } else {
-                 LOG.debug("Mesh backiteration: {}", model.getName());
+                 LOG.info("Mesh backiteration: {}", model.getName());
                     if (model.backIterStep() == 1) {
                         /* A model found an error in computation. */
                         LOG.error("Mesh '{}', model '{}' - backiteration step "
@@ -214,16 +190,16 @@ public final class Mesh extends BaseModel {
              * boundary condition. */
             /* Initially assuming that mesh iteration converges. */
             meshConvFlag = 0;
-            LOG.debug("Mesh '{}' - forwarditeration pass: {}", name, i);
+            LOG.info("Mesh '{}' - forwarditeration pass: {}", name, i);
             Iterator<Model> it = items.iterator();
             while (it.hasNext()) {
                 model = it.next();
-                LOG.debug("Mesh '{}' - forwarditeration: {}", name,
+                LOG.info("Mesh '{}' - forwarditeration: {}", name,
                         model.getName());
                 compRtn = 0;
                 if (!model.getType().equals(MESH)) {
                     compRtn = model.iterationStep();
-                    LOG.debug("Model'{}' compRtn: {}",model.getName(), compRtn);
+                    LOG.info("Model'{}' compRtn: {}",model.getName(), compRtn);
                 }
 
                 if (compRtn == 1) { // A model found an error in computation
@@ -241,15 +217,15 @@ public final class Mesh extends BaseModel {
 
             if (meshConvFlag == -1) {
                 /* Another backward iteration of the mesh is necessary. */
-                LOG.debug("Another iteration of the mesh is necessary!\n");
+                LOG.info("Another iteration of the mesh is necessary!\n");
             } else {
                 /* Mesh iteration successful. Leave this mesh's iteration step.
                  */
-                LOG.debug("Mesh '{}' - Iteration converged. \n", name);
+                LOG.info("Mesh '{}' - Iteration converged. \n", name);
                 return 0;
             }
         }
-        LOG.debug("Maximum number of iterations of mesh '{}' exceeded!", name);
+        LOG.info("Maximum number of iterations of mesh '{}' exceeded!", name);
         LOG.error("Maximum number of iterations of mesh '{}' exceeded!", name);
         SimHeaders.negativeAckFlag = 1;
 
@@ -264,13 +240,13 @@ public final class Mesh extends BaseModel {
         Iterator<Model> rstepiter = items.iterator();
         while (rstepiter.hasNext()) {
             model = rstepiter.next();
-            LOG.debug("Mesh '{}' - RegulStep: {}", name, model.getName());
+            LOG.info("Mesh '{}' - RegulStep: {}", name, model.getName());
             regStepCompRtn = 0;
             regStepCompRtn = model.iterationStep();
 
             if (regStepCompRtn == 1) {
                 /* A model found an error in computation. */
-                LOG.debug("Mesh '{}' - RegulStep error in model: {}",
+                LOG.info("Mesh '{}' - RegulStep error in model: {}",
                 name, model.getName());
                 return 1;
             }

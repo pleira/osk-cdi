@@ -157,233 +157,252 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public abstract class TankT1 extends BaseModel implements DEQClient {
-    /** Logger instance for the TankT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(TankT1.class);
-    /** Fuel type. */
-     private String fuel;
+	/** Logger instance for the TankT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(TankT1.class);
+	/** Fuel type. */
+	private String fuel;
 	/** Oxidizer type. */
-     private String oxidizer;
+	private String oxidizer;
 
 	/** Pressure gas for fuel compartment. */
-     private String fuPressGas;
-    /** Pressure gas for oxidizer compartment. */
-     private String oxPressGas;
-    /** Massflow boundary condition at fuel outlet. */
-    private double mfBoundFuelPress;
-    /** Massflow boundary condition at oxidizer outlet. */
-    private double mfBoundOxPress;
-    /** Pressure boundary condition at fuel outlet. */
-    private double pBoundFuelPress;
-    /** Pressure boundary condition at oxidizer outlet. */
-    private double pBoundOxPress;
-    /** Fuel type boundary. */
-    private double mfBoundFuel;
-    /** Oxidizer type boundary. */
-    private double mfBoundOx;
+	private String fuPressGas;
+	/** Pressure gas for oxidizer compartment. */
+	private String oxPressGas;
+	/** Massflow boundary condition at fuel outlet. */
+	private double mfBoundFuelPress;
+	/** Massflow boundary condition at oxidizer outlet. */
+	private double mfBoundOxPress;
+	/** Pressure boundary condition at fuel outlet. */
+	private double pBoundFuelPress;
+	/** Pressure boundary condition at oxidizer outlet. */
+	private double pBoundOxPress;
+	/** Fuel type boundary. */
+	private double mfBoundFuel;
+	/** Oxidizer type boundary. */
+	private double mfBoundOx;
 
-    /** Fluid states for pressurization gas inflows and fuel/oxidizer liquid
-     * outflows. */
-     private double pinFPG;
-     private double tinFPG;
-     private double mfinFPG;
-     private double pinOPG;
-     private double tinOPG;
-     private double mfinOPG;
-     private double poutFuel;
-     private double toutFuel;
-     private double mfoutFuel;
-     private double poutOxidizer;
-     private double toutOxidizer;
-     private double mfoutOxidizer;
+	/**
+	 * Fluid states for pressurization gas inflows and fuel/oxidizer liquid
+	 * outflows.
+	 */
+	private double pinFPG;
+	private double tinFPG;
+	private double mfinFPG;
+	private double pinOPG;
+	private double tinOPG;
+	private double mfinOPG;
+	private double poutFuel;
+	private double toutFuel;
+	private double mfoutFuel;
+	private double poutOxidizer;
+	private double toutOxidizer;
+	private double mfoutOxidizer;
 
-    /** Volume of fuel tank. */
-     private double VTBR;
-        
+	/** Volume of fuel tank. */
+	private double VTBR;
+
 	/** Volume of oxidizer tank. */
-     private double VTOX;
+	private double VTOX;
 
-    /** Outer wall surface of oxidizer compartment. */
-    /** Outer wall surface of oxidizer tank. */
-     private double FAWO;
-    /** Separation wall surface of oxidizer tank. */
-     private double FTWO;
-    /** Outer wall surface of fuel tank. */
-     private double FAWB;
-    /** Sep. wall surface of fuel tank. */
-     private double FTWB;
-    /** Boundary fill level of oxidizer.
-     * Empty to boundary fill level other polynomials for Surface interpolations
-     * are used than for bound. level to full tank - see tank sketch at top of
-     * this file. */
-     private double HGOX;
-    /** Boundary fill level of fuel.
-     * Empty to boundary fill level other polynomials for surface interpolations
-     * are used than for bound. level to full tank - see tank sketch at top of
-     * this file. */
-     private double HGBR;
-    /** Characteristic measure for Ox. tank - diameter. */
-     private double CHARMO;
-    /** Characteristic measure for fuel tank - diameter. */
-     private double CHARMB;
-    /** Area specific mass of outer wall of ox compartment. */
-     private double FMAWO;
-    /** Area specific mass of separation wall. */
-     private double FMTW;
-    /** Area specific mass of outer wall of fuel compartment. */
-     private double FMAWB;
-    /** Specific heat capacity of oxidizer. */
-     private double SPWKO;
-    /**  Specific heat capacity of fuel. */
-     private double SPWKB;
+	/** Outer wall surface of oxidizer compartment. */
+	/** Outer wall surface of oxidizer tank. */
+	private double FAWO;
+	/** Separation wall surface of oxidizer tank. */
+	private double FTWO;
+	/** Outer wall surface of fuel tank. */
+	private double FAWB;
+	/** Sep. wall surface of fuel tank. */
+	private double FTWB;
+	/**
+	 * Boundary fill level of oxidizer. Empty to boundary fill level other
+	 * polynomials for Surface interpolations are used than for bound. level to
+	 * full tank - see tank sketch at top of this file.
+	 */
+	private double HGOX;
+	/**
+	 * Boundary fill level of fuel. Empty to boundary fill level other
+	 * polynomials for surface interpolations are used than for bound. level to
+	 * full tank - see tank sketch at top of this file.
+	 */
+	private double HGBR;
+	/** Characteristic measure for Ox. tank - diameter. */
+	private double CHARMO;
+	/** Characteristic measure for fuel tank - diameter. */
+	private double CHARMB;
+	/** Area specific mass of outer wall of ox compartment. */
+	private double FMAWO;
+	/** Area specific mass of separation wall. */
+	private double FMTW;
+	/** Area specific mass of outer wall of fuel compartment. */
+	private double FMAWB;
+	/** Specific heat capacity of oxidizer. */
+	private double SPWKO;
+	/** Specific heat capacity of fuel. */
+	private double SPWKB;
 
-    /** Nominal pressure in ox. compartment. */
-     private double PTO;
-    /** Pressure of ox at blowdown end. */
-     private double PENDOX;
-    /** Nominal pressure in fuel compartment. */
-     private double PTB;
-    /** Pressure of fuel at blowdown end. */
-     private double PENDBR;
-    /** Ox volume at start. */
-     private double VANFOX;
-    /** Ox. temp at start. */
-     private double TANFOX;
-    /** Fuel volume at start. */
-     private double VANFBR;
-    /** Temp. of fuel at start. */
-     private double TANFBR;
+	/** Nominal pressure in ox. compartment. */
+	private double PTO;
+	/** Pressure of ox at blowdown end. */
+	private double PENDOX;
+	/** Nominal pressure in fuel compartment. */
+	private double PTB;
+	/** Pressure of fuel at blowdown end. */
+	private double PENDBR;
+	/** Ox volume at start. */
+	private double VANFOX;
+	/** Ox. temp at start. */
+	private double TANFOX;
+	/** Fuel volume at start. */
+	private double VANFBR;
+	/** Temp. of fuel at start. */
+	private double TANFBR;
 
-    private double PVO;
-    private double AO,BO;
+	private double PVO;
+	private double AO, BO;
 
-    /** Temp. of pressure gas entering tank oxid. compartment. */
-    private double THEINO;
-    /** Temp. of pressure gas entering tank fuel compartment. */
-    private double THEINB;
-    /** Mass of ox. compartm. outer wall in contact with gaseous phase. */
-    private double MAWGO;
-    /** Mass of ox. compartm. sep. wall in contact with gaseous phase. */
-    private double MTWGO;
-    /** Mass of fuel compartm. outer wall in contact with gaseous phase. */
-    private double MAWGB;
-    /** Mass of fuel compartm. sep. wall in contact with gaseous phase. */
-    private double MTWGB;
-    /** Mass flow of pressure gas into tank oxid. compartment. */
-    private double MPHEOX;
-    /** Mass flow of pressure gas into tank fuel compartment. */
-    private double MPHEBR;
+	/** Temp. of pressure gas entering tank oxid. compartment. */
+	private double THEINO;
+	/** Temp. of pressure gas entering tank fuel compartment. */
+	private double THEINB;
+	/** Mass of ox. compartm. outer wall in contact with gaseous phase. */
+	private double MAWGO;
+	/** Mass of ox. compartm. sep. wall in contact with gaseous phase. */
+	private double MTWGO;
+	/** Mass of fuel compartm. outer wall in contact with gaseous phase. */
+	private double MAWGB;
+	/** Mass of fuel compartm. sep. wall in contact with gaseous phase. */
+	private double MTWGB;
+	/** Mass flow of pressure gas into tank oxid. compartment. */
+	private double MPHEOX;
+	/** Mass flow of pressure gas into tank fuel compartment. */
+	private double MPHEBR;
 
-    /** Value of MAWGO of previous timestep. */
-    private double MAWGOA;
-    /** Value of MTWGO of previous timestep. */
-    private double MTWGOA;
-    /** Value of MAWGB of previous timestep. */
-    private double MAWGBA;
-    /** Value of MTWGB of previous timestep. */
-    private double MTWGBA;
-    /** Time of previous timestep. */
-    private double ZEITA;
+	/** Value of MAWGO of previous timestep. */
+	private double MAWGOA;
+	/** Value of MTWGO of previous timestep. */
+	private double MTWGOA;
+	/** Value of MAWGB of previous timestep. */
+	private double MAWGBA;
+	/** Value of MTWGB of previous timestep. */
+	private double MTWGBA;
+	/** Time of previous timestep. */
+	private double ZEITA;
 
-    /** Mass of liquid oxidizer in ox. compartment. */
-    private double MLOX;
-    /** Mass of liquid fuel in fuel compartment. */
-    private double MLBR;
-    /** Mass flow of liquid oxidizer to thruster. */
-    private double MPKTLO;
-    /** Mass flow of liquid fuel to thruster. */
-    private double MPKTLB;
-    /** Mass of gaseous oxidizer in ox. compartment. */
-    private double MDO;
+	/** Mass of liquid oxidizer in ox. compartment. */
+	private double MLOX;
+	/** Mass of liquid fuel in fuel compartment. */
+	private double MLBR;
+	/** Mass flow of liquid oxidizer to thruster. */
+	private double MPKTLO;
+	/** Mass flow of liquid fuel to thruster. */
+	private double MPKTLB;
+	/** Mass of gaseous oxidizer in ox. compartment. */
+	private double MDO;
 
-    /** Mass of pressure gas in ox. compartment - previous timestep. */
-    private double MHEOXA;
-    /** Mass of pressure gas in ox. compartment - previous timestep. */
-    private double MHEBRA;
+	/** Mass of pressure gas in ox. compartment - previous timestep. */
+	private double MHEOXA;
+	/** Mass of pressure gas in ox. compartment - previous timestep. */
+	private double MHEBRA;
 
-    /**  Polynomial approximations for fuel compartment:
-     *   ====================================================
-     *
-     *   Fuel filling level [m] as function of volume [m^3]. */
-     private double fuLevel[] = new double[8];
-    /** Fuel covered outer wall surface [m^2] as function of filling level [m].
-     */
-     private double fuCOutWSfc[] = new double[8];
-    /** Fuel covered separ. wall surface [m^2] as function of filling level [m].
-     */
-     private double fuCSepWSfc[] = new double[8];
-    /** Free surface of liquid fuel [m^2] as function of filling level [m]. */
-     private double fuSfc[] = new double[8];
-    /**
-     * For levels below boundary level:
-     * --------------------------------
-     * Fuel covered outer wall surface [m^2] as function of filling level [m].
-     */
-     private double fuCOutWSfc2[] = new double[8];
-    /** Fuel covered separ. wall surface [m^2] as function of filling level [m].
-     */
-     private double fuCSepWSfc2[] = new double[8];
-    /** Free surface of liquid fuel [m^2] as function of filling level [m]. */
-     private double fuSfc2[] = new double[8];
+	/**
+	 * Polynomial approximations for fuel compartment:
+	 * ====================================================
+	 * 
+	 * Fuel filling level [m] as function of volume [m^3].
+	 */
+	private double fuLevel[] = new double[8];
+	/**
+	 * Fuel covered outer wall surface [m^2] as function of filling level [m].
+	 */
+	private double fuCOutWSfc[] = new double[8];
+	/**
+	 * Fuel covered separ. wall surface [m^2] as function of filling level [m].
+	 */
+	private double fuCSepWSfc[] = new double[8];
+	/** Free surface of liquid fuel [m^2] as function of filling level [m]. */
+	private double fuSfc[] = new double[8];
+	/**
+	 * For levels below boundary level: -------------------------------- Fuel
+	 * covered outer wall surface [m^2] as function of filling level [m].
+	 */
+	private double fuCOutWSfc2[] = new double[8];
+	/**
+	 * Fuel covered separ. wall surface [m^2] as function of filling level [m].
+	 */
+	private double fuCSepWSfc2[] = new double[8];
+	/** Free surface of liquid fuel [m^2] as function of filling level [m]. */
+	private double fuSfc2[] = new double[8];
 
-    /**  Polynomial approximations for oxidizer compartment:
-     *   ====================================================
-     *
-     *   Oxidizer filling level [m] as function of volume [m^3]. */
-     private double oxLevel[] = new double[8];
-    /** Oxidizer covered outer wall surface [m^2] as function of filling
-     * level [m]. */
-     private double oxCOutWSfc[] = new double[8];
-    /** Oxidizer covered separ. wall surface [m^2] as function of filling
-     * level [m]. */
-     private double oxCSepWSfc[] = new double[8];
-    /** Free surface of liquid oxidizer [m^2] as function of filling level [m].
-     */
-     private double oxSfc[] = new double[8];
+	/**
+	 * Polynomial approximations for oxidizer compartment:
+	 * ====================================================
+	 * 
+	 * Oxidizer filling level [m] as function of volume [m^3].
+	 */
+	private double oxLevel[] = new double[8];
+	/**
+	 * Oxidizer covered outer wall surface [m^2] as function of filling level
+	 * [m].
+	 */
+	private double oxCOutWSfc[] = new double[8];
+	/**
+	 * Oxidizer covered separ. wall surface [m^2] as function of filling level
+	 * [m].
+	 */
+	private double oxCSepWSfc[] = new double[8];
+	/**
+	 * Free surface of liquid oxidizer [m^2] as function of filling level [m].
+	 */
+	private double oxSfc[] = new double[8];
 
-    /**  For levels below boundary level:
-     *   --------------------------------
-     *
-     * Oxidizer covered outer wall surface [m^2] as function of filling
-     * level [m]. */
-     private double oxCOutWSfc2[] = new double[8];
-    /** Oxidizer covered separ. wall surface [m^2] as function of filling
-     * level [m]. */
-     private double oxCSepWSfc2[] = new double[8];
-    /** Free surface of liquid oxidizer [m^2] as function of filling level [m].
-     */
-     private double oxSfc2[] = new double[8];
+	/**
+	 * For levels below boundary level: --------------------------------
+	 * 
+	 * Oxidizer covered outer wall surface [m^2] as function of filling level
+	 * [m].
+	 */
+	private double oxCOutWSfc2[] = new double[8];
+	/**
+	 * Oxidizer covered separ. wall surface [m^2] as function of filling level
+	 * [m].
+	 */
+	private double oxCSepWSfc2[] = new double[8];
+	/**
+	 * Free surface of liquid oxidizer [m^2] as function of filling level [m].
+	 */
+	private double oxSfc2[] = new double[8];
 
-    /** State variables vector of tank DEQ system. */
-     private double YK[] = new double[20];
-    /** Max. num. of calls of the Diff() method within one integ. step. */
-    private int IFMAX;
-    /** Number of necessary calls. */
-    private int IFANZ;
-    /** Error parameter of the integration routine DEqSys. */
-    private int IFEHL;
+	/** State variables vector of tank DEQ system. */
+	private double YK[] = new double[20];
+	/** Max. num. of calls of the Diff() method within one integ. step. */
+	private int IFMAX;
+	/** Number of necessary calls. */
+	private int IFANZ;
+	/** Error parameter of the integration routine DEqSys. */
+	private int IFEHL;
 
-    /** Blowdown flag. */
-    private int BDFLAG;
+	/** Blowdown flag. */
+	private int BDFLAG;
 
-    /** For printout of TabGenerator. */
-     private double poxt;
-     private double tGOxT;
-     private double tLOxT;
-     private double PFuT;
-     private double tGFuT;
-     private double tLFuT;
+	/** For printout of TabGenerator. */
+	private double poxt;
+	private double tGOxT;
+	private double tLOxT;
+	private double PFuT;
+	private double tGFuT;
+	private double tLFuT;
 
-    private static final String TYPE      = "TankT1";
-    private static final String SOLVER    = "RKF-4/5";
-    private static final double MAXTSTEP  = 5.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private static final String TYPE = "TankT1";
+	private static final String SOLVER = "RKF-4/5";
+	private static final double MAXTSTEP = 5.0;
+	private static final double MINTSTEP = 0.001;
+	private static final int TIMESTEP = 1;
+	private static final int REGULSTEP = 0;
 
-     private PureGasPort inputPortFuelPressureGas;
-     private PureGasPort inputPortOxidizerPressureGas;
-     private PureLiquidPort outputPortFuel;
-     private PureLiquidPort outputPortOxidizer;
+	private PureGasPort inputPortFuelPressureGas;
+	private PureGasPort inputPortOxidizerPressureGas;
+	private PureLiquidPort outputPortFuel;
+	private PureLiquidPort outputPortOxidizer;
 
     public TankT1(String name, 
     		PureLiquidPort outputPortFuel, PureLiquidPort outputPortOxidizer, 
@@ -528,7 +547,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         double MAWLO,MTWLO,MAWLB,MTWLB,VPTGBR = 0,FB = 0,PHEO;
         int I;
 
-        LOG.debug("Tank: Computing derivations of state variables of DEQ"
+        LOG.info("Tank: Computing derivations of state variables of DEQ"
                 + " system");
 
         CPHE=5223.2;
@@ -1177,7 +1196,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
         result = 0;
 
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         localNAckFlag = 0;
 
@@ -1226,7 +1245,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         double errval;
         int    result;
 
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         pinFPG  = inputPortFuelPressureGas.getPressure();
         tinFPG  = inputPortFuelPressureGas.getTemperature();
@@ -1285,7 +1304,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
         result = 0;
 
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (outputPortFuel.getBoundaryPressure() >= 0.0) {
             LOG.info("Error! Comp. '{}': Pressure request on output port fuel"
@@ -1327,7 +1346,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

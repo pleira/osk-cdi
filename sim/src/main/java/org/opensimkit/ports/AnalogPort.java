@@ -50,11 +50,11 @@ public class AnalogPort extends BasePort {
 
     public void setAnalogValue(final double analogValue) {
         this.analogValue = analogValue;
-        LOG.debug("% Setting Analog Value: '{}'", this.analogValue);
+        LOG.info("% Setting Analog Value: '{}'", this.analogValue);
     }
 
     public double getAnalogValue() {
-    LOG.debug("% Getting Value: '{}'", this.analogValue);
+    LOG.info("% Getting Value: '{}'", this.analogValue);
         return analogValue;
     }
 

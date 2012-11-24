@@ -178,7 +178,7 @@ public class BasePort implements Port, Serializable {
         } else if (input.length == size) {
             output = input;
         } else  if (input.length == 0) {
-            LOG.debug("The length of the new locationVector is 0!");
+            LOG.info("The length of the new locationVector is 0!");
         } else {
             for (int i = 0; i < input.length; i++) {
                 output[0] = input[i];

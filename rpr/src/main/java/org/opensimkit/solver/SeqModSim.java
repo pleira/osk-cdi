@@ -86,6 +86,9 @@ import org.opensimkit.Model;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.SimulatorState;
 import org.opensimkit.TimeHandler;
+import org.opensimkit.models.astris.IterItems;
+import org.opensimkit.models.astris.RegulationItems;
+import org.opensimkit.models.astris.TimeStepItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +125,9 @@ public class SeqModSim {
 //    @Inject MeshHandler  meshColl;
    
     // This class iterates over the models 
-    @Inject Collection<Model> models;
+    @Inject @TimeStepItems Collection<Model> timeStepModels;
+    @Inject @RegulationItems Collection<Model> regulationModels;
+    @Inject @IterItems Collection<Model> iterModels;
     @Inject SimHeaders simHeaders;
     
     @Inject
@@ -131,7 +136,7 @@ public class SeqModSim {
         isComputing = true;
         state = SimulatorState.NOT_RUNNING;
 
-        LOG.debug(simHeaders.DEBUG_SHORT, "Constructor");
+        LOG.info(simHeaders.DEBUG_SHORT, "Constructor");
     }
 
 //    @PostConstruct
@@ -143,7 +148,7 @@ public class SeqModSim {
 //                    "Calculation Steps NOT sucessfully initialized.");
 //            return;
 //        }
-//        LOG.debug(simHeaders.DEBUG_SHORT,
+//        LOG.info(simHeaders.DEBUG_SHORT,
 //                "Calculation Steps sucessfully initialized.");
 //
 //    }
@@ -154,7 +159,7 @@ public class SeqModSim {
     }
 
 //    int calcStepInit() {
-//        LOG.debug(simHeaders.DEBUG_SHORT, "CalcStepInit");
+//        LOG.info(simHeaders.DEBUG_SHORT, "CalcStepInit");
 //
 ////        if (cHand.calcStepInit(tStep, rStep) == 1) {
 ////            // Error message submitted by tstep and rstep obj.
@@ -182,7 +187,7 @@ public class SeqModSim {
     }
 
     private void startCompute() throws IOException {
-        LOG.debug(simHeaders.DEBUG_SHORT, "Compute");
+        LOG.info(simHeaders.DEBUG_SHORT, "Compute");
 
         setStateToRunning();
 
@@ -202,35 +207,29 @@ public class SeqModSim {
     }
 
     private void doCompute() throws IOException {
-        long beforeCalculation = 0;
-        long afterCalculation = 0;
-        long passedTime = 0;
-        long sleepTime = 0;
-        long interval = timeHandler.getInterval();
-        boolean doCompute = true;
+
+    	boolean doCompute = true;
 
         time = tinit;
 
         while (doCompute) {
             if (getState() == SimulatorState.RUNNING) {
-                beforeCalculation = System.currentTimeMillis();
 
-                LOG.debug(simHeaders.DEBUG_SHORT, "TimeStep computation ");
+                LOG.info(simHeaders.DEBUG_SHORT, "TimeStep computation ");
                 if (calc(time, timeHandler.getStepSizeAsDouble()) == 1) {
                     // Error message submitted by tstep obj.
                     lastop = LAST_OP_STEP_TS;
                     return;
                 }
-                // We have done events connecting the different objects
                 
-                LOG.debug(simHeaders.DEBUG_SHORT, "RegulStep computation ");
+                LOG.info(simHeaders.DEBUG_SHORT, "RegulStep computation ");
                 if (regulationCalc() == 1) {
                     // Error message submitted by rstep obj.
                     lastop = LAST_OP_STEP_RS;
                     return;
                 }
                 
-                LOG.debug(simHeaders.DEBUG_SHORT, "IterationStep computation ");
+                LOG.info(simHeaders.DEBUG_SHORT, "IterationStep computation ");
                 if (iterationCalc() == 1) {
                     // Error message submitted by istep obj.
                     lastop = LAST_OP_STEP_IS;
@@ -244,47 +243,14 @@ public class SeqModSim {
                 LOG.info("Time: {}",
                         String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
                         timeHandler.getSimulatedMissionTime()));
-                //   outTab.tabIntervalWrite(timeHandler.getSimulatedMissionTime(),
-                //        timeHandler.getStepSizeAsDouble());
-
-                afterCalculation = System.currentTimeMillis();
-
-                /* Calculate the passed time. If there is fewer time passed as
-                 * specified in the interval then wait the remaining time. If
-                 * the calculation of the simulation step took longer than the
-                 * interval length then issue a warning.
-                 */
-                passedTime = afterCalculation - beforeCalculation;
-
-                if (passedTime <= interval) {
-                    sleepTime = interval - passedTime;
-                } else {
-                    LOG.warn("Simulation time step took longer than the"
-                            + " permitted interval length!");
-                    sleepTime = 0;
-                }
-
-                time = time + timeHandler.getStepSizeAsDouble();
-
-                try {
-                    /* Simulation speed control. */
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ex) {
-                    LOG.error("Exception:", ex);
-                }
-
-            } else if (getState() == SimulatorState.STOPPING) {
-                doCompute = false;
-            } else {
-                /* Simulation paused. Do nothing. */
             }
         }
     }
 
     private int iterationCalc() {
-            LOG.debug(simHeaders.DEBUG_SHORT, "compute");
+            LOG.info(simHeaders.DEBUG_SHORT, "compute");
 
-            Iterator it = models.iterator();
+            Iterator it = iterModels.iterator();
             while (it.hasNext()) {
                 BaseModel model = (BaseModel) it.next();
                 if (model.iterationStep() != 0) {
@@ -298,9 +264,9 @@ public class SeqModSim {
 
 	private int regulationCalc() {
 
-            LOG.debug(simHeaders.DEBUG_SHORT, "compute");
+            LOG.info(simHeaders.DEBUG_SHORT, "compute");
 
-            Iterator it = models.iterator();
+            Iterator it = regulationModels.iterator();
             while (it.hasNext()) {
                 BaseModel model = (BaseModel) it.next();
                 if (model.regulStep() != 0) {   // A model found an error in
@@ -320,9 +286,9 @@ public class SeqModSim {
             String thestring1;
             String thestring2;
 
-            LOG.debug(simHeaders.DEBUG_SHORT, "compute");
+            LOG.info(simHeaders.DEBUG_SHORT, "compute");
 
-            Iterator it = models.iterator();
+            Iterator it = timeStepModels.iterator();
             while (it.hasNext()) {
                 BaseModel model = (BaseModel) it.next();
                 if (model.timeStep(time, tStepSize) != 0) { // A model found

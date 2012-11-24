@@ -81,7 +81,7 @@ public abstract class EngineController extends BaseModel {
     private static final double MAXTSTEP  = 10.0;
     private static final double MINTSTEP  = 0.001;
     private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 1;
+    private static final int    REGULSTEP = 1; // We add this model to the regulation step collection
 
      final AnalogPort controlPort1;
      final AnalogPort controlPort2;
@@ -143,7 +143,7 @@ public abstract class EngineController extends BaseModel {
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         /**
          * Time dependent functionality of the controller has to be computed
@@ -162,8 +162,8 @@ public abstract class EngineController extends BaseModel {
         }
         controlValue1 = controlValueActual * controlValue1Nom;
         controlValue2 = controlValueActual * controlValue2Nom;
-        LOG.debug("controlValue1:  '{}' ", controlValue1);
-        LOG.debug("controlValue2:  '{}' ", controlValue2);
+        LOG.info("controlValue1:  '{}' ", controlValue1);
+        LOG.info("controlValue2:  '{}' ", controlValue2);
 
         controlPort1.setAnalogValue(controlValue1);
         controlPort2.setAnalogValue(controlValue2);
@@ -173,7 +173,7 @@ public abstract class EngineController extends BaseModel {
 
     @Override
     public int iterationStep() {
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         return 0;
     }
@@ -181,7 +181,7 @@ public abstract class EngineController extends BaseModel {
 
     @Override
     public int backIterStep() {
-        LOG.debug("% {} BackiterStep-Computation", name);
+        LOG.info("% {} BackiterStep-Computation", name);
 
         return 0;
     }
@@ -189,9 +189,9 @@ public abstract class EngineController extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
-        LOG.debug("controlValue1:  '{}' ", controlValue1);
-        LOG.debug("controlValue2:  '{}' ", controlValue2);
+        LOG.info("% {} RegulStep-Computation", name);
+        LOG.info("controlValue1:  '{}' ", controlValue1);
+        LOG.info("controlValue2:  '{}' ", controlValue2);
 
         controlPort1.setAnalogValue(controlValue1);
         controlPort2.setAnalogValue(controlValue2);

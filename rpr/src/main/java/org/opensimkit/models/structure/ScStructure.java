@@ -92,9 +92,12 @@
  
 package org.opensimkit.models.structure;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+
+import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.TimeHandler;
@@ -103,8 +106,6 @@ import org.opensimkit.events.ECI;
 import org.opensimkit.events.Gravity;
 import org.opensimkit.events.ScPV;
 import org.opensimkit.events.Thrust;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,25 +183,13 @@ public class ScStructure extends BaseModel {
     input file.
     ----------------------------------------------------------------------*/
 
-    /**
-     * Creates a new instance of the S/C structure.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
     public ScStructure(final String name) {
         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
     }
 
 
-    /**
-    * The initialization of the Component takes place in this method. It is
-    * called after the creation of the instance and the loading of its default
-    * values so that derived variables can be calculated after loading or
-    * re-calculated after the change of a manipulatable variable (but in this
-    * case the init method must be called manually!).
-    */
     @Override
+    @PostConstruct
     public void init() {
         /* Computation of derived initialization parameters. */
         thrustMag = 0.0;
@@ -221,15 +210,15 @@ public class ScStructure extends BaseModel {
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
-        LOG.debug("% {} TimeStep-Computation", name);        
-        LOG.debug("gravityAccel[0]:  '{}' ", gravityAccel[0]);
-        LOG.debug("gravityAccel[1]:  '{}' ", gravityAccel[1]);
-        LOG.debug("gravityAccel[2]:  '{}' ", gravityAccel[2]);
-        LOG.debug("gravityAccel[3]:  '{}' ", gravityAccel[3]);
+        LOG.info("% {} TimeStep-Computation", name);        
+        LOG.info("gravityAccel[0]:  '{}' ", gravityAccel[0]);
+        LOG.info("gravityAccel[1]:  '{}' ", gravityAccel[1]);
+        LOG.info("gravityAccel[2]:  '{}' ", gravityAccel[2]);
+        LOG.info("gravityAccel[3]:  '{}' ", gravityAccel[3]);
                 
         thrustVecECI = this.getNormVector(this.getVecDiff(scPositionECI, scPositionECI_prev));
         thrustMag = tVec[0];
-        LOG.debug("thrustMag:  '{}' ", thrustMag);
+        LOG.info("thrustMag:  '{}' ", thrustMag);
 
         double scMass_inverted = 0.0;
         if (scMass >= 0.0) {
@@ -246,7 +235,7 @@ public class ScStructure extends BaseModel {
                 totalAcc[i] = gravityAccel[i+1] * gravityAccel[0] + thrustVecECI[i]
                         * thrustMag * scMass_inverted;
             }
-            LOG.debug("totalAcc[i]:  '{}' ", totalAcc[i]);
+            LOG.info("totalAcc[i]:  '{}' ", totalAcc[i]);
         }
         double[] result = new double[3];
 
@@ -415,7 +404,7 @@ public class ScStructure extends BaseModel {
         return resvector;
     }
 
-
+	@ManagedAttribute
 	public double getScMass() {
 		return scMass;
 	}
@@ -425,7 +414,7 @@ public class ScStructure extends BaseModel {
 		this.scMass = scMass;
 	}
 
-
+	@ManagedAttribute
 	public double getScVelocityX() {
 		return scVelocityX;
 	}
@@ -435,7 +424,7 @@ public class ScStructure extends BaseModel {
 		this.scVelocityX = scVelocityX;
 	}
 
-
+	@ManagedAttribute
 	public double getScVelocityY() {
 		return scVelocityY;
 	}
@@ -445,7 +434,7 @@ public class ScStructure extends BaseModel {
 		this.scVelocityY = scVelocityY;
 	}
 
-
+	@ManagedAttribute
 	public double getScVelocityZ() {
 		return scVelocityZ;
 	}
@@ -455,7 +444,7 @@ public class ScStructure extends BaseModel {
 		this.scVelocityZ = scVelocityZ;
 	}
 
-
+	@ManagedAttribute
 	public double getScPositionX() {
 		return scPositionX;
 	}
@@ -465,7 +454,7 @@ public class ScStructure extends BaseModel {
 		this.scPositionX = scPositionX;
 	}
 
-
+	@ManagedAttribute
 	public double getScPositionY() {
 		return scPositionY;
 	}
@@ -475,16 +464,16 @@ public class ScStructure extends BaseModel {
 		this.scPositionY = scPositionY;
 	}
 
-
+	@ManagedAttribute
 	public double getScPositionZ() {
 		return scPositionZ;
 	}
-
 
 	public void setScPositionZ(double scPositionZ) {
 		this.scPositionZ = scPositionZ;
 	}
 	
+	@ManagedAttribute
     public double[] getScVelocityECI() {
 		return scVelocityECI;
 	}
@@ -493,6 +482,7 @@ public class ScStructure extends BaseModel {
 		this.scVelocityECI = scVelocityECI;
 	}
 
+	@ManagedAttribute
 	public double[] getScPositionECI() {
 		return scPositionECI;
 	}

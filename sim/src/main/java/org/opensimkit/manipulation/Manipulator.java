@@ -121,7 +121,7 @@ public class Manipulator {
 
     private void removeClassInformation(final Class<?> clazz) {
         if (registeredClasses.containsKey(clazz.getName()) == false) {
-            LOG.debug("The class '{}' is not registered!");
+            LOG.info("The class '{}' is not registered!");
         } else {
             ClassInformation oldClassInformation
                     = registeredClasses.get(clazz.getName());
@@ -190,7 +190,7 @@ public class Manipulator {
                         result.put(field.getName(), field);
                     } else {
                         try {
-                            LOG.debug("Field {} is neither primitive nor"
+                            LOG.info("Field {} is neither primitive nor"
                                     + " String, it is {}.", field.getName(),
                                     field.getType());
                             String newName = name + "." + field.getName();
@@ -232,7 +232,7 @@ public class Manipulator {
             result.putAll(getAnnotatedFieldsFromClass(
                     clazz2, annotation, name, instance));
         }
-        LOG.debug("Fields of class \"{}\" annotated with \"{}\": {}",
+        LOG.info("Fields of class \"{}\" annotated with \"{}\": {}",
                 new Object[] {clazz.getName(), annotation.getName(),
                 result.keySet()});
 
@@ -261,7 +261,7 @@ public class Manipulator {
 //                    if (isFieldOfPrimitiveOrStringType(field)) {
 //                        result.put(field.getName(), field);
 //                    } else {
-//                        LOG.debug("Field {} is neither primitive nor String,
+//                        LOG.info("Field {} is neither primitive nor String,
     //it is {}.",
 //                                field.getName(), field.getType());
 //
@@ -365,7 +365,7 @@ public class Manipulator {
             clazz2 = clazz2.getSuperclass();
             result.putAll(getCallableMethodsFromClass(clazz2));
         }
-        LOG.debug("Callable methods of class \"{}\": {}", clazz, result);
+        LOG.info("Callable methods of class \"{}\": {}", clazz, result);
 
         return result;
     }
@@ -410,7 +410,7 @@ public class Manipulator {
             result = methodToCall;
         }
 
-        LOG.debug("Result: {}", result.toString());
+        LOG.info("Result: {}", result.toString());
         return result;
     }
 
@@ -731,19 +731,19 @@ public class Manipulator {
 
     public void registerInstance(final String name, final Object instance) {
         if (name == null) {
-            LOG.debug("The name of the instance cannot be null!");
+            LOG.info("The name of the instance cannot be null!");
             throw new ManipulationException(
                     "The name of the instance cannot be null!");
         } else if (instances.containsKey(name)) {
             Object registeredInstance = instances.get(name);
-            LOG.debug("An instance {} of class {} named {} is already "
+            LOG.info("An instance {} of class {} named {} is already "
                     + "registered. "
                     + "Therefore the instance {} of class {} cannot be "
                     + "registered using the same name!",
                 new Object[]{registeredInstance, registeredInstance.getClass(),
                 name, instance, instance.getClass()});
         } else {
-            LOG.debug("Registering instance {} of class {}.",
+            LOG.info("Registering instance {} of class {}.",
                     instance, instance.getClass());
             updateClassInformation(instance.getClass(), name, instance);
 
@@ -1452,7 +1452,7 @@ public class Manipulator {
             nameOfType = typeOfField.getName();
             String strippedNameOfType = nameOfType.replaceAll("]", "");
             if (strippedNameOfType.indexOf("L") == 0) {
-                LOG.debug("The array {} is neither primitive nor String.",
+                LOG.info("The array {} is neither primitive nor String.",
                         nameOfType);
             } else {
                 result = true;

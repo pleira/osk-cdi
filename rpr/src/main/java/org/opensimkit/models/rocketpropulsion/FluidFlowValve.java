@@ -135,14 +135,14 @@ public abstract class FluidFlowValve extends BaseModel {
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         controlValue = controlPort.getAnalogValue();
-        LOG.debug("Reading controlValue: '{}'", controlValue);
+        LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-        LOG.debug("Corrected controlValue: '{}'", controlValue);
+        LOG.info("Corrected controlValue: '{}'", controlValue);
 
         fluid = inputPort.getFluid();
         pin   = inputPort.getPressure();
@@ -164,7 +164,7 @@ public abstract class FluidFlowValve extends BaseModel {
         pout = pin - DP;
         tout = tin;
         mfout = massflow;
-        LOG.debug("Massflow: '{}'", massflow);
+        LOG.info("Massflow: '{}'", massflow);
 
         outputPort.setFluid(fluid);
         outputPort.setPressure(pout);
@@ -176,14 +176,14 @@ public abstract class FluidFlowValve extends BaseModel {
     
 	@Override
     public int iterationStep() {
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         controlValue = controlPort.getAnalogValue();
-        LOG.debug("Reading controlValue: '{}'", controlValue);
+        LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-        LOG.debug("Corrected controlValue: '{}'", controlValue);
+        LOG.info("Corrected controlValue: '{}'", controlValue);
 
         fluid = inputPort.getFluid();
         pin   = inputPort.getPressure();
@@ -192,10 +192,10 @@ public abstract class FluidFlowValve extends BaseModel {
 
         if (localtime == 0.0) {
             massflow = mfin;
-            LOG.debug("Massflow: '{}'", massflow);
+            LOG.info("Massflow: '{}'", massflow);
         } else {
             massflow = referenceMassFlow * controlValue;
-            LOG.debug("Massflow: '{}'", massflow);
+            LOG.info("Massflow: '{}'", massflow);
         }
 
         //Skip iteration step computation if no flow in valve
@@ -203,7 +203,7 @@ public abstract class FluidFlowValve extends BaseModel {
             pout  = pin;
             tout  = tin;
             mfout = mfin;
-            LOG.debug("Massflow: '{}'", mfout);
+            LOG.info("Massflow: '{}'", mfout);
 
             outputPort.setFluid(fluid);
             outputPort.setPressure(pout);
@@ -241,14 +241,14 @@ public abstract class FluidFlowValve extends BaseModel {
         int result;
 
         result = 0;
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         controlValue = controlPort.getAnalogValue();
-        LOG.debug("Reading controlValue: '{}'", controlValue);
+        LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-        LOG.debug("Corrected controlValue: '{}'", controlValue);
+        LOG.info("Corrected controlValue: '{}'", controlValue);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
             LOG.info("Error! Comp. '{}': Pressure request on port 1 cannot"
@@ -271,7 +271,7 @@ public abstract class FluidFlowValve extends BaseModel {
         /* In normal backiterations reflecting upstream the massflow
          * computed from the controller signal which was elaborated in timestep.
          */
-        LOG.debug("Massflow: '{}'", massflow);
+        LOG.info("Massflow: '{}'", massflow);
 
         inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
         inputPort.setBoundaryPressure(-999999.99);
@@ -283,7 +283,7 @@ public abstract class FluidFlowValve extends BaseModel {
 
 	@Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

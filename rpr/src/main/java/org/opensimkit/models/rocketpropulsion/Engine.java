@@ -182,7 +182,7 @@ public abstract class Engine extends BaseModel {
     @Override
     @PostConstruct
     public void init() {
-        LOG.debug("% {} Init-Computation", name);
+        LOG.info("% {} Init-Computation", name);
         localtime = 0.0;
         thrustVector[0] = 0;
         thrustVector[1] = 1;
@@ -225,7 +225,7 @@ public abstract class Engine extends BaseModel {
     public int timeStep(final double time, final double tStepSize) {
         localtime = localtime + 0.5;
 
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         /* Fuel: */
         mfin0 = inputPortFuel.getMassflow();
@@ -319,7 +319,7 @@ public abstract class Engine extends BaseModel {
 
             /*Check for flow separation in nozzle flow: Summerfield pe<0.4*pa */
             if ( pe < 0.4*pa ) {
-                LOG.debug("% {} Engine: Flow separation in nozzle. " +
+                LOG.info("% {} Engine: Flow separation in nozzle. " +
                        "Thrust value is not realistic", name);
                 /* Thrust factor cf */
                 /* Source: Space Propulsion Analysis and Design p.112 3.129 */
@@ -382,7 +382,7 @@ public abstract class Engine extends BaseModel {
               newp = oldp - F / dF;
               if (i >= 100 || newp < 0.0 ) {
                   newp=1E2/pc; /*Assuming 1mbar pe*/
-                  LOG.debug("% {} Engine: Iteration for nozzle exit " +
+                  LOG.info("% {} Engine: Iteration for nozzle exit " +
                           "pressure, no solution found", name);
                   break; /* oder abbrechen return 0*/
               }
@@ -393,7 +393,7 @@ public abstract class Engine extends BaseModel {
 
     @Override
     public int iterationStep() {
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         /* Fuel: */
         pin0  = inputPortFuel.getPressure();
@@ -421,7 +421,7 @@ public abstract class Engine extends BaseModel {
 
     @Override
     public int backIterStep() {
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (localtime == 0.0) {
             requestedFuelFlow = ignitionFuelFlow;
@@ -445,7 +445,7 @@ public abstract class Engine extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
 
         return 0;
     }

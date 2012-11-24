@@ -173,7 +173,7 @@ public class PipeT1 extends BaseModel {
         double     CP, Q, DTF, DTB;
         int        J;
 
-        LOG.debug("% {} TimeStep-Computation", name);
+        LOG.info("% {} TimeStep-Computation", name);
 
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
@@ -251,7 +251,7 @@ public class PipeT1 extends BaseModel {
         /** Fluid material properties for heat transfer computations. */
         MaterialProperties Helium = new MaterialProperties();
 
-        LOG.debug("% {} IterationStep-Computation", name);
+        LOG.info("% {} IterationStep-Computation", name);
 
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
@@ -351,7 +351,7 @@ public class PipeT1 extends BaseModel {
 
         if (RE > 2.E6) {
             LOG.info("Re number exceeding upper limit");
-            LOG.debug("Re number exceeding upper limit");
+            LOG.info("Re number exceeding upper limit");
             RE = 2.E6;
         } else if (RE < 2300.) {
             /* Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
@@ -401,7 +401,7 @@ public class PipeT1 extends BaseModel {
 
         if ((tout - tin) > 10.0) {
             LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
-            LOG.debug("Temp. change > 10 deg. in pipe '{}'", name);
+            LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
         }
 
         /**********************************************************************/
@@ -415,9 +415,9 @@ public class PipeT1 extends BaseModel {
         outputPort.setTemperature(tout);
         outputPort.setMassflow(mfin);
 
-        LOG.debug(" -> pout := {}", pout);
-        LOG.debug(" -> tout := {}", tout);
-        LOG.debug(" -> mfin/out := {}", mfin);
+        LOG.info(" -> pout := {}", pout);
+        LOG.info(" -> tout := {}", tout);
+        LOG.info(" -> mfin/out := {}", mfin);
 
         return 0;
     }
@@ -429,25 +429,25 @@ public class PipeT1 extends BaseModel {
 
         result = 0;
 
-        LOG.debug("% {} BackIteration-Computation", name);
+        LOG.info("% {} BackIteration-Computation", name);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on port 1 cannot"
-                    + " be handled!", name);
+            LOG.info("Error with {}: Pressure request on output port {} cannot"
+                    + " be handled!", name, outputPort.getName());
             result = 1;
         }
         if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on port 1 cannot"
-                    + " be handled!", name);
+            LOG.info("Error with {}: Temp. request on output port {} cannot"
+                    + " be handled!", name, outputPort.getName());
             result = 1;
         }
 
         mfUpBackiter = outputPort.getBoundaryMassflow();
         pUpBackiter = outputPort.getBoundaryPressure();
         tUpBackiter = outputPort.getBoundaryTemperature();
-        LOG.debug(" -> pUpBackiter := {}", pUpBackiter);
-        LOG.debug(" -> tUpBackiter := {}", tUpBackiter);
-        LOG.debug(" -> mfUpBackiter := {}", mfUpBackiter);
+        LOG.info(" -> pUpBackiter := {}", pUpBackiter);
+        LOG.info(" -> tUpBackiter := {}", tUpBackiter);
+        LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
 
         inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
         inputPort.setBoundaryPressure(-999999.99);
@@ -460,7 +460,7 @@ public class PipeT1 extends BaseModel {
 
     @Override
     public int regulStep() {
-        LOG.debug("% {} RegulStep-Computation", name);
+        LOG.info("% {} RegulStep-Computation", name);
         return 0;
     }
 

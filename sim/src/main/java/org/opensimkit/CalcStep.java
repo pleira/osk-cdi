@@ -69,7 +69,7 @@ public class CalcStep {
      */
     public CalcStep(final String name) {
         this.name = name;
-        LOG.debug(SimHeaders.DEBUG_SHORT, "Constructor {}", name);
+        LOG.info(SimHeaders.DEBUG_SHORT, "Constructor {}", name);
     }
 
     /**
@@ -77,7 +77,7 @@ public class CalcStep {
      * @param model   the reference to the model
      */
     public void addItem(final BaseModel model) {
-        LOG.debug(SimHeaders.DEBUG_SHORT, "CalcStep {} adding {}.", name,
+        LOG.info(SimHeaders.DEBUG_SHORT, "CalcStep {} adding {}.", name,
                 model.getName());
         items.add(model);
     }
