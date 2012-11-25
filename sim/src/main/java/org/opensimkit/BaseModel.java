@@ -55,9 +55,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.opensimkit.manipulation.Callable;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +62,7 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Implementation of an abstract model class.
- *
+ * 
  * @author J. Eickhoff
  * @author A. Brandt
  * @author T. Pieper
@@ -73,176 +70,96 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
  * @since 2.4.0
  */
 public class BaseModel implements Model, Serializable {
-    private transient static final Logger LOG = LoggerFactory.getLogger(BaseModel.class);
-    /** Name of the Model. */
-          protected String   name;
-    /** Description of the Model. */
-     protected String   description;
-    /** Type of the Model. */
-     protected String   type;
-          protected String   numSolverType;
-          protected double   maxIntegStepSize;
-          protected double   minIntegStepSize;
-                   protected int      localNAckFlag;
-    /** If the Model has to compute in... */
-          private   int      rStep;
-    /** If the Model has to compute in... */
-          private   int      tStep;
+	private transient static final Logger LOG = LoggerFactory.getLogger(BaseModel.class);
+	/** Name of the Model. */
+	protected String name;
+	/** Description of the Model. */
+	protected String description;
+	/** Type of the Model. */
+	protected String type;
+	protected String numSolverType;
+	protected double maxIntegStepSize;
+	protected double minIntegStepSize;
+	protected int localNAckFlag;
 
-    /**
-     * Creates a new instance of BaseModel.
-     *
-     * @param name   the name of the Model.
-     * @param type   the type of the Model.
-     * @param numSolverType
-     * @param maxts
-     * @param mints
-     * @param ts
-     * @param rs
-     */
-    public BaseModel(final String name, final String type,
-        final String numSolverType, final double maxts, final double mints,
-        final int ts, final int rs) {
+	public BaseModel(final String name, final String type,
+			final String numSolverType, final double maxts, final double mints) {
 
-        this.name = name;
-        this.type = type;
-        this.numSolverType = numSolverType;
-        this.maxIntegStepSize = maxts;
-        this.minIntegStepSize = mints;
-        this.rStep = rs;
-        this.tStep = ts;
-        LOG.info(SimHeaders.DEBUG_SHORT, "Constructor Model {}", name);
-    }
+		this.name = name;
+		this.type = type;
+		this.numSolverType = numSolverType;
+		this.maxIntegStepSize = maxts;
+		this.minIntegStepSize = mints;
+		LOG.info(SimHeaders.DEBUG_SHORT, "Constructor Model {}", name);
+	}
 
-    /**
-     *
-     * @param d1
-     * @param d2
-     * @return  error code
-     */
-    public int timeStep(final double d1, final double d2) {
-        return 0;
-    }
+	public int timeStep(final double d1, final double d2) {
+        LOG.info("% {} TimeStep-Computation", name);
+		return 0;
+	}
 
-    /**
-     *
-     * @return error code
-     */
-    public int regulStep() {
-        return 0;
-    }
+	public int regulStep() {
+        LOG.info("% {} RegulStep-Computation", name);
+		return 0;
+	}
 
-    /**
-     *
-     * @return error code
-     */
-    public int iterationStep() {
-        return 0;
-    }
+	public int iterationStep() {
+        LOG.info("% {} IterationStep-Computation", name);
+		return 0;
+	}
 
-    /**
-     *
-     * @param f
-     * @return error code
-     * @throws IOException
-     */
-    public int save(final FileWriter f) throws IOException {
-        return 0;
-    }
+	public int backIterStep() {
+        LOG.info("% {} BackiterStep-Computation", name);
+		return 0;
+	}
 
-    /**
-     * The initialization of the Model takes place in this method. It is
-     * called after the creation of the instance and the loading of its default
-     * values so that derived variables can be calculated after loading or
-     * re-calculated after the change of a manipulatable variable (but in this
-     * case the init method must be called manually!).
-     */
-    @Callable
-    public void init() {
-        /** Intentionally empty. */
-    }
+	public int save(final FileWriter f) throws IOException {
+        f.write("Model: '" + name + "'" + SimHeaders.NEWLINE);
+		return 0;
+	}
 
-    /**
-     *
-     * @param ctime
-     * @param cregul
-     * @return error code
-     */
-    // We try to have collections needed for the computation done in the
-    // model
-//    public int initCalcSteps(final CTimeStep ctime, final CRegulStep cregul) {
-//        LOG.info(SimHeaders.DEBUG_SHORT, "InitCalcSteps {}", name);
-//        if (tStep > 0) {
-//            ctime.addItem(this);
-//            LOG.info(SimHeaders.DEBUG_SHORT,
-//                    "BaseModel {} added to timestep.", name);
-//        }
-//        if (rStep > 0) {
-//            cregul.addItem(this);
-//            LOG.info(SimHeaders.DEBUG_SHORT,
-//                    "BaseModel {} added to regulstep.", name);
-//        }
-//        return 0;
-//    }
+	public void init() {
+		/** Intentionally empty. */
+	}
 
-    // Data that are to be accessed by special reply functions e.g. for Apple
-    // Event access.
-    //-------------------------------------------------------------------------
 
-	/**
-     *
-     * @return error code
-     */
-    public int backIterStep() {
-        return 0;
-    }
-
-    //-----------------------------------------------------------------------------------
-    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+	// -----------------------------------------------------------------------------------
+	// Methods added for JMX monitoring and setting initial properties via CDI
+	// Extensions
 
 	@ManagedAttribute
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
 	@ManagedAttribute
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
 	@ManagedAttribute
-    public String getNumSolverType() {
-        return numSolverType;
-    }
+	public String getNumSolverType() {
+		return numSolverType;
+	}
 
 	@ManagedAttribute
-    public double getMaxIntegStepSize() {
-        return maxIntegStepSize;
-    }
+	public double getMaxIntegStepSize() {
+		return maxIntegStepSize;
+	}
 
 	@ManagedAttribute
-    public double getMinIntegStepSize() {
-        return minIntegStepSize;
-    }
+	public double getMinIntegStepSize() {
+		return minIntegStepSize;
+	}
 
 	@ManagedAttribute
-    public String getDescription() {
+	public String getDescription() {
 		return description;
 	}
 
 	@ManagedAttribute
 	public int getLocalNAckFlag() {
 		return localNAckFlag;
-	}
-
-	@ManagedAttribute
-	public int getrStep() {
-		return rStep;
-	}
-
-	@ManagedAttribute
-	public int gettStep() {
-		return tStep;
 	}
 
 	public void setName(String name) {

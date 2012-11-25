@@ -1,6 +1,7 @@
 package org.opensimkit.models.astris;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -8,7 +9,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.management.InstanceAlreadyExistsException;
 
 import net.gescobar.jmx.Management;
@@ -83,9 +83,7 @@ public class AstrisRocket  {
 	Mesh mesh1 = new Mesh("mesh_1", "sub");
 	Mesh mesh2 = new Mesh("mesh_2", "sub");
 
-	@Produces
-	@Named("STRUCTURE_ITEMS_MAP")
-	final SortedMap<String, Model> timeStepItems = new TreeMap<String, Model>();
+	final LinkedList<Model> timeStepItems = new LinkedList<Model>();
 
 	final SortedMap<String, Model> regulationItems = new TreeMap<String, Model>();
 
@@ -94,7 +92,7 @@ public class AstrisRocket  {
 	// This collection is used to iterate the models
 	@Produces @TimeStepItems	
 	public Collection<Model> iterItems() {
-		return timeStepItems.values();
+		return timeStepItems;
 	}
     
 	@Produces @RegulationItems
@@ -117,30 +115,31 @@ public class AstrisRocket  {
 	}
 
 	void initItems() {
-		timeStepItems.put(fflow18.getName(), fflow18);
-		timeStepItems.put(fflow19.getName(), fflow19);
-		timeStepItems.put(pipe02.getName(), pipe02);
-		timeStepItems.put(pipe03.getName(), pipe03);
-		timeStepItems.put(pipe05.getName(), pipe05);
-		timeStepItems.put(pipe07.getName(), pipe07);
-		timeStepItems.put(pipe09.getName(), pipe09);
-		timeStepItems.put(pipe11.getName(), pipe11);
-		timeStepItems.put(pipe13.getName(), pipe13);
-		timeStepItems.put(pipe14.getName(), pipe14);
-		timeStepItems.put(pipe16.getName(), pipe16);
-		timeStepItems.put(filter06.getName(), filter06);
-		timeStepItems.put(hpbottle00.getName(), hpbottle00);
-		timeStepItems.put(hpbottle01.getName(), hpbottle01);
-		timeStepItems.put(preg08.getName(), preg08);
-		timeStepItems.put(preg12.getName(), preg12);
-		timeStepItems.put(preg15.getName(), preg15);
-		timeStepItems.put(split10.getName(), split10);
-		timeStepItems.put(junction04.getName(), junction04);
-		timeStepItems.put(tank17.getName(), tank17);
-		timeStepItems.put(engine20.getName(), engine20);
-		timeStepItems.put(engineController21.getName(), engineController21);
-		timeStepItems.put(scStructure22.getName(), scStructure22);
-		timeStepItems.put(gravityModel23.getName(), gravityModel23);
+		
+		timeStepItems.add(hpbottle00);
+		timeStepItems.add(hpbottle01);
+		timeStepItems.add(pipe02);
+		timeStepItems.add(pipe03);
+		timeStepItems.add(junction04);
+		timeStepItems.add(pipe05);
+		timeStepItems.add(filter06);
+		timeStepItems.add(pipe07);
+		timeStepItems.add(preg08);
+		timeStepItems.add(pipe09);
+		timeStepItems.add(split10);
+		timeStepItems.add(pipe11);
+		timeStepItems.add(preg12);
+		timeStepItems.add(pipe13);
+		timeStepItems.add(pipe14);
+		timeStepItems.add(preg15);
+		timeStepItems.add(pipe16);
+		timeStepItems.add(tank17);
+		timeStepItems.add(fflow18);
+		timeStepItems.add(fflow19);
+		timeStepItems.add(engine20);
+		timeStepItems.add(engineController21);
+		timeStepItems.add(scStructure22);
+		timeStepItems.add(gravityModel23);
 		
 		regulationItems.put(engineController21.getName(), engineController21);
 		iterItems.put(mesh0.getName(), mesh0);
@@ -186,7 +185,7 @@ public class AstrisRocket  {
     
     // move this method out of this class (catch an event and then, register? 
 	private void registerMBeans() {
-		for (Model model : timeStepItems.values()) {
+		for (Model model : timeStepItems) {
 			try {
 				Management.register(model,
 						"org.opensimkit:type=" + model.getType() + ",name="

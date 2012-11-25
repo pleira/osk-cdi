@@ -88,8 +88,8 @@
  *
  *
  *-----------------------------------------------------------------------------
-*/
- 
+ */
+
 package org.opensimkit.models.structure;
 
 import javax.annotation.PostConstruct;
@@ -111,7 +111,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Model definition for a point mass.
- *
+ * 
  * @author C. Ziemke
  * @author A. Brandt
  * @author J. Eickhoff
@@ -123,292 +123,311 @@ import org.slf4j.LoggerFactory;
 
 public class ScStructure extends BaseModel {
 
-	/** Logger instance for the ScStructure. */
-    private static final Logger LOG = LoggerFactory.getLogger(ScStructure.class);
-    /** Gravity acceleration imposed onto structure. */
-     private double[] gravityAccel = new double[4];
-    /** Structure mass. */
-     private double scMass;
-    
-    /** Structure SCVelocity in ECI frame. */
-     private double[] scVelocityECI = new double[3];
-    /** Structure SCPosition in ECI frame. */
-     private double[] scPositionECI = new double[3];
-    /**Thrust: Value and direction vector in SC body frame. Vector components in [N] */
-     private final double[] tVec = new double[4];
+	private static final Logger LOG = LoggerFactory
+			.getLogger(ScStructure.class);
+	/** Gravity acceleration imposed onto structure. */
+	private double[] gravityAccel = new double[4];
+	/** Structure mass. */
+	private double scMass;
 
+	/** Structure SCVelocity in ECI frame. */
+	private double[] scVelocityECI = new double[3];
+	/** Structure SCPosition in ECI frame. */
+	private double[] scPositionECI = new double[3];
+	/**
+	 * Thrust: Value and direction vector in SC body frame. Vector components in
+	 * [N]
+	 */
+	private final double[] tVec = new double[4];
 
-    /** scPosition of previous timestep. */
-    private double[] scPositionECI_prev= new double[3];
-    /** scVelocity of previous timestep. */
-    private double[] scVelocityECI_prev = new double[3];
+	/** scPosition of previous timestep. */
+	private double[] scPositionECI_prev = new double[3];
+	/** scVelocity of previous timestep. */
+	private double[] scVelocityECI_prev = new double[3];
 
-     private double scVelocityX, scVelocityY, scVelocityZ;
-     private double scPositionX, scPositionY, scPositionZ;
+	private double scVelocityX, scVelocityY, scVelocityZ;
+	private double scPositionX, scPositionY, scPositionZ;
 
-    /** Time handler object. */
-    @Inject
-    private TimeHandler timeHandler;
-    /** OSK SRT time in converted format. */
-    
-    /** Magnitude of engine thrust. */
-    private double thrustMag;
-    /** Direction vector (unitized) of engine thrust in ECI frame. */
-    private double[] thrustVecECI = new double[3];
-    
-    private static final String TYPE = "ScStructure";
-    private static final String SOLVER = "none";
-    private static final double MAXTSTEP = 10.0;
-    private static final double MINTSTEP = 0.001;
-    private static final int TIMESTEP = 1;
-    private static final int REGULSTEP = 0;
+	/** Time handler object. */
+	@Inject
+	private TimeHandler timeHandler;
+	/** OSK SRT time in converted format. */
 
-    // The ECI annotiation implies that the events are related to ECI coord.
-    @Inject @ECI Event<ScPV> scPVEvent;
+	/** Magnitude of engine thrust. */
+	private double thrustMag;
+	/** Direction vector (unitized) of engine thrust in ECI frame. */
+	private double[] thrustVecECI = new double[3];
 
-    /*----------------------------------------------------------------------
-    Note! The variable(s)
-        tVec[]
-    is(are) used in subsequent code lines.
-    Please assure that the according variable(s) is(are) provided to this 
-    model via the provider/subscriber mechanism by specifying an according 
-    subscription entry in the simulation input file.
-    ------------------------------------------------------------------------
-    Note! The variable(s)
-        scPosAlt
-        scPositionECI[]
-    is(are) computed for use by other models in subsequent code lines.
-    Please assure that the according variable(s) is(are) handed over to
-    subscribers by specifying an according provision entry in the simulation 
-    input file.
-    ----------------------------------------------------------------------*/
+	private static final String TYPE = "ScStructure";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
 
-    public ScStructure(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-    }
+	// The ECI annotiation implies that the events are related to ECI coord.
+	@Inject
+	@ECI
+	Event<ScPV> scPVEvent;
 
+	/*----------------------------------------------------------------------
+	Note! The variable(s)
+	    tVec[]
+	is(are) used in subsequent code lines.
+	Please assure that the according variable(s) is(are) provided to this 
+	model via the provider/subscriber mechanism by specifying an according 
+	subscription entry in the simulation input file.
+	------------------------------------------------------------------------
+	Note! The variable(s)
+	    scPosAlt
+	    scPositionECI[]
+	is(are) computed for use by other models in subsequent code lines.
+	Please assure that the according variable(s) is(are) handed over to
+	subscribers by specifying an according provision entry in the simulation 
+	input file.
+	----------------------------------------------------------------------*/
 
-    @Override
-    @PostConstruct
-    public void init() {
-        /* Computation of derived initialization parameters. */
-        thrustMag = 0.0;
-        tVec[0] = 0;
-        tVec[1] = 0;
-        tVec[2] = 0;
-        tVec[3] = 0;
-        thrustVecECI[0] = 0;
-        thrustVecECI[1] = 0;
-        thrustVecECI[2] = 0;
+	public ScStructure(final String name) {
+		super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
+	}
 
-        for(int i = 0; i < 3 ; i++){
-            scPositionECI_prev[i] = scPositionECI[i];
-            scVelocityECI_prev[i] = scVelocityECI[i];
-        }
-    }
+	@Override
+	@PostConstruct
+	public void init() {
+		/* Computation of derived initialization parameters. */
+		thrustMag = 0.0;
+		tVec[0] = 0;
+		tVec[1] = 0;
+		tVec[2] = 0;
+		tVec[3] = 0;
+		thrustVecECI[0] = 0;
+		thrustVecECI[1] = 0;
+		thrustVecECI[2] = 0;
 
+		for (int i = 0; i < 3; i++) {
+			scPositionECI_prev[i] = scPositionECI[i];
+			scVelocityECI_prev[i] = scVelocityECI[i];
+		}
+	}
 
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        LOG.info("% {} TimeStep-Computation", name);        
-        LOG.info("gravityAccel[0]:  '{}' ", gravityAccel[0]);
-        LOG.info("gravityAccel[1]:  '{}' ", gravityAccel[1]);
-        LOG.info("gravityAccel[2]:  '{}' ", gravityAccel[2]);
-        LOG.info("gravityAccel[3]:  '{}' ", gravityAccel[3]);
-                
-        thrustVecECI = this.getNormVector(this.getVecDiff(scPositionECI, scPositionECI_prev));
-        thrustMag = tVec[0];
-        LOG.info("thrustMag:  '{}' ", thrustMag);
+	@Override
+	public int timeStep(final double time, final double tStepSize) {
+		LOG.info("% {} TimeStep-Computation", name);
+		// Note that the gravity acceleration first is calculated in
+		// the Environment model (the Earth) and an event is fired there
+		LOG.info("gravityAccel[0]:  '{}' ", gravityAccel[0]);
+		LOG.info("gravityAccel[1]:  '{}' ", gravityAccel[1]);
+		LOG.info("gravityAccel[2]:  '{}' ", gravityAccel[2]);
+		LOG.info("gravityAccel[3]:  '{}' ", gravityAccel[3]);
 
-        double scMass_inverted = 0.0;
-        if (scMass >= 0.0) {
-            scMass_inverted = 1.0 / scMass;
-        } else {
-            LOG.error("S/C mass is negative({})!", scMass);
-        }
+		thrustVecECI = this.getNormVector(this.getVecDiff(scPositionECI,
+				scPositionECI_prev));
+		thrustMag = tVec[0];
+		LOG.info("thrustMag:  '{}' ", thrustMag);
 
-        double[] totalAcc = new double[3];
-        for (int i = 0; i < 3; i++) {
-            if (thrustMag == 0.0) {
-                totalAcc[i] = gravityAccel[i+1] * gravityAccel[0];
-            } else {
-                totalAcc[i] = gravityAccel[i+1] * gravityAccel[0] + thrustVecECI[i]
-                        * thrustMag * scMass_inverted;
-            }
-            LOG.info("totalAcc[i]:  '{}' ", totalAcc[i]);
-        }
-        double[] result = new double[3];
+		double scMass_inverted = 0.0;
+		if (scMass >= 0.0) {
+			scMass_inverted = 1.0 / scMass;
+		} else {
+			LOG.error("S/C mass is negative({})!", scMass);
+		}
 
-        for (int i = 0; i < 3; i++) {
-            scVelocityECI_prev[i] = scVelocityECI[i];
-        }
-        
-        /* Calculation of the new SC velocity. */
-        result = integratorTimeStep(time, tStepSize, scVelocityECI, totalAcc);
-        for (int i = 0; i < 3; i++) {
-            scVelocityECI[i] = result[i];
-        }
+		double[] totalAcc = new double[3];
+		for (int i = 0; i < 3; i++) {
+			if (thrustMag == 0.0) {
+				totalAcc[i] = gravityAccel[i + 1] * gravityAccel[0];
+			} else {
+				totalAcc[i] = gravityAccel[i + 1] * gravityAccel[0]
+						+ thrustVecECI[i] * thrustMag * scMass_inverted;
+			}
+			LOG.info("totalAcc[i]:  '{}' ", totalAcc[i]);
+		}
+		double[] result = new double[3];
 
-        /* Storage of old SC position. */
-        for (int i = 0; i < 3; i++) {
-            scPositionECI_prev[i] = scPositionECI[i];
-        }
+		for (int i = 0; i < 3; i++) {
+			scVelocityECI_prev[i] = scVelocityECI[i];
+		}
 
-        /* Calculation of the new SC position. */
-        result = integratorTimeStep(time, tStepSize, scPositionECI, scVelocityECI);
-        for (int i = 0; i < 3; i++) {
-            scPositionECI[i] = result[i];
-        }
-        
-        // Up to here, we have calculated S/C position and velocity
-        // in ECI coordinates. This method should be just considered done.
-        // Those methods involving calculations
-        // in other reference frames (EDEF) are moved to other classes.
-        
-        scPVEvent.fire(new ScPV(scPositionECI, scVelocityECI));
-        
-        return 0;
-    }
+		/* Calculation of the new SC velocity. */
+		result = integratorTimeStep(time, tStepSize, scVelocityECI, totalAcc);
+		for (int i = 0; i < 3; i++) {
+			scVelocityECI[i] = result[i];
+		}
 
+		/* Storage of old SC position. */
+		for (int i = 0; i < 3; i++) {
+			scPositionECI_prev[i] = scPositionECI[i];
+		}
 
+		/* Calculation of the new SC position. */
+		result = integratorTimeStep(time, tStepSize, scPositionECI,
+				scVelocityECI);
+		for (int i = 0; i < 3; i++) {
+			scPositionECI[i] = result[i];
+		}
 
-    /**
-     * Calculates and returns the left hand side of the model's ODE.
-     */
-    public double[] getValue(final double time, final double[] x,
-            final double[] inp) {
-        double[] result = new double[3];
+		// Up to here, we have calculated S/C position and velocity
+		// in ECI coordinates. This method should be just considered done.
+		// Those methods involving calculations
+		// in other reference frames (EDEF) are moved to other classes.
 
-        result[0] = inp[0];
-        result[1] = inp[1];
-        result[2] = inp[2];
+		scPVEvent.fire(new ScPV(scPositionECI, scVelocityECI));
 
-        return result;
-    }
+		return 0;
+	}
 
+	/**
+	 * Calculates and returns the left hand side of the model's ODE.
+	 */
+	public double[] getValue(final double time, final double[] x,
+			final double[] inp) {
+		double[] result = new double[3];
 
+		result[0] = inp[0];
+		result[1] = inp[1];
+		result[2] = inp[2];
 
-    /**
-    * Runge Kutta Integrator for the model's ODE.
-    */
-    public double[] integratorTimeStep(final double t, final double dt,
-            final double[] state, final double[] input) {
-        int i;
-        int resultSize = state.length;
-        double[] result = new double[resultSize];
-        // temporary
-        double[] k1 = new double[resultSize];
-        double[] k2 = new double[resultSize];
-        double[] k3 = new double[resultSize];
-        double[] k4 = new double[resultSize];
-        ////double a1= 1./6., a2 = 1./3., a3 = 1./3., a4= 1./6.;
+		return result;
+	}
 
-        k1 = getValue(t, state, input);
-        for (i = 0; i < resultSize; i++) {
-            result[i] = state[i] + k1[i] * dt / 2.;
-        }
+	/**
+	 * Runge Kutta Integrator for the model's ODE.
+	 */
+	public double[] integratorTimeStep(final double t, final double dt,
+			final double[] state, final double[] input) {
+		int i;
+		int resultSize = state.length;
+		double[] result = new double[resultSize];
+		// temporary
+		double[] k1 = new double[resultSize];
+		double[] k2 = new double[resultSize];
+		double[] k3 = new double[resultSize];
+		double[] k4 = new double[resultSize];
+		// //double a1= 1./6., a2 = 1./3., a3 = 1./3., a4= 1./6.;
 
-        k2 = getValue(t + dt / 2., result, input);
-        for (i = 0; i < resultSize; i++) {
-            result[i] = state[i] + k2[i] * dt / 2.;
-        }
+		k1 = getValue(t, state, input);
+		for (i = 0; i < resultSize; i++) {
+			result[i] = state[i] + k1[i] * dt / 2.;
+		}
 
-        k3 = getValue(t + dt / 2., result, input);
-        for (i = 0; i < resultSize; i++) {
-            result[i] = state[i] + k3[i] * dt;
-        }
+		k2 = getValue(t + dt / 2., result, input);
+		for (i = 0; i < resultSize; i++) {
+			result[i] = state[i] + k2[i] * dt / 2.;
+		}
 
-        k4 = getValue(t + dt, result, input);
-        for (i = 0; i < resultSize; i++) {
-            result[i] = state[i] + 1. / 6. * dt
-                    * (k1[i] + 2. * k2[i] + 2. * k3[i] + k4[i]);
-        }
+		k3 = getValue(t + dt / 2., result, input);
+		for (i = 0; i < resultSize; i++) {
+			result[i] = state[i] + k3[i] * dt;
+		}
 
-        return result;
-    }
+		k4 = getValue(t + dt, result, input);
+		for (i = 0; i < resultSize; i++) {
+			result[i] = state[i] + 1. / 6. * dt
+					* (k1[i] + 2. * k2[i] + 2. * k3[i] + k4[i]);
+		}
 
+		return result;
+	}
 
+	/**
+	 * Returns the norm vector of a vector.
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public double[] getNormVector(final double[] vector) {
+		double norm = Math.sqrt(getScalarProduct(vector, vector));
+		double[] result = new double[3];
 
-    /**
-     * Returns the norm vector of a vector.
-     * @param vector
-     * @return
-     */
-    public double[] getNormVector(final double[] vector) {
-        double norm = Math.sqrt(getScalarProduct(vector, vector));
-        double[] result = new double[3];
+		if (norm <= 0.0000001) {
+			for (int i = 0; i < 3; i++) {
+				result[i] = 0.0;
+			}
+		} else {
+			for (int i = 0; i < 3; i++) {
+				result[i] = vector[i] / norm;
+			}
+		}
+		return result;
+	}
 
-        if (norm <= 0.0000001){
-            for(int i=0; i<3; i++){
-                result[i] = 0.0;
-            }
-        } else {
-            for (int i = 0; i < 3; i++) {
-                result[i] = vector[i] / norm;
-            }
-        }
-        return result;
-    }
+	/**
+	 * Returns the scalar product of two vectors.
+	 * 
+	 * @param vector_a
+	 * @param vector_b
+	 * @return
+	 */
+	public double getScalarProduct(final double[] vector_a,
+			final double[] vector_b) {
+		double tmp = 0.0;
+		for (int i = 0; i < 3; i++) {
+			tmp = tmp + vector_a[i] * vector_b[i];
+		}
+		return tmp;
+	}
 
+	public double[] getVecDiff(double[] vector2, double[] vector1)
+			throws ArithmeticException {
+		if (vector2.length != vector1.length) {
+			throw new ArithmeticException("Dimensions do not fit.");
+		}
+		if ((vector1.length == 0) || (vector2.length == 0)) {
+			throw new ArithmeticException("Dimension is zero.");
+		}
+		double[] result = new double[vector2.length];
+		for (int i = 0; i < 3; i++) {
+			result[i] = vector2[i] - vector1[i];
+		}
+		return result;
+	}
 
+	// The following method allows to multiply two 3x3 matrices
+	public double[][] matrixmult(double[][] matrix01, double[][] matrix02) {
+		double[][] resmatrix = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+		for (int i = 0; i < matrix01.length; i++) {
+			for (int j = 0; j < matrix01.length; j++) {
+				resmatrix[i][j] = matrix01[i][0] * matrix02[0][j]
+						+ matrix01[i][1] * matrix02[1][j] + matrix01[i][2]
+						* matrix02[2][j];
+			}
+		}
+		return resmatrix;
+	}
 
-    /**
-     * Returns the scalar product of two vectors.
-     * @param vector_a
-     * @param vector_b
-     * @return
-     */
-    public double getScalarProduct(final double[] vector_a,
-        final double[] vector_b) {
-        double tmp = 0.0;
-        for (int i = 0; i < 3; i++) {
-            tmp = tmp + vector_a[i] * vector_b[i];
-        }
-        return tmp;
-    }
+	public double[] matrvectmult(double[][] matrix, double[] vector) {
+		double[] resvector = { 0, 0, 0 };
+		for (int i = 0; i < matrix.length; i++) {
+			resvector[i] = matrix[i][0] * vector[0] + matrix[i][1] * vector[1]
+					+ matrix[i][2] * vector[2];
+		}
+		return resvector;
+	}
 
+	// Event Observers
 
-    public double[] getVecDiff(double[] vector2, double[] vector1) throws ArithmeticException {
-        if (vector2.length != vector1.length) {
-            throw new ArithmeticException("Dimensions do not fit.");
-        }
-        if ((vector1.length == 0) || (vector2.length == 0)) {
-            throw new  ArithmeticException("Dimension is zero.");
-        }
-        double[] result = new double[vector2.length];
-        for (int i = 0; i < 3; i++) {
-            result[i] = vector2[i]-vector1[i];
-        }
-        return result;
-    }
+	public void thrustHandler(@Observes @Thrust D4Value thrust) {
+		double[] t = thrust.getValue();
+		assert t.length == 4;
+		for (int i = 0; i < 4; i++) {
+			tVec[i] = t[i];
+		}
+	}
 
+	public void gravityHandler(@Observes @Gravity D4Value gravity) {
+		// Note that the gravity acceleration first is calculated in
+		// the Environment model (the Earth) and an event is fired there
+		double[] g = gravity.getValue();
+		assert g.length == 4;
+		for (int i = 0; i < 4; i++) {
+			gravityAccel[i] = g[i];
+		}
+	}
 
-
-    
-    // The following method allows to multiply two 3x3 matrices
-    public double[][] matrixmult(double[][] matrix01, double[][] matrix02) {
-        double[][] resmatrix = {{0,0,0},{0,0,0},{0,0,0}};
-        for(int i=0; i<matrix01.length; i++) {
-            for(int j=0; j<matrix01.length; j++) {
-                resmatrix[i][j] = matrix01[i][0]*matrix02[0][j] + matrix01[i][1]*matrix02[1][j] + matrix01[i][2]*matrix02[2][j];
-            }
-        }
-        return resmatrix;
-    }
-    
-    public double[] matrvectmult(double[][] matrix, double[] vector) {
-        double[] resvector = {0,0,0};
-        for(int i=0; i<matrix.length; i++) {
-            resvector[i] = matrix[i][0] * vector[0] + matrix[i][1] * vector[1] + matrix[i][2] * vector[2];
-        }
-        return resvector;
-    }
+	// JMX
 
 	@ManagedAttribute
 	public double getScMass() {
 		return scMass;
 	}
-
 
 	public void setScMass(double scMass) {
 		this.scMass = scMass;
@@ -419,7 +438,6 @@ public class ScStructure extends BaseModel {
 		return scVelocityX;
 	}
 
-
 	public void setScVelocityX(double scVelocityX) {
 		this.scVelocityX = scVelocityX;
 	}
@@ -428,7 +446,6 @@ public class ScStructure extends BaseModel {
 	public double getScVelocityY() {
 		return scVelocityY;
 	}
-
 
 	public void setScVelocityY(double scVelocityY) {
 		this.scVelocityY = scVelocityY;
@@ -439,7 +456,6 @@ public class ScStructure extends BaseModel {
 		return scVelocityZ;
 	}
 
-
 	public void setScVelocityZ(double scVelocityZ) {
 		this.scVelocityZ = scVelocityZ;
 	}
@@ -449,7 +465,6 @@ public class ScStructure extends BaseModel {
 		return scPositionX;
 	}
 
-
 	public void setScPositionX(double scPositionX) {
 		this.scPositionX = scPositionX;
 	}
@@ -458,7 +473,6 @@ public class ScStructure extends BaseModel {
 	public double getScPositionY() {
 		return scPositionY;
 	}
-
 
 	public void setScPositionY(double scPositionY) {
 		this.scPositionY = scPositionY;
@@ -472,9 +486,9 @@ public class ScStructure extends BaseModel {
 	public void setScPositionZ(double scPositionZ) {
 		this.scPositionZ = scPositionZ;
 	}
-	
+
 	@ManagedAttribute
-    public double[] getScVelocityECI() {
+	public double[] getScVelocityECI() {
 		return scVelocityECI;
 	}
 
@@ -491,20 +505,4 @@ public class ScStructure extends BaseModel {
 		this.scPositionECI = scPositionECI;
 	}
 
-	public void thrustHandler(@Observes @Thrust D4Value thrust) {
-		double[] t = thrust.getValue();
-		assert t.length == 4;
-		for (int i=0; i<4; i++) {
-			tVec[i] = t[i];
-		}		
-	}
-
-	public void gravityHandler(@Observes @Gravity D4Value gravity) {
-		double[] g = gravity.getValue();
-		assert g.length == 4;
-		for (int i=0; i<4; i++) {
-			gravityAccel[i] = g[i];
-		}		
-	}
-	
 }

@@ -52,17 +52,11 @@
 */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
-import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.AnalogPort;
 import org.opensimkit.ports.PureLiquidPort;
 import org.slf4j.Logger;
@@ -76,8 +70,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public abstract class FluidFlowValve extends BaseModel {
-    /** Logger instance for the FluidFlowValve. */
-    private static final Logger LOG
+
+	private static final Logger LOG
             = LoggerFactory.getLogger(FluidFlowValve.class);
 
 	private double massflow;
@@ -98,16 +92,14 @@ public abstract class FluidFlowValve extends BaseModel {
 	private static final String SOLVER = "none";
 	private static final double MAXTSTEP = 10.0;
 	private static final double MINTSTEP = 0.001;
-	private static final int TIMESTEP = 1;
-	private static final int REGULSTEP = 0;
-
+	
 	protected final PureLiquidPort inputPort;
 	protected final PureLiquidPort outputPort;
 	protected final AnalogPort controlPort;
 	
     public FluidFlowValve(String name, PureLiquidPort inputPort,
 			PureLiquidPort outputPort, AnalogPort controlPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
 		this.inputPort = inputPort;
 		this.outputPort = outputPort;
 		this.controlPort = controlPort;		
@@ -281,18 +273,6 @@ public abstract class FluidFlowValve extends BaseModel {
         return result;
     }	
 
-	@Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("FluidFlowValve: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

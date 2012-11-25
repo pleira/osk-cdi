@@ -126,9 +126,6 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
@@ -139,8 +136,6 @@ import org.opensimkit.DEqSys;
 import org.opensimkit.GLoad;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.PureGasPort;
 import org.opensimkit.ports.PureLiquidPort;
 import org.slf4j.Logger;
@@ -396,8 +391,8 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 	private static final String SOLVER = "RKF-4/5";
 	private static final double MAXTSTEP = 5.0;
 	private static final double MINTSTEP = 0.001;
-	private static final int TIMESTEP = 1;
-	private static final int REGULSTEP = 0;
+	
+	
 
 	private PureGasPort inputPortFuelPressureGas;
 	private PureGasPort inputPortOxidizerPressureGas;
@@ -407,7 +402,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
     public TankT1(String name, 
     		PureLiquidPort outputPortFuel, PureLiquidPort outputPortOxidizer, 
     		PureGasPort inputPortFuelPressureGas, PureGasPort inputPortOxidizerPressureGas) {
-         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
  		this.outputPortFuel = outputPortFuel;
  		this.outputPortOxidizer = outputPortOxidizer;
  		this.inputPortFuelPressureGas = inputPortFuelPressureGas;
@@ -811,6 +806,10 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
             if (PEGLB>HGBR) {
                 FAWLB=FAWLB+fuCOutWSfc[I]*Math.pow(PEGLB,I);
                 FTWLB=FTWLB+fuCSepWSfc[I]*Math.pow(PEGLB,I);
+                if (FTWLB == 0) {
+                	// FIXME: Avoid NaN later with 0 division
+                	LOG.warn("FTWLB is 0. PEGLB: {}", PEGLB);
+                }
                 FFB=FFB+fuSfc[I]*Math.pow(PEGLB,I);
             } else {
                 FAWLB=FAWLB+fuCOutWSfc2[I]*Math.pow(PEGLB,I);
@@ -1343,19 +1342,6 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         return result;
     }
 
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("TankT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
     
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

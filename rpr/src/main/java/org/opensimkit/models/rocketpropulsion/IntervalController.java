@@ -36,8 +36,6 @@ import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.AnalogPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +87,7 @@ public class IntervalController extends BaseModel {
     private static final String SOLVER    = "none";
     private static final double MAXTSTEP  = 10.0;
     private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
+    
     private static final int    REGULSTEP = 1;
 
      private AnalogPort controlPort1;
@@ -102,7 +100,7 @@ public class IntervalController extends BaseModel {
      * @param kernel Reference to the kernel.
      */
      public IntervalController(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
     }
 
     @Override
@@ -247,30 +245,6 @@ public class IntervalController extends BaseModel {
 
 
     @Override
-    public int iterationStep() {
-        LOG.info("% {} IterationStep-Computation", name);
-
-        return 0;
-    }
-
-
-    @Override
-    public int backIterStep() {
-/*        LOG.info("% {} BackiterStep-Computation", name);
-        LOG.info("controlValue1:  '{}' ", controlValue1);
-        LOG.info("controlValue2:  '{}' ", controlValue2);
-
-        System.out.println("BackiterStep" + controlValue1);
-        System.out.println("BackiterStep" + controlValue2);
-        controlPort1.setAnalogValue(controlValue1);
-        controlPort2.setAnalogValue(controlValue2);
-
-*/
-                return 0;
-    }
-
-
-    @Override
     public int regulStep() {
         LOG.info("% {} RegulStep-Computation", name);
         LOG.info("controlValue1:  '{}' ", controlValue1);
@@ -281,15 +255,6 @@ public class IntervalController extends BaseModel {
 
         return 0;
     }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("IntervalController: '" + name + "'" + SimHeaders.NEWLINE);
-
-        return 0;
-    }
-
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

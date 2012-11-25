@@ -103,8 +103,8 @@ public class OSKGravityModel extends BaseModel {
     private static final String SOLVER = "none";
     private static final double MAXTSTEP = 10.0;
     private static final double MINTSTEP = 0.001;
-    private static final int TIMESTEP = 1;
-    private static final int REGULSTEP = 0;
+    
+    
 
     @Inject @Gravity Event<D4Value> event;
     
@@ -132,7 +132,7 @@ public class OSKGravityModel extends BaseModel {
      * @param kernel Reference to the kernel.
      */
     public OSKGravityModel() {
-        super("23_OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super("23_OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         name = "23_OSKGravityModel";
     }
 

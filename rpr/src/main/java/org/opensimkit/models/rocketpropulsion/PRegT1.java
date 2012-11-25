@@ -94,9 +94,6 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
@@ -104,7 +101,6 @@ import net.gescobar.jmx.annotation.ManagedAttribute;
 import org.opensimkit.BaseModel;
 import org.opensimkit.HeliumJKC;
 import org.opensimkit.MaterialProperties;
-import org.opensimkit.SimHeaders;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,15 +150,12 @@ public class PRegT1 extends BaseModel {
 	private static final String SOLVER = "Euler";
 	private static final double MAXTSTEP = 10.0;
 	private static final double MINTSTEP = 0.001;
-	private static final int TIMESTEP = 1;
-	private static final int REGULSTEP = 0;
-
+	
 	private PureGasPort inputPort;
 	private PureGasPort outputPort;
 
-
     public PRegT1(final String name, PureGasPort inputPort, PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         this.inputPort = inputPort;
         this.outputPort = outputPort;        
     }
@@ -458,19 +451,6 @@ public class PRegT1 extends BaseModel {
         return result;
     }
 
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("PRegT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

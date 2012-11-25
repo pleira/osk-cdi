@@ -34,12 +34,12 @@ public class Pipe13 extends PipeT1 {
 	}
 	
 	@Inject
-	void initSpecificHeatCapacity(@NumberConfig(name = "pipe13.specificHeatCapacity", defaultValue = "5ß0.0") Double value) {
+	void initSpecificHeatCapacity(@NumberConfig(name = "pipe13.specificHeatCapacity", defaultValue = "500.0") Double value) {
 	setSpecificHeatCapacity(value);
 	}
 	
 	@Inject
-	void initSurfaceRoughness(@NumberConfig(name = "pipe13.surfaceRoughness", defaultValue = "0.0085") Double value) {
+	void initSurfaceRoughness(@NumberConfig(name = "pipe13.surfaceRoughness", defaultValue = "1.E-6") Double value) {
 	setSurfaceRoughness(value);
 	}
 	

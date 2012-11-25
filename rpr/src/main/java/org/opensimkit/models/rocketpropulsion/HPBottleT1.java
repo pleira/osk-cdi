@@ -88,9 +88,6 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
@@ -100,8 +97,6 @@ import org.opensimkit.GLoad;
 import org.opensimkit.HeliumJKC;
 import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +140,6 @@ public abstract class HPBottleT1 extends BaseModel {
 	/** Gradient of temperature of gas in vessel. */
 	private double tgrad;
 	/** Gradient of vessel wall temperature. */
-
 	private double twgrad;
 	/** Mass of gas in vessel. */
 	private double mtotal;
@@ -162,13 +156,11 @@ public abstract class HPBottleT1 extends BaseModel {
 	private static final String SOLVER = "Euler";
 	private static final double MAXTSTEP = 5.0;
 	private static final double MINTSTEP = 0.001;
-	private static final int TIMESTEP = 1;
-	private static final int REGULSTEP = 0;
-
+	
 	private final PureGasPort outputPort;
 
     public HPBottleT1(final String name,PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         this.outputPort = outputPort;
     }
 
@@ -469,19 +461,6 @@ public abstract class HPBottleT1 extends BaseModel {
         return result;
     }
 
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("HPBottleT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
     
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

@@ -39,7 +39,7 @@ public class Pipe03 extends PipeT1 {
 	}
 	
 	@Inject
-	void initSurfaceRoughness(@NumberConfig(name = "pipe3.surfaceRoughness", defaultValue = "0.0085") Double value) {
+	void initSurfaceRoughness(@NumberConfig(name = "pipe3.surfaceRoughness", defaultValue = "1.E-6") Double value) {
 	setSurfaceRoughness(value);
 	}
 	

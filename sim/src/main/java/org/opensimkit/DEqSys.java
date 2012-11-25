@@ -74,10 +74,6 @@ public class DEqSys {
     private static double EPS1 = 0;
     private static double EPS2 = 0;
 
-    /** Creates a new instance of DEqSys. */
-    public DEqSys() {
-    }
-
     /*****************************************************************/
     /*                                                               */
     /*  Dieses Programm berechnet, ausgehend von der Naeherung YK    */
@@ -249,7 +245,23 @@ public class DEqSys {
         /*50      CONTINUE*/
         do {
             /** Aufruf des Einschrittverfahrens                              */
+            for (int j = 0; j < YK.length ; j++)   {
+            	if (Double.isNaN(YK[j])) {
+            		LOG.error("45 After Check NaN");
+            		System.exit(1);
+            	}
+            }
             Engl45.ENGL45(ZEIT1,HK,YK,NN,Y,YT,Client);
+            for (int j = 0; j < YK.length ; j++)   {
+            	if (Double.isNaN(YK[j])) {
+            		LOG.error("45 After Check NaN");
+            		System.exit(1);
+            	}
+            	if (Double.isNaN(YT[j])) {
+            		LOG.error("45 YT After Check NaN");
+            		System.exit(1);
+            	}
+            }
 
             IFANZ+=6;
             DIFF=Norm.NORM(Y,YT,NN);

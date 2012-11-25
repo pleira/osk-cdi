@@ -54,11 +54,11 @@
  */
 package org.opensimkit;
 
-import java.io.FileWriter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,22 +81,14 @@ public final class Mesh extends BaseModel {
     private static final String SOLVER    = "none";
     private static final double MAXTSTEP  = 0.0;
     private static final double MINTSTEP  = 0.0;
-    private static final int    REGULSTEP = 0;
-    private static final int    TIMESTEP  = 0;
     private final List<Model> items = new LinkedList<Model>();
-    private final int mode;
     private int topLevel;
 
     public Mesh(final String string, final String level) {
-        super(string, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(string, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         setLevel(level);
-        mode = 0;
     }
 
-    @Override
-    public int save(final FileWriter outFile) {
-        return 0;
-    }
 
     private void setLevel(final String level) {
         /* AB: Necessary to change (!strcmp(s1.c_str()) to s1.equals
@@ -137,9 +129,6 @@ public final class Mesh extends BaseModel {
         return 0;
     }
 
-    public int timeStep(final float time, final float tStepSize) {
-        return 0;
-    }
 
     @Override
     public int iterationStep() {

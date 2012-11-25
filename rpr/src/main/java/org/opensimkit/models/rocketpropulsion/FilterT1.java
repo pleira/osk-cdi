@@ -76,25 +76,19 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.MaterialProperties;
-import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Model definition for a gas filter.
- *
+ * 
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
@@ -102,484 +96,499 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public class FilterT1 extends BaseModel {
-    /** Logger instance for the FilterT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(FilterT1.class);
-    /** Diameter of filter. */
-     private double innerDiameter;
-    /** Length of filter. */
-     private double length;
-    /** Length specific mass. */
-     private double specificMass;
-    /** Specific. heat capacity. */
-     private double specificHeatCapacity;
-    /** Temperature of filter elements. */
-     private double temperature;
-    /** Reference pressure loss. */
-     private double referencePressureLoss;
-    /** Corresponding mass flow for ref. pressure loss. */
-     private double referenceMassFlow;
-    /** Internal variables of in- and outflow. */
-          private double pin;
-          private double tin;
-          private double mfin;
-          private double pout;
-          private double tout;
-    /** Heat flow from wall to fluid for filter elements. */
-                   private double qHFlow;
-    /** Heat transfer coefficient between filter housing and fluid. */
-                   private double alfa;
-    /** Mass of filter. */
-                   private double mass;
-     private double pUpBackiter;
-     private double tUpBackiter;
-     private double mfUpBackiter;
+	/** Logger instance for the FilterT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(FilterT1.class);
+	/** Diameter of filter. */
+	private double innerDiameter;
+	/** Length of filter. */
+	private double length;
+	/** Length specific mass. */
+	private double specificMass;
+	/** Specific. heat capacity. */
+	private double specificHeatCapacity;
+	/** Temperature of filter elements. */
+	private double temperature;
+	/** Reference pressure loss. */
+	private double referencePressureLoss;
+	/** Corresponding mass flow for ref. pressure loss. */
+	private double referenceMassFlow;
+	/** Internal variables of in- and outflow. */
+	private double pin;
+	private double tin;
+	private double mfin;
+	private double pout;
+	private double tout;
+	/** Heat flow from wall to fluid for filter elements. */
+	private double qHFlow;
+	/** Heat transfer coefficient between filter housing and fluid. */
+	private double alfa;
+	/** Mass of filter. */
+	private double mass;
+	private double pUpBackiter;
+	private double tUpBackiter;
+	private double mfUpBackiter;
 
+	private static final String TYPE = "FilterT1";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
 
-    private static final String TYPE      = "FilterT1";
-    private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private PureGasPort inputPort;
+	private PureGasPort outputPort;
 
-     private PureGasPort inputPort;
-     private PureGasPort outputPort;
+	public FilterT1(final String name, PureGasPort inputPort,
+			PureGasPort outputPort) {
+		super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
+		this.inputPort = inputPort;
+		this.outputPort = outputPort;
+	}
 
-    /**
-     * Creates a new instance of the Filter.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
-//    public FilterT1(final String name) {
-//        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-//    }
-    public FilterT1(final String name,PureGasPort inputPort, PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-        this.inputPort = inputPort;
-        this.outputPort = outputPort;
-    }
+	@Override
+	@PostConstruct
+	public void init() {
+		completeConnections();
+		/* Computation of derived initialization parameters. */
+		/* Initializing heat flow. */
+		qHFlow = 0.0;
 
-    @Override
-    @PostConstruct
-    public void init() {
-    	completeConnections();
-        /* Computation of derived initialization parameters. */
-        /* Initializing heat flow. */
-        qHFlow = 0.0;
+		/* Mass of filter. */
+		mass = specificMass * length;
 
-        /* Mass of filter. */
-        mass = specificMass * length;
+		referencePressureLoss = referencePressureLoss * 1.E5;
 
-        referencePressureLoss = referencePressureLoss * 1.E5;
+		LOG.info(" -> len := {}", length);
+		LOG.info(" -> diam := {}", innerDiameter);
+		LOG.info(" -> spmass := {}", specificMass);
+		LOG.info(" -> cfilter := {}", specificHeatCapacity);
+		LOG.info(" -> refPLoss := {}", referencePressureLoss);
+		LOG.info(" -> refMassFlow := {}", referenceMassFlow);
+		LOG.info(" -> tfilter := {}", temperature);
+	}
 
-        LOG.info(" -> len := {}", length);
-        LOG.info(" -> diam := {}", innerDiameter);
-        LOG.info(" -> spmass := {}", specificMass);
-        LOG.info(" -> cfilter := {}", specificHeatCapacity);
-        LOG.info(" -> refPLoss := {}", referencePressureLoss);
-        LOG.info(" -> refMassFlow := {}", referenceMassFlow);
-        LOG.info(" -> tfilter := {}", temperature);
-    }
+	void completeConnections() {
+		outputPort.setFromModel(this);
+		inputPort.setToModel(this);
+		LOG.info("completeConnections for " + name + ", ("
+				+ inputPort.getName() + "," + outputPort.getName() + ")");
+	}
 
-    void completeConnections() {
-    	outputPort.setFromModel(this);
-        inputPort.setToModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPort.getName() + ")" );
-    }
+	@Override
+	public int timeStep(final double time, final double tStepSize) {
+		String fluid;
+		double CP, Q, DTF, DTB, tstatin;
 
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        String fluid;
-        double CP, Q, DTF, DTB, tstatin;
+		LOG.info("% {} TimeStep-Computation", name);
 
-        LOG.info("% {} TimeStep-Computation", name);
+		pin = inputPort.getPressure();
+		tin = inputPort.getTemperature();
+		mfin = inputPort.getMassflow();
+		fluid = inputPort.getFluid();
 
-        pin  = inputPort.getPressure();
-        tin  = inputPort.getTemperature();
-        mfin = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
+		/* Skip time step computation if no flow in filter. */
+		if (mfin <= 1.E-6) {
+			return 0;
+		}
 
-        /* Skip time step computation if no flow in filter. */
-        if (mfin <= 1.E-6) {
-            return 0;
-        }
+		CP = 5223.2;
+		tstatin = tin;
 
-        CP = 5223.2;
-        tstatin = tin;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Section for computation of temp. change of filter itself */
+		/*                                                                    */
+		/* Gas properties of gas fluid are assumed to be contant over, */
+		/* entire length of filter. Same applies for the Nusselt-Number, */
+		/* and thus for heat transfer coefficient Alfa */
+		/*                                                                    */
+		/*                                                                    */
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of heatflow from filter housing to fluid */
+		/*                                                                    */
+		/**********************************************************************/
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Section for computation of temp. change of filter itself        */
-        /*                                                                    */
-        /*    Gas properties of gas fluid are assumed to be contant over,     */
-        /*    entire length of filter. Same applies for the Nusselt-Number,   */
-        /*    and thus for heat transfer coefficient Alfa                     */
-        /*                                                                    */
-        /*                                                                    */
-        /**********************************************************************/
-        /*                                                                    */
-        /*     Computation of heatflow from filter housing to fluid           */
-        /*                                                                    */
-        /**********************************************************************/
+		qHFlow = alfa * Math.PI * innerDiameter * length
+				* (temperature - tstatin) / 10;
+		Q = qHFlow * tStepSize;
 
-        qHFlow = alfa * Math.PI * innerDiameter * length
-            * (temperature - tstatin) / 10;
-        Q = qHFlow * tStepSize;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of delta T for fluid and new fluid temperature */
+		/*                                                                    */
+		/**********************************************************************/
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of delta T for fluid and new fluid temperature      */
-        /*                                                                    */
-        /**********************************************************************/
+		DTF = qHFlow / (mfin * CP);
+		tstatin = tstatin + DTF;
 
-        DTF = qHFlow / (mfin * CP);
-        tstatin = tstatin + DTF;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of delta T of filter itself and new filter temp. */
+		/*                                                                    */
+		/**********************************************************************/
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of delta T of filter itself and new filter temp.    */
-        /*                                                                    */
-        /**********************************************************************/
+		DTB = Q / (mass * specificHeatCapacity);
+		temperature = temperature - DTB;
 
-        DTB = Q / (mass * specificHeatCapacity);
-        temperature = temperature - DTB;
+		return 0;
+	}
 
-        return 0;
-    }
+	@Override
+	public int iterationStep() {
+		double ptotal;
+		double ttotal;
+		double mfout;
+		String fluid;
+		double CP, GESCH, RE, XI, PR, NU, DTF, DP, pfluid;
 
+		/* Fluid material properties for heat transfer computations. */
+		MaterialProperties helium = new MaterialProperties();
 
-    @Override
-    public int iterationStep() {
-        double ptotal;
-        double ttotal;
-        double mfout;
-        String fluid;
-        double CP, GESCH, RE, XI, PR, NU, DTF, DP, pfluid;
+		LOG.info("% {} IterationStep-Computation", name);
 
-        /* Fluid material properties for heat transfer computations. */
-        MaterialProperties helium = new MaterialProperties();
+		pin = inputPort.getPressure();
+		tin = inputPort.getTemperature();
+		mfin = inputPort.getMassflow();
+		fluid = inputPort.getFluid();
 
-        LOG.info("% {} IterationStep-Computation", name);
+		// Skip iteration step computation if no flow in pipe
+		if (mfin <= 1.E-6) {
+			pout = pin;
+			tout = tin;
 
-        pin   = inputPort.getPressure();
-        tin   = inputPort.getTemperature();
-        mfin  = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
+			outputPort.setFluid(fluid);
+			outputPort.setPressure(pout);
+			outputPort.setTemperature(tout);
+			outputPort.setMassflow(mfin);
+			return 0;
+		}
 
-        //Skip iteration step computation if no flow in pipe
-        if (mfin <= 1.E-6) {
-            pout = pin;
-            tout = tin;
+		CP = 5223.2;
 
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfin);
-            return 0;
-        }
+		/**********************************************************************/
+		/*                                                                    */
+		/* Pressure loss in gas filter as linear dependency of */
+		/* fluid flow. */
+		/* Reference pressure loss & reference mass flow */
+		/* are design variables read from inputfile. */
+		/*                                                                    */
+		/**********************************************************************/
 
-        CP = 5223.2;
+		DP = referencePressureLoss * mfin / referenceMassFlow;
+		pfluid = pin - DP / 2.;
+		ptotal = pin - DP;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*      Pressure loss in gas filter as linear dependency of           */
-        /*      fluid flow.                                                   */
-        /*      Reference pressure loss & reference mass flow                 */
-        /*      are design variables read from inputfile.                     */
-        /*                                                                    */
-        /**********************************************************************/
+		ttotal = tin;
 
-        DP = referencePressureLoss * mfin / referenceMassFlow;
-        pfluid = pin - DP / 2.;
-        ptotal = pin - DP;
+		// TODO: check pk is ok, and how it is used
+		double pk = org.opensimkit.Helium.HELIUM(pfluid, tin, helium);
 
-        ttotal = tin;
+		GESCH = mfin * 4
+				/ (innerDiameter * innerDiameter * Math.PI * helium.DICHTE);
 
-        // TODO: check pk is ok, and how it is used
-        double pk = org.opensimkit.Helium.HELIUM(pfluid, tin, helium);
+		RE = GESCH * innerDiameter / helium.NUE;
 
-        GESCH = mfin * 4
-            / (innerDiameter * innerDiameter * Math.PI * helium.DICHTE);
+		/**********************************************************************/
+		/*                                                                    */
+		/* Temperature change of flow */
+		/*                                                                    */
+		/* Section for computation of temperature change of fluid */
+		/* when passing filter with different temperature. */
+		/* Material properties of fluid and heat transfer coefficients */
+		/* are considered to be constant over entire filter. */
+		/*                                                                    */
+		/* Computation of the heat transfer numbers, */
+		/* XI, Prandtl-Zahl, Nusselt, ALFA. */
+		/* please refer to [1] section 3.3.3.2, Eq..(3.1) ff */
+		/*                                                                    */
+		/**********************************************************************/
 
-        RE = GESCH * innerDiameter / helium.NUE;
+		if (RE > 2.E6) {
+			LOG.info("Re number exceeding upper limit");
+			LOG.info("Re number exceeding upper limit");
+			RE = 2.E6;
+		} else if (RE < 2300.) {
+			/*
+			 * Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
+			 * thus resulting in computation of transferred heat qHFlow=0.0.
+			 * This is necessary, since the formulae used below are not precise
+			 * enough for ranges of RE<2300 and computed heat transfers will
+			 * lead to buggy fluid temperatures.
+			 */
+			RE = 1000.;
+		}
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Temperature change of flow                                      */
-        /*                                                                    */
-        /*    Section for computation of temperature change of fluid          */
-        /*    when passing filter with different temperature.                 */
-        /*    Material properties of fluid and heat transfer coefficients     */
-        /*    are considered to be constant over entire filter.               */
-        /*                                                                    */
-        /*    Computation of the heat transfer numbers,                       */
-        /*    XI, Prandtl-Zahl, Nusselt, ALFA.                                */
-        /*    please refer to [1] section 3.3.3.2, Eq..(3.1) ff               */
-        /*                                                                    */
-        /**********************************************************************/
+		XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-        if (RE > 2.E6) {
-            LOG.info("Re number exceeding upper limit");
-            LOG.info("Re number exceeding upper limit");
-            RE = 2.E6;
-        } else if (RE < 2300.) {
-            /*
-             * Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
-             * thus resulting in computation of transferred heat qHFlow=0.0.
-             * This is necessary, since the formulae used below are not precise
-             * enough for ranges of RE<2300 and computed heat transfers will
-             * lead to buggy fluid temperatures.
-             */
-            RE = 1000.;
-        }
+		PR = CP * helium.ETA / helium.LAMBDA;
 
-        XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
+		NU = (XI / 8)
+				* (RE - 1000)
+				* PR
+				/ (1 + 12.7 * (Math.sqrt(XI / 8)) * (Math.pow(PR, (2 / 3)) - 1))
+				* (1 + Math.pow((innerDiameter / length), (2 / 3)));
 
-        PR = CP * helium.ETA / helium.LAMBDA;
+		alfa = NU * helium.LAMBDA / innerDiameter;
 
-        NU = (XI / 8) * (RE - 1000) * PR / (1 + 12.7 * (Math.sqrt(XI / 8))
-            * (Math.pow(PR, (2 / 3)) - 1))
-            * (1 + Math.pow((innerDiameter / length), (2 / 3)));
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of heat flow from filter to fluid */
+		/*                                                                    */
+		/**********************************************************************/
 
-        alfa = NU * helium.LAMBDA / innerDiameter;
+		qHFlow = alfa * Math.PI * innerDiameter * length * (temperature - tin);
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*     Computation of heat flow from filter to fluid                  */
-        /*                                                                    */
-        /**********************************************************************/
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of fluid temperature change and new fluid temp. */
+		/*                                                                    */
+		/**********************************************************************/
 
-        qHFlow = alfa * Math.PI * innerDiameter * length
-            * (temperature - tin);
+		DTF = qHFlow / (mfin * CP);
+		ttotal = ttotal + DTF;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of fluid temperature change and new fluid temp.     */
-        /*                                                                    */
-        /**********************************************************************/
+		if (DTF > 10.0) {
+			LOG.info("Temp. change > 10 deg. in filter '" + name);
+			LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
+		}
 
-        DTF = qHFlow / (mfin * CP);
-        ttotal = ttotal + DTF;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Massflow at outlet */
+		/*                                                                    */
+		/**********************************************************************/
 
-        if (DTF > 10.0) {
-            LOG.info("Temp. change > 10 deg. in filter '"  + name);
-            LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
-        }
+		mfout = mfin;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*   Massflow at outlet                                               */
-        /*                                                                    */
-        /**********************************************************************/
+		outputPort.setFluid(fluid);
+		outputPort.setPressure(ptotal);
+		outputPort.setTemperature(ttotal);
+		outputPort.setMassflow(mfout);
 
-        mfout = mfin;
+		LOG.info(" -> ptotal := {}", ptotal);
+		LOG.info(" -> ttotal := {}", ttotal);
+		LOG.info(" -> mfin/out := {}", mfout);
 
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(ptotal);
-        outputPort.setTemperature(ttotal);
-        outputPort.setMassflow(mfout);
+		pout = ptotal;
+		tout = ttotal;
+		return 0;
+	}
 
-        LOG.info(" -> ptotal := {}", ptotal);
-        LOG.info(" -> ttotal := {}", ttotal);
-        LOG.info(" -> mfin/out := {}", mfout);
+	@Override
+	public int backIterStep() {
+		int result;
 
-        pout = ptotal;
-        tout = ttotal;
-        return 0;
-    }
+		result = 0;
+		LOG.info("% {} BackIteration-Computation", name);
 
+		if (outputPort.getBoundaryPressure() >= 0.0) {
+			LOG.info("Error! Comp. '" + name
+					+ "': Pressure request on port 1 cannot be handled!");
+			// nonResumeFlag = 1;
+			result = 1;
+		}
+		if (outputPort.getBoundaryTemperature() >= 0.0) {
+			LOG.info("Error! Comp. '" + name
+					+ "': Temp. request on port 1 cannot be handled!");
+			// nonResumeFlag = 1;
+			result = 1;
+		}
 
-    @Override
-    public int backIterStep() {
-        int result;
+		mfUpBackiter = outputPort.getBoundaryMassflow();
+		pUpBackiter = outputPort.getBoundaryPressure();
+		tUpBackiter = outputPort.getBoundaryTemperature();
+		LOG.info(" -> pUpBackiter := {}", pUpBackiter);
+		LOG.info(" -> tUpBackiter := {}", tUpBackiter);
+		LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
 
-        result = 0;
-        LOG.info("% {} BackIteration-Computation", name);
+		inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
+		inputPort.setBoundaryPressure(-999999.99);
+		inputPort.setBoundaryTemperature(-999999.99);
+		inputPort.setBoundaryMassflow(mfUpBackiter);
 
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '" + name
-                + "': Pressure request on port 1 cannot be handled!");
-            //    nonResumeFlag = 1;
-            result = 1;
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '" + name
-                + "': Temp. request on port 1 cannot be handled!");
-            //    nonResumeFlag = 1;
-            result = 1;
-        }
+		return result;
+	}
 
-        mfUpBackiter = outputPort.getBoundaryMassflow();
-        pUpBackiter = outputPort.getBoundaryPressure();
-        tUpBackiter = outputPort.getBoundaryTemperature();
-        LOG.info(" -> pUpBackiter := {}", pUpBackiter);
-        LOG.info(" -> tUpBackiter := {}", tUpBackiter);
-        LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
+	// ----------------------------------------
+	// Methods added for JMX monitoring
 
-        inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
-        inputPort.setBoundaryPressure(-999999.99);
-        inputPort.setBoundaryTemperature(-999999.99);
-        inputPort.setBoundaryMassflow(mfUpBackiter);
-
-        return result;
-    }
-
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("FilterT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
-
-    //----------------------------------------
-    // Methods added for JMX monitoring	
-	@ManagedAttribute    
-    public double getInnerDiameter() {
+	@ManagedAttribute
+	public double getInnerDiameter() {
 		return innerDiameter;
 	}
+
 	public void setInnerDiameter(double innerDiameter) {
 		this.innerDiameter = innerDiameter;
 	}
+
 	@ManagedAttribute
 	public double getLength() {
 		return length;
 	}
+
 	public void setLength(double length) {
 		this.length = length;
 	}
+
 	@ManagedAttribute
 	public double getSpecificMass() {
 		return specificMass;
 	}
+
 	public void setSpecificMass(double specificMass) {
 		this.specificMass = specificMass;
 	}
+
 	@ManagedAttribute
 	public double getSpecificHeatCapacity() {
 		return specificHeatCapacity;
 	}
+
 	public void setSpecificHeatCapacity(double specificHeatCapacity) {
 		this.specificHeatCapacity = specificHeatCapacity;
 	}
+
 	@ManagedAttribute
 	public double getTemperature() {
 		return temperature;
 	}
+
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
+
 	@ManagedAttribute
 	public double getReferencePressureLoss() {
 		return referencePressureLoss;
 	}
+
 	public void setReferencePressureLoss(double referencePressureLoss) {
 		this.referencePressureLoss = referencePressureLoss;
 	}
+
 	@ManagedAttribute
 	public double getReferenceMassFlow() {
 		return referenceMassFlow;
 	}
+
 	public void setReferenceMassFlow(double referenceMassFlow) {
 		this.referenceMassFlow = referenceMassFlow;
 	}
+
 	@ManagedAttribute
 	public double getPin() {
 		return pin;
 	}
+
 	public void setPin(double pin) {
 		this.pin = pin;
 	}
+
 	@ManagedAttribute
 	public double getTin() {
 		return tin;
 	}
+
 	public void setTin(double tin) {
 		this.tin = tin;
 	}
+
 	@ManagedAttribute
 	public double getMfin() {
 		return mfin;
 	}
+
 	public void setMfin(double mfin) {
 		this.mfin = mfin;
 	}
+
 	@ManagedAttribute
 	public double getPout() {
 		return pout;
 	}
+
 	public void setPout(double pout) {
 		this.pout = pout;
 	}
+
 	@ManagedAttribute
 	public double getTout() {
 		return tout;
 	}
+
 	public void setTout(double tout) {
 		this.tout = tout;
 	}
+
 	@ManagedAttribute
 	public double getqHFlow() {
 		return qHFlow;
 	}
+
 	public void setqHFlow(double qHFlow) {
 		this.qHFlow = qHFlow;
 	}
+
 	@ManagedAttribute
 	public double getAlfa() {
 		return alfa;
 	}
+
 	public void setAlfa(double alfa) {
 		this.alfa = alfa;
 	}
+
 	@ManagedAttribute
 	public double getMass() {
 		return mass;
 	}
+
 	public void setMass(double mass) {
 		this.mass = mass;
 	}
+
 	@ManagedAttribute
 	public double getpUpBackiter() {
 		return pUpBackiter;
 	}
+
 	public void setpUpBackiter(double pUpBackiter) {
 		this.pUpBackiter = pUpBackiter;
 	}
+
 	@ManagedAttribute
 	public double gettUpBackiter() {
 		return tUpBackiter;
 	}
+
 	public void settUpBackiter(double tUpBackiter) {
 		this.tUpBackiter = tUpBackiter;
 	}
+
 	@ManagedAttribute
 	public double getMfUpBackiter() {
 		return mfUpBackiter;
 	}
+
 	public void setMfUpBackiter(double mfUpBackiter) {
 		this.mfUpBackiter = mfUpBackiter;
 	}
+
 	@ManagedAttribute
 	public PureGasPort getInputPort() {
 		return inputPort;
 	}
+
 	public void setInputPort(PureGasPort inputPort) {
 		this.inputPort = inputPort;
 	}
+
 	@ManagedAttribute
 	public PureGasPort getOutputPort() {
 		return outputPort;
 	}
+
 	public void setOutputPort(PureGasPort outputPort) {
 		this.outputPort = outputPort;
 	}
-	   
+
 }

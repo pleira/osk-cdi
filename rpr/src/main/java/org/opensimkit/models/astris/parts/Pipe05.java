@@ -19,7 +19,7 @@ public class Pipe05 extends PipeT1 {
 	}
 	
 	@Inject
-	void initLength(@NumberConfig(name = "pipe5.length", defaultValue = "1.5") Double value) {
+	void initLength(@NumberConfig(name = "pipe5.length", defaultValue = "2.5") Double value) {
 	setLength(value);
 	}
 	
@@ -39,7 +39,7 @@ public class Pipe05 extends PipeT1 {
 	}
 	
 	@Inject
-	void initSurfaceRoughness(@NumberConfig(name = "pipe5.surfaceRoughness", defaultValue = "0.0085") Double value) {
+	void initSurfaceRoughness(@NumberConfig(name = "pipe5.surfaceRoughness", defaultValue = "1.E-6") Double value) {
 	setSurfaceRoughness(value);
 	}
 	

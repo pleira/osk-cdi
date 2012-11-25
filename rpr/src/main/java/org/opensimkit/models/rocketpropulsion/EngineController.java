@@ -47,8 +47,6 @@ import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.AnalogPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,31 +61,29 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class EngineController extends BaseModel {
 
-	/** Logger instance for the EngineController. */
-    private static final Logger LOG
-            = LoggerFactory.getLogger(EngineController.class);
-    /** Commandeable control value. */
-     private double controlRangeMax;
-     private double controlRangeMin;
-     private double controlValue1Nom;
-     private double controlValue2Nom;
-     private double controlValueActual;
-     private double controlValue1;
-     private double controlValue2;
-     private double localtime;
+	private static final Logger LOG = LoggerFactory
+			.getLogger(EngineController.class);
 
-    private static final String TYPE      = "EngineController";
-    private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 1; // We add this model to the regulation step collection
+	/** Commandeable control value. */
+	private double controlRangeMax;
+	private double controlRangeMin;
+	private double controlValue1Nom;
+	private double controlValue2Nom;
+	private double controlValueActual;
+	private double controlValue1;
+	private double controlValue2;
+	private double localtime;
 
-     final AnalogPort controlPort1;
-     final AnalogPort controlPort2;
+	private static final String TYPE = "EngineController";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
+
+	final AnalogPort controlPort1;
+	final AnalogPort controlPort2;
 
     public EngineController(final String name, AnalogPort controlPort1, AnalogPort controlPort2) {
-         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
          this.controlPort1 = controlPort1;
          this.controlPort2 = controlPort2;
     }
@@ -108,38 +104,6 @@ public abstract class EngineController extends BaseModel {
     	controlPort2.setToModel(this);
     	LOG.info("completeConnections for " + name + ", (" + controlPort1.getName()  + "," + controlPort2.getName() + ")" );
     }
-
-    public double getControlRangeMax() {
-		return controlRangeMax;
-	}
-
-	public void setControlRangeMax(double controlRangeMax) {
-		this.controlRangeMax = controlRangeMax;
-	}
-
-	public double getControlRangeMin() {
-		return controlRangeMin;
-	}
-
-	public void setControlRangeMin(double controlRangeMin) {
-		this.controlRangeMin = controlRangeMin;
-	}
-
-    public double getControlValue1Nom() {
-		return controlValue1Nom;
-	}
-
-	public void setControlValue1Nom(double controlValue1Nom) {
-		this.controlValue1Nom = controlValue1Nom;
-	}
-
-	public double getControlValue2Nom() {
-		return controlValue2Nom;
-	}
-
-	public void setControlValue2Nom(double controlValue2Nom) {
-		this.controlValue2Nom = controlValue2Nom;
-	}
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -172,22 +136,6 @@ public abstract class EngineController extends BaseModel {
 
 
     @Override
-    public int iterationStep() {
-        LOG.info("% {} IterationStep-Computation", name);
-
-        return 0;
-    }
-
-
-    @Override
-    public int backIterStep() {
-        LOG.info("% {} BackiterStep-Computation", name);
-
-        return 0;
-    }
-
-
-    @Override
     public int regulStep() {
         LOG.info("% {} RegulStep-Computation", name);
         LOG.info("controlValue1:  '{}' ", controlValue1);
@@ -200,16 +148,45 @@ public abstract class EngineController extends BaseModel {
     }
 
 
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("EngineController: '" + name + "'" + SimHeaders.NEWLINE);
-
-        return 0;
-    }
-
-
 	//----------------------------------------
     // Methods added for JMX monitoring	
+
+
+	@ManagedAttribute
+    public double getControlRangeMax() {
+		return controlRangeMax;
+	}
+
+	public void setControlRangeMax(double controlRangeMax) {
+		this.controlRangeMax = controlRangeMax;
+	}
+
+	@ManagedAttribute
+	public double getControlRangeMin() {
+		return controlRangeMin;
+	}
+
+	public void setControlRangeMin(double controlRangeMin) {
+		this.controlRangeMin = controlRangeMin;
+	}
+
+	@ManagedAttribute
+    public double getControlValue1Nom() {
+		return controlValue1Nom;
+	}
+
+	public void setControlValue1Nom(double controlValue1Nom) {
+		this.controlValue1Nom = controlValue1Nom;
+	}
+
+	@ManagedAttribute
+	public double getControlValue2Nom() {
+		return controlValue2Nom;
+	}
+
+	public void setControlValue2Nom(double controlValue2Nom) {
+		this.controlValue2Nom = controlValue2Nom;
+	}
 
 	@ManagedAttribute
 	public double getControlValueActual() {
@@ -252,6 +229,7 @@ public abstract class EngineController extends BaseModel {
 		return controlPort1;
 	}
 
+	@ManagedAttribute
 	public AnalogPort getControlPort2() {
 		return controlPort2;
 	}

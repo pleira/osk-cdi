@@ -125,6 +125,16 @@ public final class Engl45 {
 
         // DIFFGL(X,YK,NN,K1,GEOM,FLUIDE,AKTUEL,STORE,FLAGS);
         Client.DEQDeriv(X,YK,NN,K1);
+        for (int j = 0; j < YK.length ; j++)   {
+        	if (Double.isNaN(YK[j])) {
+        		System.out.println("In 45 After 2 Check NaN");
+        		System.exit(1);
+        	}
+        	if (Double.isNaN(K1[j])) {
+        		System.out.println("In K 45 After 2 Check NaN");
+        		System.exit(1);
+        	}
+        }
         for(i=0;i<NN;i++)
             YHILF[i]=YK[i]+.5*HK*K1[i];
         // DIFFGL(X+.5*HK,YHILF,NN,K2,GEOM,FLUIDE,AKTUEL,STORE,FLAGS);
@@ -146,9 +156,29 @@ public final class Engl45 {
                     +546.*K3[i]+54.*K4[i]-378.*K5[i]);
         // DIFFGL(X+.2*HK,YHILF,NN,K6,GEOM,FLUIDE,AKTUEL,STORE,FLAGS);
         Client.DEQDeriv(X+.2*HK,YHILF,NN,K6);
+        for (int j = 0; j < YK.length ; j++)   {
+        	if (Double.isNaN(YK[j])) {
+        		System.out.println("In 45 After Check NaN");
+        		System.exit(1);
+        	}
+        	if (Double.isNaN(YT[j])) {
+        		System.out.println("In 45 After Check NaN");
+        		System.exit(1);
+        	}
+        }
         for(i=0;i<NN;i++) {
             Y[i]=YK[i]+HK/6.*(K1[i]+4.*K3[i]+K4[i]);
             YT[i]=YK[i]+HK/336.*(14.*K1[i]+35.*K4[i]+162.*K5[i]+125.*K6[i]);
+        }
+        for (int j = 0; j < YK.length ; j++)   {
+        	if (Double.isNaN(YK[j])) {
+        		System.out.println("In 45 After 2 Check NaN");
+        		System.exit(1);
+        	}
+        	if (Double.isNaN(YT[j])) {
+        		System.out.println("In YT 45 After 2 Check NaN");
+        		System.exit(1);
+        	}
         }
     }
 }

@@ -77,24 +77,19 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
 import org.opensimkit.MaterialProperties;
-import org.opensimkit.SimHeaders;
-import org.opensimkit.manipulation.Manipulatable;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Model definition for a pipe.
- *
+ * 
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
@@ -102,377 +97,367 @@ import org.slf4j.LoggerFactory;
  * @since 2.4.0
  */
 public class PipeT1 extends BaseModel {
-    /** Logger instance for the PipeT1. */
-    private static final Logger LOG = LoggerFactory.getLogger(PipeT1.class);
-    /** Diameter of pipe. */
-     private double innerDiameter;
-    /** Length of pipe. */
-     private double length;
-    /** Length specific mass. */
-     private double specificMass;
-    /** Specific. heat capacity. */
-     private double specificHeatCapacity;
-    /** Roughness of pipe inner surface. */
-     private double surfaceRoughness;
-    /** Array of temperature of pipe elements. */
-     private double temperatures[] = new double[10];
-    /** Array of heat flow from wall to fluid for pipe elements. */
-     private double qHFlow[] = new double[10];
-    /** Heat transfer coefficient between pipe wall and fluid. */
-    private double alfa;
-    /** Mass of one pipe element (pipe consists of 10 elements). */
-     private double massPElem;
-    /** Static temperature of pipe entering fluid in timestep. */
-    private double tstatin;
+	/** Logger instance for the PipeT1. */
+	private static final Logger LOG = LoggerFactory.getLogger(PipeT1.class);
+	/** Diameter of pipe. */
+	private double innerDiameter;
+	/** Length of pipe. */
+	private double length;
+	/** Length specific mass. */
+	private double specificMass;
+	/** Specific. heat capacity. */
+	private double specificHeatCapacity;
+	/** Roughness of pipe inner surface. */
+	private double surfaceRoughness;
+	/** Array of temperature of pipe elements. */
+	private double temperatures[] = new double[10];
+	/** Array of heat flow from wall to fluid for pipe elements. */
+	private double qHFlow[] = new double[10];
+	/** Heat transfer coefficient between pipe wall and fluid. */
+	private double alfa;
+	/** Mass of one pipe element (pipe consists of 10 elements). */
+	private double massPElem;
+	/** Static temperature of pipe entering fluid in timestep. */
+	private double tstatin;
 
-    /** Parameters of in- and outflowing fluid. */
-     private double pin;
-     private double tin;
-     private double mfin;
-     private double pout;
-     private double tout;
-     private double pUpBackiter;
-     private double tUpBackiter;
-     private double mfUpBackiter;
+	/** Parameters of in- and outflowing fluid. */
+	private double pin;
+	private double tin;
+	private double mfin;
+	private double pout;
+	private double tout;
+	private double pUpBackiter;
+	private double tUpBackiter;
+	private double mfUpBackiter;
 
-    private static final String TYPE      = "PipeT1";
-    private static final String SOLVER    = "Euler";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private static final String TYPE = "PipeT1";
+	private static final String SOLVER = "Euler";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
 
-     private PureGasPort inputPort;
-     private PureGasPort outputPort;
+	private PureGasPort inputPort;
+	private PureGasPort outputPort;
 
+	public PipeT1(final String name, PureGasPort inputPort,
+			PureGasPort outputPort) {
+		super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
+		this.inputPort = inputPort;
+		this.outputPort = outputPort;
+	}
 
-    public PipeT1(final String name, PureGasPort inputPort, PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
-        this.inputPort = inputPort;
-        this.outputPort = outputPort;
-    }
+	@Override
+	@PostConstruct
+	public void init() {
+		completeConnections();
+		/* Mass of one pipe element. */
+		massPElem = specificMass * length / 10;
+	}
 
-    @Override
-    @PostConstruct
-    public void init() {
-    	completeConnections();
-        /* Mass of one pipe element. */
-        massPElem = specificMass * length / 10;
-    }
-    
-    void completeConnections() {
-    	inputPort.setToModel(this);
-        outputPort.setFromModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPort.getName() + ")" );
-    }
-    
+	void completeConnections() {
+		inputPort.setToModel(this);
+		outputPort.setFromModel(this);
+		LOG.info("completeConnections for " + name + ", ("
+				+ inputPort.getName() + "," + outputPort.getName() + ")");
+	}
 
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        String     fluid;
-        double     CP, Q, DTF, DTB;
-        int        J;
+	@Override
+	public int timeStep(final double time, final double tStepSize) {
+		String fluid;
+		double CP, Q, DTF, DTB;
+		int J;
 
-        LOG.info("% {} TimeStep-Computation", name);
+		LOG.info("% {} TimeStep-Computation", name);
 
-        pin  = inputPort.getPressure();
-        tin  = inputPort.getTemperature();
-        mfin = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
+		pin = inputPort.getPressure();
+		tin = inputPort.getTemperature();
+		mfin = inputPort.getMassflow();
+		fluid = inputPort.getFluid();
 
-        /* Skip time step computation if no flow in pipe. */
-        if (mfin <= 1.E-6) {
-            return 0;
-        }
+		/* Skip time step computation if no flow in pipe. */
+		if (mfin <= 1.E-6) {
+			return 0;
+		}
 
-        CP = 5223.2;
+		CP = 5223.2;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Temperature change of pipe                                      */
-        /*                                                                    */
-        /*    Section for computation of temperature change of pipe.          */
-        /*    Coding is an approximation splitting pipe into 10 subsections   */
-        /*    with individual temperature.                                    */
-        /*                                                                    */
-        /*    J= Number of pipe section                                       */
-        /*                                                                    */
-        /*    Fluid properties (viscosity ...) are considered to be           */
-        /*    constant over entire pipe, same as Nusselt number and thus      */
-        /*    heat transfer coefficient Alfa.                                 */
-        /*                                                                    */
-        /*    Computation of the heat transfer numbers,                       */
-        /*    XI,Prandtl-Zahl, Nusselt, ALFA.                                 */
-        /*    please refer to [1] section 3.3.3.2, Eq..(3.1) ff               */
-        /*                                                                    */
-        /*    Change: Approximation of Laval number at pipe outlet to be same */
-        /*    as L1 at pipe inlet port.                                       */
-        /*                                                                    */
-        /*     Computation of heatflow from pipe to fluid                     */
-        /*     for each pipe of the 10 pipe elements.                         */
-        /*                                                                    */
-        /**********************************************************************/
-        for (J = 0; J < 10; J++) {
-            qHFlow[J]=alfa*3.1415*innerDiameter*length
-                    * (temperatures[J]-tstatin)/10;
-            Q = qHFlow[J]*tStepSize;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Temperature change of pipe */
+		/*                                                                    */
+		/* Section for computation of temperature change of pipe. */
+		/* Coding is an approximation splitting pipe into 10 subsections */
+		/* with individual temperature. */
+		/*                                                                    */
+		/* J= Number of pipe section */
+		/*                                                                    */
+		/* Fluid properties (viscosity ...) are considered to be */
+		/* constant over entire pipe, same as Nusselt number and thus */
+		/* heat transfer coefficient Alfa. */
+		/*                                                                    */
+		/* Computation of the heat transfer numbers, */
+		/* XI,Prandtl-Zahl, Nusselt, ALFA. */
+		/* please refer to [1] section 3.3.3.2, Eq..(3.1) ff */
+		/*                                                                    */
+		/* Change: Approximation of Laval number at pipe outlet to be same */
+		/* as L1 at pipe inlet port. */
+		/*                                                                    */
+		/* Computation of heatflow from pipe to fluid */
+		/* for each pipe of the 10 pipe elements. */
+		/*                                                                    */
+		/**********************************************************************/
+		for (J = 0; J < 10; J++) {
+			qHFlow[J] = alfa * 3.1415 * innerDiameter * length
+					* (temperatures[J] - tstatin) / 10;
+			Q = qHFlow[J] * tStepSize;
 
-            /******************************************************************/
-            /*                                                                */
-            /*    Computation of delta T for fluid and new fluid temperature  */
-            /*    for each pipe element                                       */
-            /*                                                                */
-            /******************************************************************/
-            DTF=qHFlow[J] / (mfin * CP);
-            tstatin = tstatin + DTF;
+			/******************************************************************/
+			/*                                                                */
+			/* Computation of delta T for fluid and new fluid temperature */
+			/* for each pipe element */
+			/*                                                                */
+			/******************************************************************/
+			DTF = qHFlow[J] / (mfin * CP);
+			tstatin = tstatin + DTF;
 
-            /******************************************************************/
-            /*                                                                */
-            /*    Computation of delta T of each pipe section                 */
-            /*    and computation of new pipe temp. for each section          */
-            /*                                                                */
-            /******************************************************************/
-            DTB=Q/(massPElem*specificHeatCapacity);
-            temperatures[J]=temperatures[J]-DTB;
-        }
-        return 0;
-    }
+			/******************************************************************/
+			/*                                                                */
+			/* Computation of delta T of each pipe section */
+			/* and computation of new pipe temp. for each section */
+			/*                                                                */
+			/******************************************************************/
+			DTB = Q / (massPElem * specificHeatCapacity);
+			temperatures[J] = temperatures[J] - DTB;
+		}
+		return 0;
+	}
 
+	@Override
+	public int iterationStep() {
+		String fluid;
+		double RSPEZ, CP;
+		double GESCH, RE, REbound, LA;
+		double zeta;
+		double XI, PR, NU, DTF;
+		int J;
 
-    @Override
-    public int iterationStep() {
-        String     fluid;
-        double RSPEZ, CP;
-        double GESCH, RE, REbound, LA;
-        double zeta;
-        double XI, PR, NU, DTF;
-        int    J;
+		/** Fluid material properties for heat transfer computations. */
+		MaterialProperties Helium = new MaterialProperties();
 
-        /** Fluid material properties for heat transfer computations. */
-        MaterialProperties Helium = new MaterialProperties();
+		LOG.info("% {} IterationStep-Computation", name);
 
-        LOG.info("% {} IterationStep-Computation", name);
+		pin = inputPort.getPressure();
+		tin = inputPort.getTemperature();
+		mfin = inputPort.getMassflow();
+		fluid = inputPort.getFluid();
 
-        pin  = inputPort.getPressure();
-        tin  = inputPort.getTemperature();
-        mfin = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
+		/* Skip iteration step computation if no flow in pipe. */
+		if (mfin <= 1.E-6) {
+			pout = pin;
+			tout = tin;
 
-        /* Skip iteration step computation if no flow in pipe. */
-        if (mfin <= 1.E-6) {
-            pout  = pin;
-            tout  = tin;
+			outputPort.setFluid(fluid);
+			outputPort.setPressure(pout);
+			outputPort.setTemperature(tout);
+			outputPort.setMassflow(mfin);
 
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfin);
+			return 0;
+		}
 
-            return 0;
-        }
+		RSPEZ = 2077;
+		CP = 5223.2;
 
-        RSPEZ = 2077;
-        CP = 5223.2;
+		// FIXME
+		double PK = org.opensimkit.Helium.HELIUM(pin, tin, Helium);
 
-        // FIXME
-        double PK = org.opensimkit.Helium.HELIUM(pin, tin, Helium);
+		GESCH = 4. * mfin
+				/ (Helium.DICHTE * 3.1415 * Math.pow(innerDiameter, 2));
 
-        GESCH = 4. * mfin
-                / (Helium.DICHTE*3.1415*Math.pow(innerDiameter, 2));
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of friction factor Lambda according to */
+		/* Colebrook formula */
+		/* See manuscript "Industrielle Aerodynamik" p.11 */
+		/* Institut fuer Aero- und Gasdynamik */
+		/* Universitt Stuttgart, Pfaffenwaldring, 7000 Stuttgart 80, 1986 */
+		/*                                                                    */
+		/**********************************************************************/
+		RE = GESCH * innerDiameter / Helium.NUE;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of friction factor Lambda according to              */
-        /*    Colebrook formula                                               */
-        /*    See manuscript "Industrielle Aerodynamik" p.11                  */
-        /*    Institut fuer Aero- und Gasdynamik                              */
-        /*    Universitt Stuttgart, Pfaffenwaldring, 7000 Stuttgart 80, 1986  */
-        /*                                                                    */
-        /**********************************************************************/
-        RE=GESCH*innerDiameter/Helium.NUE;
+		if (surfaceRoughness >= 5.E-02) {
+			surfaceRoughness = 5.E-02;
+		}
 
-        if (surfaceRoughness >= 5.E-02) {
-            surfaceRoughness = 5.E-02;
-        }
+		if (RE < 1.) {
+			LA = 0.;
+		} else {
+			REbound = 1000.;
+			for (J = 0; J < 6; J++) {
+				REbound = Math.pow(
+						(16. * (Math.log10(2.51 * 0.125 / Math.sqrt(REbound)
+								+ surfaceRoughness / 3.71))), 2.);
+			}
 
-        if (RE < 1.) {
-            LA=0.;
-        } else {
-            REbound = 1000.;
-            for (J = 0; J < 6; J++) {
-                REbound=Math.pow((16.*(Math.log10(2.51*0.125
-                        /Math.sqrt(REbound)+surfaceRoughness/3.71))),2.);
-            }
+			if (RE <= REbound) { // laminar flow
+				LA = 64. / RE;
+			} else { // turbulent flow
+				LA = 0.0515;
+				for (J = 0; J < 6; J++) {
+					LA = 0.25 / Math.pow(
+							(Math.log10(2.51 / RE / Math.sqrt(LA)
+									+ surfaceRoughness / 3.71)), 2.);
+				} // numeric approx. for Colebrook formula.
+			}
+		}
 
-            if (RE <= REbound) { //laminar flow
-                LA = 64. / RE;
-            } else { //turbulent flow
-                LA = 0.0515;
-                for (J = 0; J < 6; J++) {
-                    LA=0.25/Math.pow((Math.log10(2.51/RE/Math.sqrt(LA)
-                            + surfaceRoughness/3.71)),2.);
-                } //numeric approx. for Colebrook formula.
-            }
-        }
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of ressure loss in pipe. */
+		/* See manuscript "Industrielle Aerodynamik" p.11 */
+		/*                                                                    */
+		/**********************************************************************/
+		zeta = LA * length / innerDiameter;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of ressure loss in pipe.                            */
-        /*    See manuscript "Industrielle Aerodynamik" p.11                  */
-        /*                                                                    */
-        /**********************************************************************/
-        zeta = LA * length / innerDiameter;
+		pout = pin - (Helium.DICHTE / 2.) * Math.pow(GESCH, 2) * zeta;
 
-        pout=pin-(Helium.DICHTE/2.)*Math.pow(GESCH,2)*zeta;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Temperature change of flow */
+		/*                                                                    */
+		/* Section for computation of temperature change of fluid */
+		/* when passing pipe element with different temperature. */
+		/* Material properties of fluid and heat transfer coefficients */
+		/* are considered to be constant over each of the 10 pipe sections. */
+		/*                                                                    */
+		/* J= Number of pipe section */
+		/*                                                                    */
+		/* Fluid properties (viscosity ...) are considered to be */
+		/* constant over entire pipe, same as Nusselt number and thus */
+		/* heat transfer coefficient Alfa. */
+		/*                                                                    */
+		/* Computation of the heat transfer numbers, */
+		/* XI,Prandtl-Zahl, Nusselt, ALFA. */
+		/* please refer to [1] section 3.3.3.2, Eq..(3.1) ff */
+		/*                                                                    */
+		/* Change: Approximation of Laval number at pipe outlet to be same */
+		/* as L1 at pipe inlet port. */
+		/*                                                                    */
+		/**********************************************************************/
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Temperature change of flow                                      */
-        /*                                                                    */
-        /*    Section for computation of temperature change of fluid          */
-        /*    when passing pipe element with different temperature.           */
-        /*    Material properties of fluid and heat transfer coefficients     */
-        /*    are considered to be constant over each of the 10 pipe sections.*/
-        /*                                                                    */
-        /*    J= Number of pipe section                                       */
-        /*                                                                    */
-        /*    Fluid properties (viscosity ...) are considered to be           */
-        /*    constant over entire pipe, same as Nusselt number and thus      */
-        /*    heat transfer coefficient Alfa.                                 */
-        /*                                                                    */
-        /*    Computation of the heat transfer numbers,                       */
-        /*    XI,Prandtl-Zahl, Nusselt, ALFA.                                 */
-        /*    please refer to [1] section 3.3.3.2, Eq..(3.1) ff               */
-        /*                                                                    */
-        /*    Change: Approximation of Laval number at pipe outlet to be same */
-        /*    as L1 at pipe inlet port.                                       */
-        /*                                                                    */
-        /**********************************************************************/
+		if (RE > 2.E6) {
+			LOG.info("Re number exceeding upper limit");
+			LOG.info("Re number exceeding upper limit");
+			RE = 2.E6;
+		} else if (RE < 2300.) {
+			/*
+			 * Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
+			 * thus resulting in computation of transferred heat qHFlow=0.0.
+			 * This is necessary, since the formulae used below are not precise
+			 * enough for ranges of RE<2300 and computed heat transfers will
+			 * lead to buggy fluid temperatures.
+			 */
+			RE = 1000.;
+		}
 
-        if (RE > 2.E6) {
-            LOG.info("Re number exceeding upper limit");
-            LOG.info("Re number exceeding upper limit");
-            RE = 2.E6;
-        } else if (RE < 2300.) {
-            /* Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
-             * thus resulting in computation of transferred heat qHFlow=0.0.
-             * This is necessary, since the formulae used below are not precise
-             * enough for ranges of RE<2300 and computed heat transfers will
-             * lead to buggy fluid temperatures.
-             */
-            RE = 1000.;
-        }
+		XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-        XI=Math.pow((1.82*(Math.log10(RE))-1.64),(-2));
+		PR = CP * Helium.ETA / Helium.LAMBDA;
 
-        PR=CP*Helium.ETA/Helium.LAMBDA;
+		NU = (XI / 8)
+				* (RE - 1000.)
+				* PR
+				/ (1 + 12.7 * (Math.sqrt(XI / 8)) * (Math.pow(PR, (2 / 3)) - 1))
+				* (1 + Math.pow((innerDiameter / length), (2 / 3)));
 
-        NU=(XI/8)*(RE-1000.)*PR /(1+12.7*(Math.sqrt(XI/8))
-                * (Math.pow(PR,(2/3))-1))
-                * (1+Math.pow((innerDiameter/length), (2/3)));
+		alfa = NU * Helium.LAMBDA / innerDiameter;
 
-        alfa=NU*Helium.LAMBDA/innerDiameter;
+		/**********************************************************************/
+		/*                                                                    */
+		/* Computation of heatflow from pipe wall to fluid for each of */
+		/* the 10 pipe sections. */
+		/*                                                                    */
+		/**********************************************************************/
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*     Computation of heatflow from pipe wall to fluid for each of    */
-        /*     the 10 pipe sections.                                          */
-        /*                                                                    */
-        /**********************************************************************/
+		/* Static pipe inlet temperature. Required for timestep computation. */
+		tstatin = tin;
 
-        /* Static pipe inlet temperature. Required for timestep computation. */
-        tstatin = tin;
+		for (J = 0; J < 10; J++) {
+			qHFlow[J] = alfa * Math.PI * innerDiameter * length
+					* (temperatures[J] - tstatin) / 10;
 
-        for (J = 0; J < 10; J++) {
-            qHFlow[J]=alfa * Math.PI * innerDiameter * length
-            * (temperatures[J]-tstatin)/10;
+			/**********************************************************************/
+			/*                                                                    */
+			/* Computation of fluid temperature change and new fluid temp. */
+			/*                                                                    */
+			/**********************************************************************/
+			DTF = qHFlow[J] / (mfin * CP);
+			tstatin = tstatin + DTF;
+		}
+		/*
+		 * Pipe consists of 10 Elements. tout = input temp of fictive 11th
+		 * element.
+		 */
+		tout = tstatin;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of fluid temperature change and new fluid temp.     */
-        /*                                                                    */
-        /**********************************************************************/
-            DTF=qHFlow[J] / (mfin * CP);
-            tstatin=tstatin+DTF;
-        }
-        /* Pipe consists of 10 Elements.
-         * tout = input temp of fictive 11th element. */
-        tout = tstatin;
+		if ((tout - tin) > 10.0) {
+			LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
+			LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
+		}
 
-        if ((tout - tin) > 10.0) {
-            LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
-            LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
-        }
+		/**********************************************************************/
+		/*                                                                    */
+		/* Massflow at outlet */
+		/*                                                                    */
+		/**********************************************************************/
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*   Massflow at outlet                                               */
-        /*                                                                    */
-        /**********************************************************************/
+		outputPort.setFluid(fluid);
+		outputPort.setPressure(pout);
+		outputPort.setTemperature(tout);
+		outputPort.setMassflow(mfin);
 
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(pout);
-        outputPort.setTemperature(tout);
-        outputPort.setMassflow(mfin);
+		LOG.info(" -> pout := {}", pout);
+		LOG.info(" -> tout := {}", tout);
+		LOG.info(" -> mfin/out := {}", mfin);
 
-        LOG.info(" -> pout := {}", pout);
-        LOG.info(" -> tout := {}", tout);
-        LOG.info(" -> mfin/out := {}", mfin);
+		return 0;
+	}
 
-        return 0;
-    }
+	@Override
+	public int backIterStep() {
+		int result;
 
+		result = 0;
 
-    @Override
-    public int backIterStep() {
-        int result;
+		LOG.info("% {} BackIteration-Computation", name);
 
-        result = 0;
+		if (outputPort.getBoundaryPressure() >= 0.0) {
+			LOG.info("Error with {}: Pressure request on output port {} cannot"
+					+ " be handled!", name, outputPort.getName());
+			result = 1;
+		}
+		if (outputPort.getBoundaryTemperature() >= 0.0) {
+			LOG.info("Error with {}: Temp. request on output port {} cannot"
+					+ " be handled!", name, outputPort.getName());
+			result = 1;
+		}
 
-        LOG.info("% {} BackIteration-Computation", name);
+		mfUpBackiter = outputPort.getBoundaryMassflow();
+		pUpBackiter = outputPort.getBoundaryPressure();
+		tUpBackiter = outputPort.getBoundaryTemperature();
+		LOG.info(" -> pUpBackiter := {}", pUpBackiter);
+		LOG.info(" -> tUpBackiter := {}", tUpBackiter);
+		LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
 
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error with {}: Pressure request on output port {} cannot"
-                    + " be handled!", name, outputPort.getName());
-            result = 1;
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error with {}: Temp. request on output port {} cannot"
-                    + " be handled!", name, outputPort.getName());
-            result = 1;
-        }
+		inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
+		inputPort.setBoundaryPressure(-999999.99);
+		inputPort.setBoundaryTemperature(-999999.99);
+		inputPort.setBoundaryMassflow(mfUpBackiter);
 
-        mfUpBackiter = outputPort.getBoundaryMassflow();
-        pUpBackiter = outputPort.getBoundaryPressure();
-        tUpBackiter = outputPort.getBoundaryTemperature();
-        LOG.info(" -> pUpBackiter := {}", pUpBackiter);
-        LOG.info(" -> tUpBackiter := {}", tUpBackiter);
-        LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
+		return result;
+	}
 
-        inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
-        inputPort.setBoundaryPressure(-999999.99);
-        inputPort.setBoundaryTemperature(-999999.99);
-        inputPort.setBoundaryMassflow(mfUpBackiter);
-
-        return result;
-    }
-
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("PipeT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
-
-    //-----------------------------------------------------------------------------------
-    // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
+	// -----------------------------------------------------------------------------------
+	// Methods added for JMX monitoring and setting initial properties via CDI
+	// Extensions
 
 	@ManagedAttribute
 	public double getInnerDiameter() {
@@ -653,5 +638,5 @@ public class PipeT1 extends BaseModel {
 	public void setOutputPort(PureGasPort outputPort) {
 		this.outputPort = outputPort;
 	}
-        
+
 }

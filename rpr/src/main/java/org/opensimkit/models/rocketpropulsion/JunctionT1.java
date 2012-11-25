@@ -136,7 +136,7 @@ public class JunctionT1 extends BaseModel {
 	private static final double MAXTSTEP = 1.0E6;
 	private static final double MINTSTEP = 1.0E-6;
 	private static final int TIMESTEP = 0;
-	private static final int REGULSTEP = 0;
+	
 
 	private PureGasPort inputPortLeft;
 	private PureGasPort inputPortRight;
@@ -145,7 +145,7 @@ public class JunctionT1 extends BaseModel {
     
     public JunctionT1(final String name, PureGasPort inputPortLeft, 
     		PureGasPort inputPortRight, PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         this.outputPort = outputPort;
         this.inputPortLeft = inputPortLeft;
         this.inputPortRight = inputPortRight;
@@ -168,14 +168,6 @@ public class JunctionT1 extends BaseModel {
      	inputPortRight.setToModel(this);
     	LOG.info("completeConnections for " + name + ", (" + inputPortLeft.getName()  + "," + inputPortRight.getName() + ")" );
      }
-
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        LOG.info("% {} TimeStep-Computation", name);
-
-        return 0;
-    }
-
 
     @Override
     public int iterationStep() {
@@ -315,18 +307,6 @@ public class JunctionT1 extends BaseModel {
     }
 
 
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("JunctionT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

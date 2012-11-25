@@ -39,12 +39,9 @@ import java.text.SimpleDateFormat;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
 import org.opensimkit.config.NumberConfig;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

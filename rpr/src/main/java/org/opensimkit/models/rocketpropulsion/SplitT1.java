@@ -82,15 +82,11 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
-import org.opensimkit.SimHeaders;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +126,7 @@ public class SplitT1 extends BaseModel {
 	private static final double MAXTSTEP = 1.0E6;
 	private static final double MINTSTEP = 1.0E-6;
 	private static final int TIMESTEP = 0;
-	private static final int REGULSTEP = 0;
+	
 
 	private PureGasPort inputPort;
 	private PureGasPort outputPortLeft;
@@ -138,7 +134,7 @@ public class SplitT1 extends BaseModel {
 
     public SplitT1(final String name, PureGasPort inputPort, 
     		PureGasPort outputPortLeft, PureGasPort outputPortRight) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         this.inputPort = inputPort;
         this.outputPortLeft = outputPortLeft;
         this.outputPortRight = outputPortRight;
@@ -155,12 +151,6 @@ public class SplitT1 extends BaseModel {
         outputPortLeft.setFromModel(this);
         outputPortRight.setFromModel(this);
     	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPortLeft.getName() + "," + outputPortRight.getName() + ")" );
-    }
-
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        LOG.info("% {} TimeStep-Computation", name);
-        return 0;
     }
 
 
@@ -257,19 +247,6 @@ public class SplitT1 extends BaseModel {
         return result;
     }
 
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("SplitT1: '" + name + "'" + SimHeaders.NEWLINE);
-        return 0;
-    }
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

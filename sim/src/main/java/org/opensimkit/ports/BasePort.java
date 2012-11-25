@@ -85,8 +85,13 @@ public class BasePort implements Port, Serializable {
     String name;
     private String id;
     private String description;
-    private Model  fromModel;
-    
+    private Model  fromModel;    
+	private Model  toModel;
+
+    public BasePort(final String name) {
+        this.name = name;
+    }
+
     public Model getFromModel() {
 		return fromModel;
 	}
@@ -103,15 +108,6 @@ public class BasePort implements Port, Serializable {
 		this.toModel = toModel;
 	}
 
-	private Model  toModel;
-    //private int       localNAckFlag;
-    //Only one port-class but several classes for the port-data. This
-    //requires a check for a correct initialization from models to the
-    //ports. The type field enables this.
-
-    public BasePort(final String name) {
-        this.name = name;
-    }
 
     /**
      * Connects two models with this port.

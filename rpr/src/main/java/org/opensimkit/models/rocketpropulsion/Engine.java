@@ -56,9 +56,6 @@
  */
 package org.opensimkit.models.rocketpropulsion;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -67,12 +64,9 @@ import javax.inject.Inject;
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.opensimkit.BaseModel;
-import org.opensimkit.SimHeaders;
 import org.opensimkit.events.D4Value;
 import org.opensimkit.events.ECEFpv;
 import org.opensimkit.events.Thrust;
-import org.opensimkit.manipulation.Manipulatable;
-import org.opensimkit.manipulation.Readable;
 import org.opensimkit.ports.PureLiquidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,73 +81,74 @@ import org.slf4j.LoggerFactory;
  * @since 2.6.0
  */
 public abstract class Engine extends BaseModel {
-    /** Logger instance for the Engine. */
-    private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
-    /** Reference force. */
-    // private double referenceForce = 0;
-    /** Fuel flow at ingnition [kg/s]. */
-     private double ignitionFuelFlow = 0;
-    /** Ox flow at ingnition [kg/s]. */
-     private double ignitionOxidizerFlow = 0;
-    /** Altitude above ground [ m ] */
-     private double alt = 1600000;
-    /** Specific impulse [s] */
-     private double ISP;
-    /** Fuel inflow pressure [Pa] */
-     private double pin0;
-    /** Fuel inflow temperature [K] */
-     private double tin0;
-    /** Ox inflow pressure [Pa] */
-     private double pin1;
-    /** Ox inflow temperature [K] */
-     private double tin1;
-    /** Fuel flow [kg/s] */
-     private double mfin0;
-    /** Ox flow [kg/s] */
-     private double mfin1;
-    /** Requested fuel flow [kg/s] */
-     private double requestedFuelFlow;
-    /** Requested ox flow [kg/s] */
-     private double requestedOxFlow;
-    /** Engine thrust [ N ] */
-     private double thrust;
-    /** Mixture ratio Oxidizer to fuel */
-     private double OF;
-    /** Local time */
-     private double localtime;
-    /**Temperature in [ °C ] */
-     private double Ta;       
-    /**Temperature in [ Pa ] */
-     private double pa;
-    /**Temperature in [ g/m^3 ] */
-     private double rhoa;
-    /**Characteristic vel. [ m/s ] */
-     private double cstar;
-    /**Thrust factor [ - ] */
-     private double cf;
-    /**Nozzle area ratio(assumed) */
-     private double areaRatio = 100.0;
-    /**Combustion efficiency   */
-     private double etaCstar= 0.94;
-    /**Thrust factor efficiency*/
-     private double etaCf = 0.99;
-    /**Thrust: Value and direction vector in SC body frame. Vector components in [N] */
-     private double[] thrustVector = new double[4];
 
-     private double pc;
-     private double pe;
-     private double k;
+	private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
+	/** Reference force. */
+	// private double referenceForce = 0;
+	/** Fuel flow at ingnition [kg/s]. */
+	private double ignitionFuelFlow = 0;
+	/** Ox flow at ingnition [kg/s]. */
+	private double ignitionOxidizerFlow = 0;
+	/** Altitude above ground [ m ] */
+	private double alt; // = 1600000;
+	/** Specific impulse [s] */
+	private double ISP;
+	/** Fuel inflow pressure [Pa] */
+	private double pin0;
+	/** Fuel inflow temperature [K] */
+	private double tin0;
+	/** Ox inflow pressure [Pa] */
+	private double pin1;
+	/** Ox inflow temperature [K] */
+	private double tin1;
+	/** Fuel flow [kg/s] */
+	private double mfin0;
+	/** Ox flow [kg/s] */
+	private double mfin1;
+	/** Requested fuel flow [kg/s] */
+	private double requestedFuelFlow;
+	/** Requested ox flow [kg/s] */
+	private double requestedOxFlow;
+	/** Engine thrust [ N ] */
+	private double thrust;
+	/** Mixture ratio Oxidizer to fuel */
+	private double OF;
+	/** Local time */
+	private double localtime;
+	/** Temperature in [ °C ] */
+	private double Ta;
+	/** Temperature in [ Pa ] */
+	private double pa;
+	/** Temperature in [ g/m^3 ] */
+	private double rhoa;
+	/** Characteristic vel. [ m/s ] */
+	private double cstar;
+	/** Thrust factor [ - ] */
+	private double cf;
+	/** Nozzle area ratio(assumed) */
+	private double areaRatio = 100.0;
+	/** Combustion efficiency */
+	private double etaCstar = 0.94;
+	/** Thrust factor efficiency */
+	private double etaCf = 0.99;
+	/**
+	 * Thrust: Value and direction vector in SC body frame. Vector components in
+	 * [N]
+	 */
+	private double[] thrustVector = new double[4];
 
-    private static final String TYPE      = "Engine";
-    private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
-    private static final int    TIMESTEP  = 1;
-    private static final int    REGULSTEP = 0;
+	private double pc;
+	private double pe;
+	private double k;
 
-     private final PureLiquidPort inputPortFuel;
-     private final PureLiquidPort inputPortOxidizer;
-    
+	private static final String TYPE = "Engine";
+	private static final String SOLVER = "none";
+	private static final double MAXTSTEP = 10.0;
+	private static final double MINTSTEP = 0.001;
+
+	private final PureLiquidPort inputPortFuel;
+	private final PureLiquidPort inputPortOxidizer;
+  
     @Inject @Thrust Event<D4Value> events;
     
     /*----------------------------------------------------------------------
@@ -174,7 +169,7 @@ public abstract class Engine extends BaseModel {
 
     public Engine(final String name, PureLiquidPort inputPortOxidizer, 
     		PureLiquidPort inputPortFuel) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP, TIMESTEP, REGULSTEP);
+        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
         this.inputPortOxidizer = inputPortOxidizer;
         this.inputPortFuel = inputPortFuel;
     }
@@ -196,30 +191,6 @@ public abstract class Engine extends BaseModel {
         inputPortOxidizer.setToModel(this);
     	LOG.info("completeConnections for " + name + ", (" + inputPortFuel.getName()  + "," + inputPortOxidizer.getName() + ")" );
     }
-    
-    @ManagedAttribute
-    public double getIgnitionFuelFlow() {
-		return ignitionFuelFlow;
-	}
-	public void setIgnitionFuelFlow(double ingnitionFuelFlow) {
-		this.ignitionFuelFlow = ingnitionFuelFlow;
-	}
-
-    @ManagedAttribute
-	public double getIgnitionOxidizerFlow() {
-		return ignitionOxidizerFlow;
-	}
-	public void setIgnitionOxidizerFlow(double ingnitionOxidizerFlow) {
-		this.ignitionOxidizerFlow = ingnitionOxidizerFlow;
-	}
-
-	@ManagedAttribute
-	public double getAlt() {
-		return alt;
-	}
-	public void setAlt(double alt) {
-		this.alt = alt;
-	}
 
     @Override
     public int timeStep(final double time, final double tStepSize) {
@@ -441,22 +412,6 @@ public abstract class Engine extends BaseModel {
 
         return 0;
     }
-
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-
-        return 0;
-    }
-
-
-    @Override
-    public int save(final FileWriter outFile) throws IOException {
-        outFile.write("Engine: '" + name + "'" + SimHeaders.NEWLINE);
-
-        return 0;
-    }
     
 	public void altitudeHandler(@Observes ECEFpv pv) {
 		alt = pv.getAltitude();
@@ -465,6 +420,31 @@ public abstract class Engine extends BaseModel {
 	
 	//----------------------------------------
     // Methods added for JMX monitoring	
+
+    
+    @ManagedAttribute
+    public double getIgnitionFuelFlow() {
+		return ignitionFuelFlow;
+	}
+	public void setIgnitionFuelFlow(double ingnitionFuelFlow) {
+		this.ignitionFuelFlow = ingnitionFuelFlow;
+	}
+
+    @ManagedAttribute
+	public double getIgnitionOxidizerFlow() {
+		return ignitionOxidizerFlow;
+	}
+	public void setIgnitionOxidizerFlow(double ingnitionOxidizerFlow) {
+		this.ignitionOxidizerFlow = ingnitionOxidizerFlow;
+	}
+
+	@ManagedAttribute
+	public double getAlt() {
+		return alt;
+	}
+	public void setAlt(double alt) {
+		this.alt = alt;
+	}
 
 	@ManagedAttribute
 	public double getISP() {
