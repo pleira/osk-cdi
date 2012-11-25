@@ -128,11 +128,11 @@ public final class Engl45 {
         for (int j = 0; j < YK.length ; j++)   {
         	if (Double.isNaN(YK[j])) {
         		System.out.println("In 45 After 2 Check NaN");
-        		System.exit(1);
+        		return;
         	}
         	if (Double.isNaN(K1[j])) {
         		System.out.println("In K 45 After 2 Check NaN");
-        		System.exit(1);
+        		return;
         	}
         }
         for(i=0;i<NN;i++)
@@ -159,11 +159,11 @@ public final class Engl45 {
         for (int j = 0; j < YK.length ; j++)   {
         	if (Double.isNaN(YK[j])) {
         		System.out.println("In 45 After Check NaN");
-        		System.exit(1);
+        		return;
         	}
         	if (Double.isNaN(YT[j])) {
         		System.out.println("In 45 After Check NaN");
-        		System.exit(1);
+        		return;
         	}
         }
         for(i=0;i<NN;i++) {
@@ -173,11 +173,11 @@ public final class Engl45 {
         for (int j = 0; j < YK.length ; j++)   {
         	if (Double.isNaN(YK[j])) {
         		System.out.println("In 45 After 2 Check NaN");
-        		System.exit(1);
+        		return;
         	}
         	if (Double.isNaN(YT[j])) {
         		System.out.println("In YT 45 After 2 Check NaN");
-        		System.exit(1);
+        		return;
         	}
         }
     }

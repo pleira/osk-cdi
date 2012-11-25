@@ -39,7 +39,7 @@
  *
  */
 
-package org.opensimkit;
+package org.opensimkit.models.rocketpropulsion;
 
 /**
  * Computation of the polynomial approximation of the gravity acceleration

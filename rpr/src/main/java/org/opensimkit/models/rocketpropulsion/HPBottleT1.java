@@ -92,7 +92,6 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.GLoad;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.materials.HeliumJKC;
 import org.opensimkit.materials.MaterialProperties;

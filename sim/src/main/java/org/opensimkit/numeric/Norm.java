@@ -45,7 +45,7 @@
  *
  */
 
-package org.opensimkit;
+package org.opensimkit.numeric;
 
 /**
  * This program computes the maximum difference of value pairs F1-F2 of the

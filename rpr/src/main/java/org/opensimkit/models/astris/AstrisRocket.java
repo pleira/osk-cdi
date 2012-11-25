@@ -14,7 +14,7 @@ import javax.management.InstanceAlreadyExistsException;
 import net.gescobar.jmx.Management;
 import net.gescobar.jmx.ManagementException;
 
-import org.opensimkit.Mesh;
+import org.opensimkit.models.Mesh;
 import org.opensimkit.models.Model;
 import org.opensimkit.models.astris.parts.Engine20;
 import org.opensimkit.models.astris.parts.EngineController21;

@@ -49,7 +49,6 @@
 
 package org.opensimkit.numeric;
 
-import org.opensimkit.Norm;
 import org.opensimkit.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,21 +246,17 @@ public class DEqSys {
         /*50      CONTINUE*/
         do {
             /** Aufruf des Einschrittverfahrens                              */
-            for (int j = 0; j < YK.length ; j++)   {
-            	if (Double.isNaN(YK[j])) {
-            		LOG.error("45 After Check NaN");
-            		System.exit(1);
-            	}
-            }
             Engl45.ENGL45(ZEIT1,HK,YK,NN,Y,YT,Client);
             for (int j = 0; j < YK.length ; j++)   {
             	if (Double.isNaN(YK[j])) {
             		LOG.error("45 After Check NaN");
-            		System.exit(1);
+            		// System.exit(1);
+            		return 5;
             	}
             	if (Double.isNaN(YT[j])) {
             		LOG.error("45 YT After Check NaN");
-            		System.exit(1);
+            		//System.exit(1);
+            		return 5;
             	}
             }
 
