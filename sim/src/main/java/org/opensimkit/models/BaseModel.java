@@ -49,12 +49,13 @@
  *     J. Eickhoff
  *
  */
-package org.opensimkit;
+package org.opensimkit.models;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.opensimkit.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -98,9 +98,9 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
-import org.opensimkit.HeliumJKC;
-import org.opensimkit.MaterialProperties;
+import org.opensimkit.materials.HeliumJKC;
+import org.opensimkit.materials.MaterialProperties;
+import org.opensimkit.models.BaseModel;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -333,7 +333,7 @@ public class PRegT1 extends BaseModel {
         tstatin = tout;
 
         // FIXME
-        double PK = org.opensimkit.Helium.HELIUM(pout, tout, Helium);
+        double PK = org.opensimkit.materials.Helium.HELIUM(pout, tout, Helium);
 
         GESCH = mfin
                 * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DICHTE);

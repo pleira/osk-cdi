@@ -51,12 +51,12 @@ import javax.inject.Inject;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
 import org.opensimkit.TimeHandler;
 import org.opensimkit.events.D4Value;
 import org.opensimkit.events.ECI;
 import org.opensimkit.events.Gravity;
 import org.opensimkit.events.ScPV;
+import org.opensimkit.models.BaseModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

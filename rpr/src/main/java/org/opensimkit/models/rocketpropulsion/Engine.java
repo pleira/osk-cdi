@@ -63,10 +63,10 @@ import javax.inject.Inject;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
 import org.opensimkit.events.D4Value;
 import org.opensimkit.events.ECEFpv;
 import org.opensimkit.events.Thrust;
+import org.opensimkit.models.BaseModel;
 import org.opensimkit.ports.PureLiquidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

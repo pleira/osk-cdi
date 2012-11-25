@@ -130,12 +130,12 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
-import org.opensimkit.DEQClient;
-import org.opensimkit.DEqSys;
 import org.opensimkit.GLoad;
-import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
+import org.opensimkit.materials.MaterialProperties;
+import org.opensimkit.models.BaseModel;
+import org.opensimkit.numeric.DEQClient;
+import org.opensimkit.numeric.DEqSys;
 import org.opensimkit.ports.PureGasPort;
 import org.opensimkit.ports.PureLiquidPort;
 import org.slf4j.Logger;
@@ -866,7 +866,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         ETAOL=7.533E-3-6.167E-5*Y[4]+2.055E-7*Math.pow(Y[4],2);
         ETAOL=ETAOL-3.234E-10*Math.pow(Y[4],3)+1.966E-13*Math.pow(Y[4],4);
 
-        double PK_OX = org.opensimkit.Helium.HELIUM(PHEO, Y[1], Helium_ox);
+        double PK_OX = org.opensimkit.materials.Helium.HELIUM(PHEO, Y[1], Helium_ox);
 
         ETAGO=Helium_ox.ETA*YHEO*Math.pow(MMOLHE,.5);
         ETAGO=ETAGO+ETAOG*YDO*Math.pow(MMOLO,.5);
@@ -878,7 +878,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
         /*******     In Fuel Tank    ***************************************/
 
-        double PK_brenn = org.opensimkit.Helium.HELIUM(Y[9], Y[11], Helium_brenn);
+        double PK_brenn = org.opensimkit.materials.Helium.HELIUM(Y[9], Y[11], Helium_brenn);
 
         LAMBL=.14246+9.211E-4*Y[12]-1.9029E-6*Math.pow(Y[12],2);
 

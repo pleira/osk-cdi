@@ -1,9 +1,16 @@
 /*
- * MaterialProperties.java
+ * DEQClients.java
  *
- * Created on 8. Juli 2007, 21:32
+ * Created on 7. Juli 2007, 14:13
  *
- *  Defining data structure for fluid properties used in OpenSim models.
+ *  Class definition for objects that use the DEQ numeric procedures
+ *  ENGL45 and DGLSYS taken from:
+ *
+ *  G. Engeln-Muellges, F.Reutter
+ *  "Formelsammlung zur numerischen Mathematik mit Standard-FORTRAN-77-
+ *  Programmen", 5. Aufl.
+ *  B.I. Wissenschaftsverlag , Bibliographisches Institut
+ *  Mannheim/Wien/Zuerich, 1986
  *
  *-----------------------------------------------------------------------------
  * Modification History:
@@ -11,7 +18,7 @@
  *  2004-12-05
  *      File created - J. Eickhoff:
  *
- *      Struct architecture is a derivative from ObjectSim 2.0.3.,
+ *      Class architecture is a derivative from ObjectSim 2.0.3.,
  *      a simulation program published in:
  *
  *        Eickhoff, J.:
@@ -34,32 +41,25 @@
  *      OpenSimKit V 2.4
  *      Ported from C++ to Java
  *      A. Brandt  alexander.brandt@gmail.com
- *
  */
 
-package org.opensimkit;
+package org.opensimkit.numeric;
 
 /**
- * Defining data structure for fluid properties used in OpenSimKit models.
+ * Interface definition for objects that use the DEQ numeric procedures
+ *  ENGL45 and DGLSYS taken from:
+ *
+ *  G. Engeln-Muellges, F.Reutter
+ *  "Formelsammlung zur numerischen Mathematik mit Standard-FORTRAN-77-
+ *  Programmen", 5. Aufl.
+ *  B.I. Wissenschaftsverlag , Bibliographisches Institut
+ *  Mannheim/Wien/Zuerich, 1986
  *
  * @author J. Eickhoff
  * @author A. Brandt
  * @version 1.0
  * @since 2.4.0
  */
-public final class MaterialProperties {
-    /* Wärmeleitfähigkeit. */
-    public double LAMBDA;
-    /* Dynamische Viskosität. */
-    public double ETA;
-    /* Kinematische Viskosität. */
-    public double NUE;
-    /* Dichte. */
-    public double DICHTE;
-    /* Kompressibilitätsfaktor. */
-    public double Z;
-
-    /** Creates a new instance of MaterialProperties. */
-    public MaterialProperties() {
-    }
+public interface DEQClient {
+    int DEQDeriv(double X, double[] Y, int N, double[] F);
 }

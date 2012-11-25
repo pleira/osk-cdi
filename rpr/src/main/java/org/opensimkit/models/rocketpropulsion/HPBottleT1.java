@@ -92,11 +92,11 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
 import org.opensimkit.GLoad;
-import org.opensimkit.HeliumJKC;
-import org.opensimkit.MaterialProperties;
 import org.opensimkit.SimHeaders;
+import org.opensimkit.materials.HeliumJKC;
+import org.opensimkit.materials.MaterialProperties;
+import org.opensimkit.models.BaseModel;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,7 +201,7 @@ public abstract class HPBottleT1 extends BaseModel {
         twold = twall;
         /* Initializing initial mass in bottle. */
         /** TODO Look here, is this correct? */
-        ptotal = org.opensimkit.Helium.HELIUM(ptotal, ttotal, helium);
+        ptotal = org.opensimkit.materials.Helium.HELIUM(ptotal, ttotal, helium);
         mtotal = helium.DICHTE * volume;
 
         /* Initializing default value for mass flow. */
@@ -364,7 +364,7 @@ public abstract class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        ptotal = org.opensimkit.Helium.HELIUM(P, ttotal, helium);
+        ptotal = org.opensimkit.materials.Helium.HELIUM(P, ttotal, helium);
 
         /**********************************************************************/
         /*                                                                    */

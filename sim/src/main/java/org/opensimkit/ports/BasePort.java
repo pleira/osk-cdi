@@ -65,7 +65,7 @@ package org.opensimkit.ports;
 
 import java.io.Serializable;
 
-import org.opensimkit.Model;
+import org.opensimkit.models.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

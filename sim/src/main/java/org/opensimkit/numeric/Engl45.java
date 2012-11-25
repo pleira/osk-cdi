@@ -42,7 +42,7 @@
  *      A. Brandt  alexander.brandt@gmail.com
  *
  */
-package org.opensimkit;
+package org.opensimkit.numeric;
 
 /**
  *  Object oriented adaption of the DEQ integration routine ENGL45 taken from:

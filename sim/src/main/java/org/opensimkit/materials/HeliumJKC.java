@@ -53,7 +53,7 @@
  *     T. Pieper
  *
  */
-package org.opensimkit;
+package org.opensimkit.materials;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

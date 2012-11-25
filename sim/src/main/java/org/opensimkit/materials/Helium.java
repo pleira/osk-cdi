@@ -47,7 +47,7 @@
  *
  */
 
-package org.opensimkit;
+package org.opensimkit.materials;
 
 /**
  * Computation of the thermodynamic properties of helium.

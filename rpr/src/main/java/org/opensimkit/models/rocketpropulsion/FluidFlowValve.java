@@ -56,7 +56,7 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
+import org.opensimkit.models.BaseModel;
 import org.opensimkit.ports.AnalogPort;
 import org.opensimkit.ports.PureLiquidPort;
 import org.slf4j.Logger;

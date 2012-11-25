@@ -59,6 +59,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.opensimkit.models.BaseModel;
+import org.opensimkit.models.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

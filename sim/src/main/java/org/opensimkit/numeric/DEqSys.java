@@ -47,8 +47,10 @@
  *
  */
 
-package org.opensimkit;
+package org.opensimkit.numeric;
 
+import org.opensimkit.Norm;
+import org.opensimkit.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

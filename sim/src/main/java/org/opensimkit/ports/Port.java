@@ -1,6 +1,6 @@
 package org.opensimkit.ports;
 
-import org.opensimkit.Model;
+import org.opensimkit.models.Model;
 
 /**
  *

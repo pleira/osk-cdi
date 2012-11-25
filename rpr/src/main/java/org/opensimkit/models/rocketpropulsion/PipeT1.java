@@ -81,8 +81,8 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
-import org.opensimkit.MaterialProperties;
+import org.opensimkit.materials.MaterialProperties;
+import org.opensimkit.models.BaseModel;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -267,7 +267,7 @@ public class PipeT1 extends BaseModel {
 		CP = 5223.2;
 
 		// FIXME
-		double PK = org.opensimkit.Helium.HELIUM(pin, tin, Helium);
+		double PK = org.opensimkit.materials.Helium.HELIUM(pin, tin, Helium);
 
 		GESCH = 4. * mfin
 				/ (Helium.DICHTE * 3.1415 * Math.pow(innerDiameter, 2));

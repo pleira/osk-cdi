@@ -80,8 +80,8 @@ import javax.annotation.PostConstruct;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.opensimkit.BaseModel;
-import org.opensimkit.MaterialProperties;
+import org.opensimkit.materials.MaterialProperties;
+import org.opensimkit.models.BaseModel;
 import org.opensimkit.ports.PureGasPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,7 +280,7 @@ public class FilterT1 extends BaseModel {
 		ttotal = tin;
 
 		// TODO: check pk is ok, and how it is used
-		double pk = org.opensimkit.Helium.HELIUM(pfluid, tin, helium);
+		double pk = org.opensimkit.materials.Helium.HELIUM(pfluid, tin, helium);
 
 		GESCH = mfin * 4
 				/ (innerDiameter * innerDiameter * Math.PI * helium.DICHTE);

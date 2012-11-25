@@ -19,7 +19,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit;
+package org.opensimkit.models;
 
 
 /**

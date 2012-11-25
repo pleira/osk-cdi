@@ -81,11 +81,11 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
-import org.opensimkit.BaseModel;
-import org.opensimkit.Model;
 import org.opensimkit.SimHeaders;
 import org.opensimkit.SimulatorState;
 import org.opensimkit.TimeHandler;
+import org.opensimkit.models.BaseModel;
+import org.opensimkit.models.Model;
 import org.opensimkit.models.astris.IterItems;
 import org.opensimkit.models.astris.RegulationItems;
 import org.opensimkit.models.astris.TimeStepItems;
