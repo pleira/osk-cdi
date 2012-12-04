@@ -13,7 +13,7 @@
 *
 */
 
-package org.opensimkit.console;
+package org.osk.console;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -1,4 +1,4 @@
-package org.opensimkit.interceptors;
+package org.osk.interceptors;
 
 import java.io.Serializable;
 

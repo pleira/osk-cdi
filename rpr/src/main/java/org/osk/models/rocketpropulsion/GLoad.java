@@ -39,7 +39,7 @@
  *
  */
 
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 /**
  * Computation of the polynomial approximation of the gravity acceleration
@@ -48,8 +48,6 @@ package org.opensimkit.models.rocketpropulsion;
  *
  * @author J. Eickhoff
  * @author A. Brandt
- * @version 1.0
- * @since 2.4.0
  */
 public final class GLoad {
 

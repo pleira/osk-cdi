@@ -1,4 +1,4 @@
-package org.opensimkit.console;
+package org.osk.console;
 
 // Subwindow class of GUI for cmd typing and for result log display.
 

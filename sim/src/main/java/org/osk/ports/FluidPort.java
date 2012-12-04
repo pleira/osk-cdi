@@ -1,9 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-package org.opensimkit.ports;
+package org.osk.ports;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
@@ -14,7 +9,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author A. Brandt
  */
-public class FluidPort extends BasePort {
+public class FluidPort  {
     private static final Logger LOG = LoggerFactory.getLogger(FluidPort.class);
      private String fluid;
      private double pressure;
@@ -25,8 +20,21 @@ public class FluidPort extends BasePort {
      private double boundaryTemperature;
      private double boundaryMassflow;
 
-    public FluidPort(final String name) {
-        super(name);
+     public FluidPort() {}
+     
+    public FluidPort(final double pressure, 
+    		final double temperature, final double massflow) {
+        this.massflow = massflow;
+        this.temperature = temperature;
+        this.pressure = pressure;
+    }
+    
+    public FluidPort(final String name, String fluid, final double pressure, 
+    		final double temperature, final double massflow) {
+    	this.fluid = fluid;
+    	this.massflow = massflow;
+        this.temperature = temperature;
+        this.pressure = pressure;
     }
 
     public void setFluid(final String fluid) {
@@ -101,8 +109,7 @@ public class FluidPort extends BasePort {
         return boundaryMassflow;
     }
 
-    @Override
-    public void printValues(final String txt) {
+     public void printValues(final String txt) {
         LOG.info("Fluid: {}", fluid);
         LOG.info("Pressure: {}", pressure);
         LOG.info("Temperature: {}", temperature);
@@ -118,7 +125,6 @@ public class FluidPort extends BasePort {
     public String toString() {
         StringBuilder result = new StringBuilder();
 
-        result.append(this.getClass().getName());
         result.append(": fluid == ");
         result.append(fluid);
         result.append("; pressure == ");

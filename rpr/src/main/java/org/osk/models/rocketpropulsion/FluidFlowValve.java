@@ -50,17 +50,17 @@
  *      A. Brandt
  *
 */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.AnalogPort;
-import org.opensimkit.ports.PureLiquidPort;
+import org.osk.models.BaseModel;
+import org.osk.ports.AnalogPort;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for fluid flow valve.
@@ -90,25 +90,13 @@ public abstract class FluidFlowValve extends BaseModel {
 
 	private static final String TYPE = "FluidFlowValve";
 	private static final String SOLVER = "none";
-	private static final double MAXTSTEP = 10.0;
-	private static final double MINTSTEP = 0.001;
 	
-	protected final PureLiquidPort inputPort;
-	protected final PureLiquidPort outputPort;
-	protected final AnalogPort controlPort;
-	
-    public FluidFlowValve(String name, PureLiquidPort inputPort,
-			PureLiquidPort outputPort, AnalogPort controlPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-		this.inputPort = inputPort;
-		this.outputPort = outputPort;
-		this.controlPort = controlPort;		
+    public FluidFlowValve() {
+        super(TYPE, SOLVER);
 	}
 
-    @Override    
 	@PostConstruct
     public void init() {
-    	completeConnections();
         massflow = 0.0;
         localtime = 0.0;
         //controlValue = 0.0;
@@ -117,59 +105,8 @@ public abstract class FluidFlowValve extends BaseModel {
            controValue = 1. */
         referencePressureLoss = referencePressureLoss * 1.E5;
     }
-
-    void completeConnections() {
-        inputPort.setToModel(this);
-        outputPort.setFromModel(this);
-        controlPort.setFromModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPort.getName()  + "," + controlPort.getName() + ")" );
-    }
-
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        LOG.info("% {} TimeStep-Computation", name);
-
-        controlValue = controlPort.getAnalogValue();
-        LOG.info("Reading controlValue: '{}'", controlValue);
-        if (controlValue < 0.0) {
-            controlValue = 0.0;
-        }
-        LOG.info("Corrected controlValue: '{}'", controlValue);
-
-        fluid = inputPort.getFluid();
-        pin   = inputPort.getPressure();
-        tin   = inputPort.getTemperature();
-        mfin  = inputPort.getMassflow();
-
-        /* Skip time step computation if no flow in Valve. */
-        if (mfin <= 1.E-6) {
-            localtime = localtime + 0.5;
-            return 0;
-        }
-        /* Currently no complex timestep physics forseen here yet. */
-        if (localtime == 0.0) {
-            massflow = mfin;
-        } else {
-            massflow = referenceMassFlow * controlValue;
-        }
-        DP = referencePressureLoss * massflow / 5.0;
-        pout = pin - DP;
-        tout = tin;
-        mfout = massflow;
-        LOG.info("Massflow: '{}'", massflow);
-
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(pout);
-        outputPort.setTemperature(tout);
-        outputPort.setMassflow(mfout);
-        localtime = localtime + 0.5;
-        return 0;
-    }
-    
-	@Override
-    public int iterationStep() {
-        LOG.info("% {} IterationStep-Computation", name);
-
+	   
+    public FluidPort iterationStep(FluidPort inputPort, AnalogPort controlPort) {
         controlValue = controlPort.getAnalogValue();
         LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
@@ -196,12 +133,7 @@ public abstract class FluidFlowValve extends BaseModel {
             tout  = tin;
             mfout = mfin;
             LOG.info("Massflow: '{}'", mfout);
-
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfout);
-            return 0;
+            return createOutputPort();
         }
 
         /**********************************************************************/
@@ -217,24 +149,44 @@ public abstract class FluidFlowValve extends BaseModel {
         DP = referencePressureLoss * mfin / 5.0;
         pout = pin - DP;
         tout = tin;
+        mfout = massflow;        
+        return createOutputPort();        
+    }
+   
+    public FluidPort timeStep(FluidPort inputPort, AnalogPort controlPort) {
+        controlValue = controlPort.getAnalogValue();
+        LOG.info("Reading controlValue: '{}'", controlValue);
+        if (controlValue < 0.0) {
+            controlValue = 0.0;
+        }
+        LOG.info("Corrected controlValue: '{}'", controlValue);
+
+        fluid = inputPort.getFluid();
+        pin   = inputPort.getPressure();
+        tin   = inputPort.getTemperature();
+        mfin  = inputPort.getMassflow();
+
+        /* Skip time step computation if no flow in Valve. */
+        if (mfin <= 1.E-6) {
+            localtime = localtime + 0.5;
+            return new FluidPort();
+        }
+        /* Currently no complex timestep physics forseen here yet. */
+        if (localtime == 0.0) {
+            massflow = mfin;
+        } else {
+            massflow = referenceMassFlow * controlValue;
+        }
+        DP = referencePressureLoss * massflow / 5.0;
+        pout = pin - DP;
+        tout = tin;
         mfout = massflow;
-
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(pout);
-        outputPort.setTemperature(tout);
-        outputPort.setMassflow(mfout);
-
-        return 0;
+        LOG.info("Massflow: '{}'", massflow);
+        localtime = localtime + 0.5;
+        return createOutputPort();
     }
 
-
-    @Override
-    public int backIterStep() {
-        int result;
-
-        result = 0;
-        LOG.info("% {} BackIteration-Computation", name);
-
+    public FluidPort backIterStep(FluidPort outputPort, AnalogPort controlPort) {
         controlValue = controlPort.getAnalogValue();
         LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
@@ -243,16 +195,10 @@ public abstract class FluidFlowValve extends BaseModel {
         LOG.info("Corrected controlValue: '{}'", controlValue);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on port 1 cannot"
-                    + " be handled!", name);
-            //    nonResumeFlag = 1;
-            result = 1;
+            LOG.error("Error! Pressure request on port 1 cannot be handled!");
         }
         if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on port 1 cannot "
-                    + "be handled!", name);
-            //    nonResumeFlag = 1;
-            result = 1;
+            LOG.error("Error! Temp. request on port 1 cannot be handled!");
         }
 
         /* Init massflow:
@@ -265,14 +211,27 @@ public abstract class FluidFlowValve extends BaseModel {
          */
         LOG.info("Massflow: '{}'", massflow);
 
-        inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
+        return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
+    }
+
+	public FluidPort createBoundaryPort(String fluid, double mflow) {
+		FluidPort inputPort = new FluidPort();
+        inputPort.setBoundaryFluid(fluid);
         inputPort.setBoundaryPressure(-999999.99);
         inputPort.setBoundaryTemperature(-999999.99);
-        inputPort.setBoundaryMassflow(massflow);
+        inputPort.setBoundaryMassflow(mflow);
+		return inputPort;
+	}	
 
-        return result;
-    }	
-
+    
+   	public FluidPort createOutputPort() {
+   		FluidPort outputPort = new FluidPort();
+   		outputPort.setFluid(fluid);
+   		outputPort.setPressure(pout);
+   		outputPort.setTemperature(tout);
+   		outputPort.setMassflow(mfout);
+   		return outputPort;
+   	}
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

@@ -69,26 +69,25 @@
  *-----------------------------------------------------------------------------
  */
 
-package org.opensimkit.solver;
+package org.osk.solver;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
-import org.opensimkit.SimHeaders;
-import org.opensimkit.SimulatorState;
-import org.opensimkit.TimeHandler;
-import org.opensimkit.interceptors.AuditTime;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.models.Model;
-import org.opensimkit.models.astris.IterItems;
-import org.opensimkit.models.astris.RegulationItems;
-import org.opensimkit.models.astris.TimeStepItems;
+import org.osk.SimHeaders;
+import org.osk.SimulatorState;
+import org.osk.TimeHandler;
+import org.osk.events.BackIter;
+import org.osk.events.Iter;
+import org.osk.events.Iteration;
+import org.osk.events.RegulIter;
+import org.osk.events.TimeIteration;
+import org.osk.interceptors.AuditTime;
 import org.slf4j.Logger;
 
 /**
@@ -102,25 +101,21 @@ import org.slf4j.Logger;
  */
 @ApplicationScoped
 public class SeqModSim  {
-    @Inject Logger LOG; // = LoggerFactory.getLogger(SeqModSim.class);
-    private final String      name;
-    @Inject TimeHandler timeHandler;
+    @Inject Logger LOG; 
+    public final String    name = "Simulation";
+    @Inject TimeHandler    timeHandler;
     private boolean        isComputing;
     private double         time;
     private double         tinit;
     private SimulatorState state;
    
-    // This class iterates over the models 
-    @Inject @TimeStepItems Collection<Model> timeStepModels;
-    @Inject @RegulationItems Collection<Model> regulationModels;
-    @Inject @IterItems Collection<Model> iterModels;
     @Inject SimHeaders simHeaders;
     
-    @Inject
-    public SeqModSim() {
-        this.name        = "Simulation";
-    }
-    
+    @Inject @Iter Event<Iteration> iterEvent;
+    @Inject @BackIter Event<Iteration> backIterEvent;
+    @Inject @RegulIter Event<Iteration> regulIterEvent;
+    @Inject Event<TimeIteration> timeEvent;
+   
     public void printSimSettings() {
         LOG.info("Simulation: Step size is: {}.",
                 timeHandler.getStepSizeAsDouble());
@@ -138,8 +133,6 @@ public class SeqModSim  {
  //       ExecutorService service = Executors.newSingleThreadExecutor();
 //		service.submit(this);
 
-        LOG.info(simHeaders.DEBUG_SHORT, "Compute");
-
         time  = timeHandler.getSimulatedMissionTimeAsDouble();
         tinit = timeHandler.getSimulatedMissionTimeAsDouble();
 
@@ -147,69 +140,23 @@ public class SeqModSim  {
         LOG.info("Time: {}", time);
         
         LOG.info("Initial system boundary condition iteration...\n");
-        iterationCalc();  // Iteration-Step t=0
-
+        
+         // Iteration-Step t=0
+        iterEvent.fire(new Iteration());
         time = tinit;
 
         while (true) {
-                computeState();
+            timeEvent.fire(new TimeIteration(time, timeHandler.getStepSizeAsDouble()));
+            backIterEvent.fire(new Iteration());
+            regulIterEvent.fire(new Iteration());
+            time = time + timeHandler.getStepSizeAsDouble();
 
-                LOG.info("Time: {}",
-                        String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
-                        timeHandler.getSimulatedMissionTime()));
+            LOG.info("Time: {}",
+               String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
+               timeHandler.getSimulatedMissionTime()));
         }
     }
 
-    @AuditTime
-	public void computeState() {
-
-    	LOG.info(SimHeaders.DEBUG_SHORT, "TimeStep computation ");
-		calc(time, timeHandler.getStepSizeAsDouble());
-		LOG.info(SimHeaders.DEBUG_SHORT, "RegulStep computation ");
-		regulationCalc();
-		LOG.info(SimHeaders.DEBUG_SHORT, "IterationStep computation ");
-		iterationCalc();
-		/* Update the TimeHandler. This increases the time by stepSize
-		 * and signals a finished time step. */
-		timeHandler.update();
-	}
-
-    private void iterationCalc() {
-
-            Iterator it = iterModels.iterator();
-            while (it.hasNext()) {
-                BaseModel model = (BaseModel) it.next();
-                if (model.iterationStep() != 0) {
-                    // The only registered object is the main mesh.
-                    LOG.info("Model {} - iteration step error!", model.getName());
-        			System.exit(1);
-                }
-            }
-	}
-
-	private void regulationCalc() {
-
-            Iterator it = regulationModels.iterator();
-            while (it.hasNext()) {
-                BaseModel model = (BaseModel) it.next();
-                if (model.regulStep() != 0) {   
-                    LOG.info("Model {} - regulation step error!", model.getName());
-        			System.exit(1);
-                }
-            }
-	}
-
-	private void calc(final double time, final double tStepSize) {
-
-            Iterator it = timeStepModels.iterator();
-            while (it.hasNext()) {
-                BaseModel model = (BaseModel) it.next();
-                if (model.timeStep(time, tStepSize) != 0) {
-                	LOG.info("Model {} - timeStep step error!", model.getName());
-        			System.exit(1);
-                }
-            }
-        }
 
     public String getName() {
         return name;

@@ -1,4 +1,4 @@
-package org.opensimkit.interceptors;
+package org.osk.interceptors;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;

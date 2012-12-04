@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.opensimkit.oskpacket;
+package org.osk.oskpacket;
 
 import java.nio.ByteBuffer;
 import org.junit.After;

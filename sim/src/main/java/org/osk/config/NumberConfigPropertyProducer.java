@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.opensimkit.config;
+package org.osk.config;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;

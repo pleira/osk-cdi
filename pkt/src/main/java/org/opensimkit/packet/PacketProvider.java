@@ -18,7 +18,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.packet;
+package org.osk.packet;
 
 /**
  * This is the Packet Provider interface which is used to create TM/TC packets.

@@ -1,6 +1,6 @@
-package org.opensimkit.frames;
+package org.osk.frames;
 
-import org.opensimkit.events.ECEFpv;
+import org.osk.events.ECEFpv;
 
 public class ECEFBuilder {
 	

@@ -13,7 +13,7 @@
 *
 */
 
-package org.opensimkit.console;
+package org.osk.console;
 
 import java.io.BufferedReader;
 import java.io.File;

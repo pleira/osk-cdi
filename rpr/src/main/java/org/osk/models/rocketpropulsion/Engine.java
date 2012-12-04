@@ -54,22 +54,18 @@
  *
  *-----------------------------------------------------------------------------
  */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.events.D4Value;
-import org.opensimkit.events.ECEFpv;
-import org.opensimkit.events.Thrust;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.PureLiquidPort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.events.D4Value;
+import org.osk.models.BaseModel;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 /**
  * Model definition for an engine.
  *
@@ -77,10 +73,10 @@ import org.slf4j.LoggerFactory;
  * @author A. Bohr
  * @author A. Brandt
  * @author J. Eickhoff
- * @version 3.0
- * @since 2.6.0
+ * @author P. Pita
+ * 
  */
-public abstract class Engine extends BaseModel {
+public class Engine extends BaseModel {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
 	/** Reference force. */
@@ -143,13 +139,7 @@ public abstract class Engine extends BaseModel {
 
 	private static final String TYPE = "Engine";
 	private static final String SOLVER = "none";
-	private static final double MAXTSTEP = 10.0;
-	private static final double MINTSTEP = 0.001;
-
-	private final PureLiquidPort inputPortFuel;
-	private final PureLiquidPort inputPortOxidizer;
   
-    @Inject @Thrust Event<D4Value> events;
     
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -167,36 +157,44 @@ public abstract class Engine extends BaseModel {
     input file.
     ----------------------------------------------------------------------*/
 
-    public Engine(final String name, PureLiquidPort inputPortOxidizer, 
-    		PureLiquidPort inputPortFuel) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-        this.inputPortOxidizer = inputPortOxidizer;
-        this.inputPortFuel = inputPortFuel;
+    public Engine() {
+        super(TYPE, SOLVER);
     }
 
-    @Override
     @PostConstruct
     public void init() {
-        LOG.info("% {} Init-Computation", name);
         localtime = 0.0;
         thrustVector[0] = 0;
         thrustVector[1] = 1;
         thrustVector[2] = 0;
         thrustVector[3] = 0;
-    	completeConnections();
     }
 
-    void completeConnections() {
-    	inputPortFuel.setToModel(this);
-        inputPortOxidizer.setToModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPortFuel.getName()  + "," + inputPortOxidizer.getName() + ")" );
-    }
 
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
+    public void iterationStep(FluidPort inputPortFuel, FluidPort inputPortOxidizer) {
+        /* Fuel: */
+        pin0  = inputPortFuel.getPressure();
+        tin0  = inputPortFuel.getTemperature();
+        mfin0 = inputPortFuel.getMassflow();
+        /* Oxidizer: */
+        pin1  = inputPortOxidizer.getPressure();
+        tin1  = inputPortOxidizer.getTemperature();
+        mfin1 = inputPortOxidizer.getMassflow();
+
+        /* Check whether boundary condition is fulfilled.....
+         * (Equality of set and received mass flow). */
+        if ((Math.abs(mfin0 - requestedFuelFlow) < 0.005)
+                && (Math.abs(mfin1 - requestedOxFlow) < 0.005)) {
+            /* Iteration of upward propulsion system successful. */
+        } else {
+            /* Otherwise reinitiate another propulsion system iteration... */
+            requestedFuelFlow = mfin0;
+            requestedOxFlow = mfin1;
+        }
+    }
+	
+    public D4Value timeStep(FluidPort inputPortFuel, FluidPort inputPortOxidizer) {
         localtime = localtime + 0.5;
-
-        LOG.info("% {} TimeStep-Computation", name);
 
         /* Fuel: */
         mfin0 = inputPortFuel.getMassflow();
@@ -219,8 +217,7 @@ public abstract class Engine extends BaseModel {
             thrustVector[1] = 1;
             thrustVector[2] = 0;
             thrustVector[2] = 0;
-            return 0;
-
+            
         } else {
 
             /******************************************************************/
@@ -248,8 +245,8 @@ public abstract class Engine extends BaseModel {
                 rhoa = pa/(286.9*(Ta+273.15));
             
             } else {
-                LOG.error("% {} Engine: Negative altitude", name);
-                return -1;
+                LOG.error("% Engine: Negative altitude");
+                return new D4Value(null);
             }
             
             /******************************************************************/
@@ -286,12 +283,15 @@ public abstract class Engine extends BaseModel {
                     + 0.1493*Math.pow(OF,2) - 0.3251*OF + 1.5081;
 
             /*Nozzle exit pressure pe*/
-            pe = newton( k, areaRatio, pc);
-
+            pe = NumericalUtils.newton( k, areaRatio, pc);
+            if (pe == 0.0) {
+            LOG.error("% Engine: Iteration for nozzle exit " +
+                    "pressure, no solution found");
+            }
             /*Check for flow separation in nozzle flow: Summerfield pe<0.4*pa */
             if ( pe < 0.4*pa ) {
-                LOG.info("% {} Engine: Flow separation in nozzle. " +
-                       "Thrust value is not realistic", name);
+                LOG.info("% Engine: Flow separation in nozzle. " +
+                       "Thrust value is not realistic");
                 /* Thrust factor cf */
                 /* Source: Space Propulsion Analysis and Design p.112 3.129 */
                 cf = 1.0; /*No thrust from nozzle due to flow separation*/
@@ -307,120 +307,37 @@ public abstract class Engine extends BaseModel {
             thrustVector[1] = 1;
             thrustVector[2] = 0;
             thrustVector[2] = 0;
-            
-            events.fire(new D4Value(thrustVector));
-            
-            return 0;
+                        
         }
+        D4Value thrust = new D4Value(thrustVector);
+   //     events.fire(thrust);
+        return thrust;
     }
 
-    
-    /***************************************************************************
-    *                                                                          *
-    *    Calculate nozzle exit pressure pe from chamber pressure pc            *
-    *    assuming adiabatic isentropic 1D-flow                                 *
-    *    Iterative Newton-method                                               *
-    *                                                                          *
-    ***************************************************************************/
-    public double newton(final double k, final double areaRatio,
-                         final double pc) {
-        double newp;
-        double oldp = 0.0;
-        double t1, t2;      /*t1, t2 temporary variables                */
-        double F;           /*Formulae for nozzle area ratio            */
-        /* Source: Space Propulsion Analysis and Design p.102 3.100     */
-
-        double dF;          /*Derivative of F to (pe/pc): dF/d(pe/pc)   */
-        int i = 0;
-
-        newp = 1E3 / pc ; //Start value for iteration
-        while ( (Math.abs(oldp - newp) > 0.00001 ) || ( i == 0 ) )
-        {
-            i = i + 1;
-            oldp = newp;
-            t1 = Math.pow(( 2 / ( k + 1 )),( 1 / ( k - 1 )))
-                    * Math.pow((( k + 1 )/( k - 1 )),( -0.5 ));
-            t2 = Math.pow(oldp,( - 1 / k ))*
-                    Math.pow(( 1 - Math.pow( oldp, (( k - 1 )/ k ))),( -0.5 ));
-            F = areaRatio / t1 - t2;
-
-            t2 = ( - 1 / k)*Math.pow(oldp,( -1 - 1 / k))*
-                    Math.pow(( 1 - Math.pow(oldp,(( k - 1 ) / k))),( -0.5 ));
-            dF = areaRatio / t1 - t2 + Math.pow(oldp,( -1 / k)) *
-                    ( - (( k - 1 ) / ( 2 * k ))
-                    *Math.pow(oldp,((( k - 1 ) / k ) - 1 ))*
-                    Math.pow(( 1 - Math.pow(oldp,(( k - 1 ) / k ))),( -1.5 )));
-              newp = oldp - F / dF;
-              if (i >= 100 || newp < 0.0 ) {
-                  newp=1E2/pc; /*Assuming 1mbar pe*/
-                  LOG.info("% {} Engine: Iteration for nozzle exit " +
-                          "pressure, no solution found", name);
-                  break; /* oder abbrechen return 0*/
-              }
-        }
-        pe = newp * pc;
-        return pe;
-    }
-
-    @Override
-    public int iterationStep() {
-        LOG.info("% {} IterationStep-Computation", name);
-
-        /* Fuel: */
-        pin0  = inputPortFuel.getPressure();
-        tin0  = inputPortFuel.getTemperature();
-        mfin0 = inputPortFuel.getMassflow();
-        /* Oxidizer: */
-        pin1  = inputPortOxidizer.getPressure();
-        tin1  = inputPortOxidizer.getTemperature();
-        mfin1 = inputPortOxidizer.getMassflow();
-
-        /* Check whether boundary condition is fulfilled.....
-         * (Equality of set and received mass flow). */
-        if ((Math.abs(mfin0 - requestedFuelFlow) < 0.005)
-                && (Math.abs(mfin1 - requestedOxFlow) < 0.005)) {
-            /* Iteration of upward propulsion system successful. */
-            return 0;
-        } else {
-            /* Otherwise reinitiate another propulsion system iteration... */
-            requestedFuelFlow = mfin0;
-            requestedOxFlow = mfin1;
-            return -1;
-        }
-    }
-
-
-    @Override
-    public int backIterStep() {
-        LOG.info("% {} BackIteration-Computation", name);
+    public ImmutablePair<FluidPort,  FluidPort> backIterStep() {
 
         if (localtime == 0.0) {
             requestedFuelFlow = ignitionFuelFlow;
             requestedOxFlow = ignitionOxidizerFlow;
         }
 
-        /* Fuel: */
-        inputPortFuel.setBoundaryFluid("Fuel");
-        inputPortFuel.setBoundaryPressure(-999999.99);
-        inputPortFuel.setBoundaryTemperature(-999999.99);
-        inputPortFuel.setBoundaryMassflow(requestedFuelFlow);
-        /* Oxidizer: */
-        inputPortOxidizer.setBoundaryFluid("Oxidizer");
-        inputPortOxidizer.setBoundaryPressure(-999999.99);
-        inputPortOxidizer.setBoundaryTemperature(-999999.99);
-        inputPortOxidizer.setBoundaryMassflow(requestedOxFlow);
+        FluidPort inputPortFuel = createBoundaryPort("Fuel", requestedFuelFlow);
+        FluidPort inputPortOxidizer = createBoundaryPort("Oxidizer", requestedOxFlow);
+        return new ImmutablePair<FluidPort,  FluidPort>(inputPortFuel, inputPortOxidizer);
 
-        return 0;
     }
-    
-	public void altitudeHandler(@Observes ECEFpv pv) {
-		alt = pv.getAltitude();
-	}
 
-	
+	public FluidPort createBoundaryPort(String fluid, double requestedFlow) {
+		FluidPort inputPort = new FluidPort();
+        inputPort.setBoundaryFluid(fluid);
+        inputPort.setBoundaryPressure(-999999.99);
+        inputPort.setBoundaryTemperature(-999999.99);
+        inputPort.setBoundaryMassflow(requestedFlow);
+		return inputPort;
+	}
+   	
 	//----------------------------------------
     // Methods added for JMX monitoring	
-
     
     @ManagedAttribute
     public double getIgnitionFuelFlow() {

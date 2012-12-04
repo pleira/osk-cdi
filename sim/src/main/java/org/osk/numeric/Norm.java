@@ -45,7 +45,7 @@
  *
  */
 
-package org.opensimkit.numeric;
+package org.osk.numeric;
 
 /**
  * This program computes the maximum difference of value pairs F1-F2 of the
@@ -53,8 +53,6 @@ package org.opensimkit.numeric;
  *
  * @author J. Eickhoff
  * @author A. Brandt
- * @version 1.0
- * @since 2.4.0
  */
 public final class Norm {
 

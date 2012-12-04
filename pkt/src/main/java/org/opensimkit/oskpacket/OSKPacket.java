@@ -3,7 +3,7 @@
  *
  * Created on 10. December 2008, 18:32
  *
- *  The OSK Packet class implements the {@link org.opensimkit.Packet} interface.
+ *  The OSK Packet class implements the {@link org.osk.Packet} interface.
  *  This class is immutable.
  *
  *-----------------------------------------------------------------------------
@@ -18,15 +18,15 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.oskpacket;
+package org.osk.oskpacket;
 
 import java.nio.ByteBuffer;
 import java.util.Formatter;
-import org.opensimkit.packet.Packet;
-import org.opensimkit.packet.PacketValidationException;
+import org.osk.packet.Packet;
+import org.osk.packet.PacketValidationException;
 
 /**
- * The OSK Packet class implements the {@link org.opensimkit.packet} interface.
+ * The OSK Packet class implements the {@link org.osk.packet} interface.
  * This class is immutable.
  *
  * <table border="1">

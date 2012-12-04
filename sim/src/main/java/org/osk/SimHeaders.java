@@ -1,60 +1,18 @@
 /*
- * this.java
- *
- * Created on 3. Juli 2007, 22:40
- *
- *  Header file with definition of a min. set of global
- *  control variables & references used in OpenSim models.
- *
- *-----------------------------------------------------------------------------
- *
- *  2004-12-05
- *      File created  J. Eickhoff:
- *
- *      File is a derivative from ObjectSim 2.0.3.,
- *      a simulation program published in:
- *
- *        Eickhoff, J.:
- *        Modulare Programmarchitektur fuer ein wissensbasiertes
- *        Simulationssystem mit erweiterter Anwendbarkeit in der
- *        Entwicklung und Betriebsberwachung verfahrenstechnischer
- *        Anlagen.
- *        PhD thesis in Department Process Engineering of
- *        TU Hamburg-Harburg, 1996.
- *
- *      See also file history cited there and see historic relation of
- *      this OpenSimKit class to a.m. ObjectSim explained in
- *      OpenSimKit Documentation.
- *
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by author.
  *
- *  2006-03
- *      OpenSimKit V 2.3
- *      Modifications entered for cleaner handling of globals.
- *      Modifications enterd for I/O file handling via cmd line arguments.
- *      J. Eickhoff
- *
- *  2008-05
- *      OpenSimKit V 2.4
- *      Ported from C++ to Java
- *      A. Brandt  alexander.brandt@gmail.com
- *
- *  2009-06
- *     Integrated logging support.
- *     T. Pieper
- *
  */
 
-package org.opensimkit;
+package org.osk;
 
 import java.io.FileWriter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.opensimkit.config.NumberConfig;
+import org.osk.config.NumberConfig;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
@@ -65,8 +23,6 @@ import org.slf4j.MarkerFactory;
  * @author J. Eickhoff
  * @author A. Brandt
  * @author T. Pieper
- * @version 1.1
- * @since 2.4.0
  */
 @ApplicationScoped
 public class SimHeaders {

@@ -1,4 +1,4 @@
-package org.opensimkit.console;
+package org.osk.console;
 
 /**
  * This is the thread reading command lines from the cmd console window.

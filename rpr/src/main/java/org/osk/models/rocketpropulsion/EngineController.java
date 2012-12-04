@@ -1,7 +1,7 @@
 /*
  * EngineController.java
  *
- *  Model definition for a controller component provding 2 analog output ports.
+ *  Model definition for a controller component providing 2 analog output ports.
  *  Control Function is time dependent and is currently hard coded inside model.
  *
  *                 +-------------------------+
@@ -14,55 +14,30 @@
  *
  *
  *-----------------------------------------------------------------------------
- * Modification History:
- *
- *  2009-07-21
- *      File created  J. Eickhoff:
- *
  *      File under GPL  see OpenSimKit Documentation.
- *
- *      No warranty and liability for correctness by author.
- *
- *
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A.Brandt
- *
- *
- *  2009-11
- *      OpenSimKit V 3.1.1
- *      Fixed bug in time handling.
- *      J. Eickhoff
  */
- package org.opensimkit.models.rocketpropulsion;
-
- import java.io.FileWriter;
-import java.io.IOException;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.events.TimeStep;
+import org.osk.models.BaseModel;
+import org.osk.ports.AnalogPort;
 
-import org.opensimkit.SimHeaders;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.AnalogPort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
- * Model definition for a controller component provding 2 analog output ports.
+ * Model definition for a controller component providing 2 analog output ports.
  * Control Function is time dependent and is currently hard coded inside model.
  *
  * @author J. Eickhoff
- * @version 1.2
- * @since 2.6.8
  */
-public abstract class EngineController extends BaseModel {
+public class EngineController extends BaseModel {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(EngineController.class);
+//	@Inject Logger LOG;
+	@Inject @TimeStep Double timeStep;
 
 	/** Commandeable control value. */
 	private double controlRangeMax;
@@ -76,19 +51,11 @@ public abstract class EngineController extends BaseModel {
 
 	private static final String TYPE = "EngineController";
 	private static final String SOLVER = "none";
-	private static final double MAXTSTEP = 10.0;
-	private static final double MINTSTEP = 0.001;
 
-	final AnalogPort controlPort1;
-	final AnalogPort controlPort2;
-
-    public EngineController(final String name, AnalogPort controlPort1, AnalogPort controlPort2) {
-         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-         this.controlPort1 = controlPort1;
-         this.controlPort2 = controlPort2;
+    public EngineController() {
+         super(TYPE, SOLVER);
     }
 
-    @Override
     @PostConstruct
     public void init() {
         /* Computation of derived initialization parameters. */
@@ -96,18 +63,9 @@ public abstract class EngineController extends BaseModel {
         controlValueActual = controlRangeMax;
         controlValue1 = controlValueActual * controlValue1Nom;
         controlValue2 = controlValueActual * controlValue2Nom;
-     	completeConnections();
     }
     
-    void completeConnections() {
-    	controlPort1.setToModel(this);
-    	controlPort2.setToModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + controlPort1.getName()  + "," + controlPort2.getName() + ")" );
-    }
-
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        LOG.info("% {} TimeStep-Computation", name);
+    public ImmutablePair<AnalogPort, AnalogPort> timeStep() {
 
         /**
          * Time dependent functionality of the controller has to be computed
@@ -115,42 +73,35 @@ public abstract class EngineController extends BaseModel {
          * part. For this simple controller signal reduction is computed keeping
          * relation of signals to each other.
          */
-        if (localtime == 0.0) {
-        localtime = localtime + tStepSize;
-            return 0;
+    	localtime = localtime + timeStep;
+        if (localtime == timeStep) {
+            return createNewControlSignal();
         }
-        localtime = localtime + tStepSize;
-        controlValueActual = controlValueActual - 0.001*tStepSize/0.5;
+        controlValueActual = controlValueActual - 0.001*timeStep/0.5;
         if (controlValueActual < controlRangeMin) {
             controlValueActual = controlRangeMin;
         }
         controlValue1 = controlValueActual * controlValue1Nom;
         controlValue2 = controlValueActual * controlValue2Nom;
-        LOG.info("controlValue1:  '{}' ", controlValue1);
-        LOG.info("controlValue2:  '{}' ", controlValue2);
-
-        controlPort1.setAnalogValue(controlValue1);
-        controlPort2.setAnalogValue(controlValue2);
-       return 0;
+        return createNewControlSignal();
     }
 
-
-    @Override
-    public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
-        LOG.info("controlValue1:  '{}' ", controlValue1);
-        LOG.info("controlValue2:  '{}' ", controlValue2);
-
+    public ImmutablePair<AnalogPort, AnalogPort> regulStep(AnalogPort controlPort1, AnalogPort controlPort2) {
         controlPort1.setAnalogValue(controlValue1);
         controlPort2.setAnalogValue(controlValue2);
-
-        return 0;
+        return new ImmutablePair<AnalogPort, AnalogPort> (controlPort1, controlPort2);
     }
 
+	public ImmutablePair<AnalogPort, AnalogPort> createNewControlSignal() {
+		AnalogPort controlPort1 = new AnalogPort();
+		AnalogPort controlPort2 = new AnalogPort();
+		controlPort1.setAnalogValue(controlValue1);
+		controlPort2.setAnalogValue(controlValue2);
+		return new ImmutablePair<AnalogPort, AnalogPort> (controlPort1, controlPort2);
+	}
 
 	//----------------------------------------
     // Methods added for JMX monitoring	
-
 
 	@ManagedAttribute
     public double getControlRangeMax() {
@@ -222,16 +173,6 @@ public abstract class EngineController extends BaseModel {
 
 	public void setLocaltime(double localtime) {
 		this.localtime = localtime;
-	}
-
-	@ManagedAttribute
-	public AnalogPort getControlPort1() {
-		return controlPort1;
-	}
-
-	@ManagedAttribute
-	public AnalogPort getControlPort2() {
-		return controlPort2;
 	}
     
 }

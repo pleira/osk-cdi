@@ -53,7 +53,7 @@
  *     T. Pieper
  *
  */
-package org.opensimkit.materials;
+package org.osk.materials;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +65,6 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author A. Brandt
  * @author T. Pieper
- * @version 1.1
- * @since 2.4.0
  */
 public final class HeliumJKC {
     private static final Logger LOG = LoggerFactory.getLogger(HeliumJKC.class);

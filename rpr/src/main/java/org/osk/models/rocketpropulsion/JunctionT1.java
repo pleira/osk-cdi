@@ -79,20 +79,18 @@
  *      Upgraded for handling of new port classes.
  *      A. Brandt
  */
-package org.opensimkit.models.rocketpropulsion;
-
-import java.io.FileWriter;
-import java.io.IOException;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.SimHeaders;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.PureGasPort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.SimHeaders;
+import org.osk.models.BaseModel;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe junction. Model for connecting two pure gas
@@ -101,8 +99,6 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
- * @version 1.4
- * @since 2.4.0
  */
 public class JunctionT1 extends BaseModel {
 	/** Logger instance for the JunctionT1. */
@@ -133,28 +129,13 @@ public class JunctionT1 extends BaseModel {
 
 	private static final String TYPE = "JunctionT1";
 	private static final String SOLVER = "none";
-	private static final double MAXTSTEP = 1.0E6;
-	private static final double MINTSTEP = 1.0E-6;
-	private static final int TIMESTEP = 0;
-	
-
-	private PureGasPort inputPortLeft;
-	private PureGasPort inputPortRight;
-	private PureGasPort outputPort;
-
     
-    public JunctionT1(final String name, PureGasPort inputPortLeft, 
-    		PureGasPort inputPortRight, PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-        this.outputPort = outputPort;
-        this.inputPortLeft = inputPortLeft;
-        this.inputPortRight = inputPortRight;
+    public JunctionT1() {
+        super(TYPE, SOLVER);
     }
 
-    @Override
     @PostConstruct
     public void init() {
-    	completeConnections();
         /* Computation of derived initialization parameters. */
         /* Initializing split factor. */
         splitfactor = 0.5;
@@ -163,19 +144,10 @@ public class JunctionT1 extends BaseModel {
         startflag = 0;
     }
 
-    void completeConnections() {
-     	inputPortLeft.setToModel(this);
-     	inputPortRight.setToModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPortLeft.getName()  + "," + inputPortRight.getName() + ")" );
-     }
-
-    @Override
-    public int iterationStep() {
+    public FluidPort  iterationStep(FluidPort inputPortLeft, FluidPort inputPortRight) {
         String fluid;
         int    result;
         double newSplitfactor;
-
-        LOG.info("% {} IterationStep-Computation", name);
 
         pinLeft   = inputPortLeft.getPressure();
         tinLeft   = inputPortLeft.getTemperature();
@@ -191,37 +163,19 @@ public class JunctionT1 extends BaseModel {
             mfout = 0.0;
             pout  = (pinLeft + pinRight) / 2.;
             tout  = (tinLeft + tinRight) / 2.;
-
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfout);
-
-            return 0;
+            return createOutputPort(fluid);
         } else if (mfinLeft == 0.0) {
             fluid = inputPortRight.getFluid();
             mfout = mfinRight;
             pout  = pinRight;
             tout  = tinRight;
-
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfout);
-
-            return 0;
+            return createOutputPort(fluid);
         } else if (mfinRight == 0.0) {
             fluid = inputPortLeft.getFluid();
             mfout = mfinLeft;
             pout  = pinLeft;
             tout  = tinLeft;
-
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfout);
-
-            return 0;
+            return createOutputPort(fluid);
         }
 
         //Readjust mass flow requests for backward iteration,
@@ -260,53 +214,32 @@ public class JunctionT1 extends BaseModel {
                 + tinRight * mfinRight)
                 / (mfinLeft + mfinRight);
 
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(pout);
-        outputPort.setTemperature(tout);
-        outputPort.setMassflow(mfout);
 
+        // FIXME Is this comment now right?
         // Return value indicates to mesh whether hydraulic cond. is fulfilled.
-        return result;
+        return createOutputPort(fluid);
     }
 
-
-    @Override
-    public int backIterStep() {
-        int result;
-
-        result = 0;
-
-        LOG.info("% {} BackIteration-Computation", name);
-
+    public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPort) {
         if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on port 2 cannot"
-                    + " be handled!", name);
-        //    nonResumeFlag = 1;
-            result = 1;
+            LOG.error("Pressure request on port 2 cannot be handled!");
         }
         if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on port 2 cannot"
-                    + " be handled!", name);
-        //    nonResumeFlag = 1;
-            result = 1;
+            LOG.error("Temp. request on port 2 cannot be handled!");
         }
-
-        inputPortLeft.setBoundaryFluid(outputPort.getBoundaryFluid());
-        inputPortLeft.setBoundaryPressure(-999999.99);
-        inputPortLeft.setBoundaryTemperature(-999999.99);
-        inputPortLeft.setBoundaryMassflow(
-            outputPort.getBoundaryMassflow() * splitfactor);
-
-        inputPortRight.setBoundaryFluid(outputPort.getBoundaryFluid());
-        inputPortRight.setBoundaryPressure(-999999.99);
-        inputPortRight.setBoundaryTemperature(-999999.99);
-        inputPortRight.setBoundaryMassflow(
-            outputPort.getBoundaryMassflow() * (1.0 - splitfactor));
-
-        return result;
+        FluidPort inputPortLeft = BoundaryUtils.createBoundaryPort(outputPort.getBoundaryFluid(), splitfactor * outputPort.getBoundaryMassflow());
+        FluidPort inputPortRight = BoundaryUtils.createBoundaryPort(outputPort.getBoundaryFluid(), (1 - splitfactor) * outputPort.getBoundaryMassflow());
+        return new ImmutablePair<FluidPort, FluidPort>(inputPortLeft, inputPortRight);
     }
 
-
+	public FluidPort createOutputPort(String fluid) {
+		FluidPort outputPort = new FluidPort();
+		outputPort.setFluid(fluid);
+		outputPort.setPressure(pout);
+		outputPort.setTemperature(tout);
+		outputPort.setMassflow(mfout);
+		return outputPort;
+	}
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
@@ -382,33 +315,5 @@ public class JunctionT1 extends BaseModel {
 	public void setMfout(double mfout) {
 		this.mfout = mfout;
 	}
-
-	@ManagedAttribute
-	public PureGasPort getInputPortLeft() {
-		return inputPortLeft;
-	}
-
-	public void setInputPortLeft(PureGasPort inputPortLeft) {
-		this.inputPortLeft = inputPortLeft;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getInputPortRight() {
-		return inputPortRight;
-	}
-
-	public void setInputPortRight(PureGasPort inputPortRight) {
-		this.inputPortRight = inputPortRight;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getOutputPort() {
-		return outputPort;
-	}
-
-	public void setOutputPort(PureGasPort outputPort) {
-		this.outputPort = outputPort;
-	}
-    
     
 }

@@ -1,31 +1,5 @@
 /*
- * OSKGravityModel.java
- *
- * Created on 20. February 2009
- *
- *
- *-----------------------------------------------------------------------------
- * Modification History:
- *
- *  2009-02-20
- *      File created  M. Kobald, A. Bohr:
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A. Brandt
- *
- *  2011-01
- *      Implemented:
- *      Position handover to OSKGravityModel via provider/subscriber mechanism 
- *      instead of dedicated port class.
- *      Gravity acceleration provision to ScStructure etc. via same mechanism.
- *      Diverse cleanups.
- *      Bugfix for proper handling of 1st timestep with still empty S/C pos. info.
- *      J. Eickhoff
- *
- *
- *-----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
  *
  *      File under GPL  see OpenSimKit Documentation.
  *
@@ -33,7 +7,7 @@
  *
  *-----------------------------------------------------------------------------
  */
-package org.opensimkit.models.environment;
+package org.osk.models.environment;
 
 import jat.forces.GravityModel;
 import jat.matvec.data.Matrix;
@@ -49,16 +23,16 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.TimeHandler;
-import org.opensimkit.events.D4Value;
-import org.opensimkit.events.ECI;
-import org.opensimkit.events.Gravity;
-import org.opensimkit.events.ScPV;
-import org.opensimkit.models.BaseModel;
+import org.osk.TimeHandler;
+import org.osk.events.D4Value;
+import org.osk.events.ECI;
+import org.osk.events.Gravity;
+import org.osk.events.ScPV;
+import org.osk.models.BaseModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  *
@@ -66,8 +40,6 @@ import org.slf4j.LoggerFactory;
  * @author A. Bohr
  * @author A. Brandt
  * @author J. Eickhoff
- * @version 2.0
- * @since 2.8.0
  */
 
 
@@ -101,11 +73,7 @@ public class OSKGravityModel extends BaseModel {
     
     private static final String TYPE = "OSKGravity1";
     private static final String SOLVER = "none";
-    private static final double MAXTSTEP = 10.0;
-    private static final double MINTSTEP = 0.001;
     
-    
-
     @Inject @Gravity Event<D4Value> event;
     
     /*----------------------------------------------------------------------
@@ -124,23 +92,12 @@ public class OSKGravityModel extends BaseModel {
     input file.
     ----------------------------------------------------------------------*/
 
-    
-    /**
-     * Creates a new instance of the gravity model.
-     *
-     * @param name Name of the instance.
-     * @param kernel Reference to the kernel.
-     */
     public OSKGravityModel() {
-        super("23_OSKGravityModel", TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-        name = "23_OSKGravityModel";
+        super(TYPE, SOLVER);
     }
 
-    @Override
     @PostConstruct
     public void init() {
-        LOG.info("% {} Init-Computation", name);
-
         scPositionVector = new VectorN(3);
         gravityVector = new VectorN(3);
         convertedMissionTime = new Time();
@@ -162,13 +119,10 @@ public class OSKGravityModel extends BaseModel {
     }
 
 
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
+    public D4Value timeStep() {
         double[] scPosition = new double[3];
         double[] scAcceleration = new double[3];
         double scAccelMag;
-
-        LOG.info("% {} TimeStep-Computation", name);
 
         LOG.info("scPositionECI[0]:  '{}' ", scPositionECI[0]);
         LOG.info("scPositionECI[1]:  '{}' ", scPositionECI[1]);
@@ -176,7 +130,7 @@ public class OSKGravityModel extends BaseModel {
 
         //Skip potential start condition where S/C Position is not yet valid:
         if (scPositionECI[0]==0 & scPositionECI[1]==0 & scPositionECI[2]==0) {
-          return 0;
+          return new D4Value(gravAcceleration);
         }
         
         scPositionVector.set(0, scPositionECI[0]);
@@ -210,9 +164,8 @@ public class OSKGravityModel extends BaseModel {
         gravAcceleration[2] = scAcceleration[1];
         gravAcceleration[3] = scAcceleration[2];
 
-        event.fire(new D4Value(gravAcceleration));
+        return new D4Value(gravAcceleration);
         
-        return 0;
     }
     
 	public void pvHandler(@Observes @ECI ScPV posVel) {

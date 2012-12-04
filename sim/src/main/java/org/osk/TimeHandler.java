@@ -30,7 +30,7 @@
  *
  */
 
-package org.opensimkit;
+package org.osk;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -38,10 +38,12 @@ import java.text.SimpleDateFormat;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
-import org.opensimkit.config.NumberConfig;
+import org.osk.config.NumberConfig;
+import org.osk.events.TimeStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +69,6 @@ import org.slf4j.LoggerFactory;
  * @author A. Brandt
  * @author T. Pieper
  * @author J. Eickhoff
- * @version 1.2
- * @since 2.5.1
  */
 
 @ApplicationScoped
@@ -85,15 +85,9 @@ public class TimeHandler {
 
      private String simulatedMissionTimeString; // = "2010-03-01T22:55:00.000+0000";
      private int interval;
+     
      private int stepSize;
 
-     private long simulatedMissionTime;
-     private long systemTime;
-     private long integrationSteps;
-
-//    public TimeHandler(final String name) {
-//        this.name = name;
-//    }
 
     @PostConstruct
     public void init() {
@@ -142,8 +136,9 @@ public class TimeHandler {
         return stepSize;
     }
 
+    @Produces @TimeStep
     public double getStepSizeAsDouble() {
-        return stepSize / 1000.;
+        return stepSize / 1000.0;
     }
 
     public void setSystemTime(final long systemTime) {
@@ -154,10 +149,6 @@ public class TimeHandler {
         time[TIME_STEPS]++;
         time[TIME_SIMULATION] += stepSize;
         time[TIME_SYSTEM] += interval;
-
-        integrationSteps     = time[TIME_STEPS];
-        simulatedMissionTime = time[TIME_SIMULATION];
-        systemTime           = time[TIME_SYSTEM];
     }
 
     public String getName() {
@@ -183,5 +174,7 @@ public class TimeHandler {
 	public void setStepSize(@NumberConfig(name = "time.stepSize") Integer stepSize) {
 		this.stepSize = stepSize;
 	}
+	
+	
 
 }

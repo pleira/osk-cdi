@@ -43,7 +43,7 @@
  *      A. Brandt  alexander.brandt@gmail.com
  */
 
-package org.opensimkit.numeric;
+package org.osk.numeric;
 
 /**
  * Interface definition for objects that use the DEQ numeric procedures
@@ -57,8 +57,6 @@ package org.opensimkit.numeric;
  *
  * @author J. Eickhoff
  * @author A. Brandt
- * @version 1.0
- * @since 2.4.0
  */
 public interface DEQClient {
     int DEQDeriv(double X, double[] Y, int N, double[] F);

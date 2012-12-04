@@ -90,24 +90,21 @@
  *-----------------------------------------------------------------------------
  */
 
-package org.opensimkit.models.structure;
+package org.osk.models.structure;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.TimeHandler;
-import org.opensimkit.events.D4Value;
-import org.opensimkit.events.ECI;
-import org.opensimkit.events.Gravity;
-import org.opensimkit.events.ScPV;
-import org.opensimkit.events.Thrust;
-import org.opensimkit.models.BaseModel;
+import org.osk.TimeHandler;
+import org.osk.events.D4Value;
+import org.osk.events.Gravity;
+import org.osk.events.ScPV;
+import org.osk.events.Thrust;
+import org.osk.models.BaseModel;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a point mass.
@@ -117,14 +114,14 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author I. Kossev
  * @author M. Fritz
- * @version 4.0
- * @since 2.8.0
+ * @author P. Pita
  */
 
 public class ScStructure extends BaseModel {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(ScStructure.class);
+	@Inject Logger LOG;
+	@Inject TimeHandler timeHandler;
+
 	/** Gravity acceleration imposed onto structure. */
 	private double[] gravityAccel = new double[4];
 	/** Structure mass. */
@@ -148,9 +145,6 @@ public class ScStructure extends BaseModel {
 	private double scVelocityX, scVelocityY, scVelocityZ;
 	private double scPositionX, scPositionY, scPositionZ;
 
-	/** Time handler object. */
-	@Inject
-	private TimeHandler timeHandler;
 	/** OSK SRT time in converted format. */
 
 	/** Magnitude of engine thrust. */
@@ -160,13 +154,11 @@ public class ScStructure extends BaseModel {
 
 	private static final String TYPE = "ScStructure";
 	private static final String SOLVER = "none";
-	private static final double MAXTSTEP = 10.0;
-	private static final double MINTSTEP = 0.001;
 
-	// The ECI annotiation implies that the events are related to ECI coord.
-	@Inject
-	@ECI
-	Event<ScPV> scPVEvent;
+//	// The ECI annotiation implies that the events are related to ECI coord.
+//	@Inject
+//	@ECI
+//	Event<ScPV> scPVEvent;
 
 	/*----------------------------------------------------------------------
 	Note! The variable(s)
@@ -185,11 +177,10 @@ public class ScStructure extends BaseModel {
 	input file.
 	----------------------------------------------------------------------*/
 
-	public ScStructure(final String name) {
-		super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
+	public ScStructure() {
+		super(TYPE, SOLVER);
 	}
 
-	@Override
 	@PostConstruct
 	public void init() {
 		/* Computation of derived initialization parameters. */
@@ -208,9 +199,8 @@ public class ScStructure extends BaseModel {
 		}
 	}
 
-	@Override
-	public int timeStep(final double time, final double tStepSize) {
-		LOG.info("% {} TimeStep-Computation", name);
+
+	public ScPV timeStep(D4Value thrust) {
 		// Note that the gravity acceleration first is calculated in
 		// the Environment model (the Earth) and an event is fired there
 		LOG.info("gravityAccel[0]:  '{}' ", gravityAccel[0]);
@@ -247,6 +237,8 @@ public class ScStructure extends BaseModel {
 		}
 
 		/* Calculation of the new SC velocity. */
+		double time = timeHandler.getSimulatedMissionTimeAsDouble();
+		double tStepSize = timeHandler.getStepSizeAsDouble();
 		result = integratorTimeStep(time, tStepSize, scVelocityECI, totalAcc);
 		for (int i = 0; i < 3; i++) {
 			scVelocityECI[i] = result[i];
@@ -269,9 +261,7 @@ public class ScStructure extends BaseModel {
 		// Those methods involving calculations
 		// in other reference frames (EDEF) are moved to other classes.
 
-		scPVEvent.fire(new ScPV(scPositionECI, scVelocityECI));
-
-		return 0;
+		return new ScPV(scPositionECI, scVelocityECI);
 	}
 
 	/**

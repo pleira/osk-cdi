@@ -18,7 +18,7 @@
 *      Minor changes by Michael Fritz
 */
 
-package org.opensimkit.console;
+package org.osk.console;
 
 
 import java.awt.Event;

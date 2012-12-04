@@ -3,11 +3,11 @@
  * and open the template in the editor.
  */
 
-package org.opensimkit.console;
+package org.osk.console;
 
 import java.nio.ByteBuffer;
-import org.opensimkit.packet.Packet;
-import org.opensimkit.packet.PacketDecoder;
+import org.osk.packet.Packet;
+import org.osk.packet.PacketDecoder;
 
 /**
  *
@@ -25,7 +25,7 @@ public final class OSKPacketDecoder2 implements PacketDecoder {
 
         /* Here the decoding of the packet takes places. Currently it is
            mandatory to know were the data is located. This means that the
-           user needs to look at the org/opensimkit/PackaetCreator.java file
+           user needs to look at the org.osk/PackaetCreator.java file
            to know what data is written where. */
         frame.writeLog("Decoder2: c0-mass: " + data.getDouble(0) + "\r\n");
 

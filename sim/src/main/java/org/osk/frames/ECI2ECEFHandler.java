@@ -1,14 +1,14 @@
-package org.opensimkit.frames;
+package org.osk.frames;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.opensimkit.TimeHandler;
-import org.opensimkit.events.ECEFpv;
-import org.opensimkit.events.ECI;
-import org.opensimkit.events.ScPV;
+import org.osk.TimeHandler;
+import org.osk.events.ECEFpv;
+import org.osk.events.ECI;
+import org.osk.events.ScPV;
 
 /**
  * The sole purpose of this class is to catch s/c ECI pos/vel and 

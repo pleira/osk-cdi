@@ -47,9 +47,9 @@
  *
  */
 
-package org.opensimkit.numeric;
+package org.osk.numeric;
 
-import org.opensimkit.SimHeaders;
+import org.osk.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +65,6 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author A. Brandt
  * @author T. Pieper
- * @version 1.1
- * @since 2.4.6
  */
 public class DEqSys {
     private static final Logger LOG = LoggerFactory.getLogger(DEqSys.class);

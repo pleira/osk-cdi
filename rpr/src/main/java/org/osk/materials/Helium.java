@@ -47,15 +47,13 @@
  *
  */
 
-package org.opensimkit.materials;
+package org.osk.materials;
 
 /**
  * Computation of the thermodynamic properties of helium.
  *
  * @author J. Eickhoff
  * @author A. Brandt
- * @version 1.0
- * @since 2.4.0
  */
 public final class Helium {
     private static double CP;

@@ -80,16 +80,15 @@
  *      Upgraded for handling of new port classes.
  *      A. Brandt
  */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
-
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.PureGasPort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.models.BaseModel;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe split. Component for connecting two pure gas
@@ -98,8 +97,6 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
- * @version 1.4
- * @since 2.4.0
  */
 public class SplitT1 extends BaseModel {
 	/** Logger instance for the SplitT1. */
@@ -123,42 +120,13 @@ public class SplitT1 extends BaseModel {
 
 	private static final String TYPE = "SplitT1";
 	private static final String SOLVER = "none";
-	private static final double MAXTSTEP = 1.0E6;
-	private static final double MINTSTEP = 1.0E-6;
-	private static final int TIMESTEP = 0;
 	
-
-	private PureGasPort inputPort;
-	private PureGasPort outputPortLeft;
-	private PureGasPort outputPortRight;
-
-    public SplitT1(final String name, PureGasPort inputPort, 
-    		PureGasPort outputPortLeft, PureGasPort outputPortRight) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-        this.inputPort = inputPort;
-        this.outputPortLeft = outputPortLeft;
-        this.outputPortRight = outputPortRight;
+    public SplitT1() {
+        super(TYPE, SOLVER);
     }
 
-    @Override
-    @PostConstruct
-    public void init() {
-    	completeConnections();
-    }
-    
-    void completeConnections() {
-    	inputPort.setToModel(this);
-        outputPortLeft.setFromModel(this);
-        outputPortRight.setFromModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPortLeft.getName() + "," + outputPortRight.getName() + ")" );
-    }
-
-
-    @Override
-    public int iterationStep() {
+    public ImmutablePair<FluidPort, FluidPort> iterationStep(FluidPort inputPort) {
         String fluid;
-
-        LOG.info("% {} IterationStep-Computation", name);
 
         pin   = inputPort.getPressure();
         tin   = inputPort.getTemperature();
@@ -177,53 +145,29 @@ public class SplitT1 extends BaseModel {
             mfoutRight = 0.0;
         }
 
-        outputPortLeft.setFluid(fluid);
-        outputPortLeft.setPressure(pout);
-        outputPortLeft.setTemperature(tout);
-        outputPortLeft.setMassflow(mfoutLeft);
-
-        outputPortRight.setFluid(fluid);
-        outputPortRight.setPressure(pout);
-        outputPortRight.setTemperature(tout);
-        outputPortRight.setMassflow(mfoutRight);
-
+        FluidPort outputPortLeft =  createGasPort(fluid, mfoutLeft);
+        FluidPort outputPortRight = createGasPort(fluid, mfoutRight);
+        
         LOG.info("pout : {}", pout);
         LOG.info("tout : {}", tout);
         LOG.info("mfoutLeft : {}", mfoutLeft);
         LOG.info("mfoutRight : {}", mfoutRight);
 
-        return 0;
+        return new ImmutablePair(outputPortLeft, outputPortRight);
     }
 
-
-    @Override
-    public int backIterStep() {
-        int result;
-
-        result = 0;
-
-        LOG.info("% {} BackIteration-Computation", name);
-
+     public FluidPort backIterate(FluidPort outputPortLeft, FluidPort outputPortRight) {
         if (outputPortLeft.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on left port cannot"
-                    + " be handled!", name);
-            result = 1;
+            LOG.error("Pressure request on left port cannot be handled!");
         }
         if (outputPortLeft.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on left port cannot"
-                    + " be handled!", name);
-            result = 1;
+            LOG.error("Temp. request on left port cannot be handled!");
         }
         if (outputPortRight.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on right port cannot"
-                    + " be handled!", name);
-            result = 1;
+            LOG.error("Pressure request on right port cannot be handled!");
         }
         if (outputPortRight.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on right port cannot"
-                    + " be handled!", name);
-            //    nonResumeFlag = 1;
-            result = 1;
+            LOG.error("Temp. request on right port cannot be handled!");
         }
 
         mfboundLeft  = outputPortLeft.getBoundaryMassflow();
@@ -235,17 +179,22 @@ public class SplitT1 extends BaseModel {
                 + outputPortRight.getBoundaryTemperature()) / 2.;
         LOG.info("mfboundLeft : {}", mfboundLeft);
         LOG.info("mfboundRight : {}", mfboundRight);
-        LOG.info("pUpBackiter : {}", pUpBackiter);
-        LOG.info("tUpBackiter : {}", tUpBackiter);
-        LOG.info("mfUpBackiter : {}", mfUpBackiter);
 
-        inputPort.setBoundaryFluid(outputPortLeft.getBoundaryFluid());
-        inputPort.setBoundaryPressure(pUpBackiter);
-        inputPort.setBoundaryTemperature(tUpBackiter);
-        inputPort.setBoundaryMassflow(mfUpBackiter);
+		FluidPort inputPort = BoundaryUtils.createBoundaryPort(
+				outputPortLeft.getBoundaryFluid(), pUpBackiter, tUpBackiter, mfUpBackiter);
 
-        return result;
+        return inputPort;
     }
+
+
+ 	public FluidPort createGasPort(String fluid, double mflow) {
+		FluidPort outputPort = new FluidPort();
+        outputPort.setFluid(fluid);
+        outputPort.setPressure(pout);
+        outputPort.setTemperature(tout);
+        outputPort.setMassflow(mflow);
+		return outputPort;
+	}
 
 
     //-----------------------------------------------------------------------------------
@@ -359,30 +308,4 @@ public class SplitT1 extends BaseModel {
 		this.mfUpBackiter = mfUpBackiter;
 	}
 
-	@ManagedAttribute
-	public PureGasPort getInputPort() {
-		return inputPort;
-	}
-
-	public void setInputPort(PureGasPort inputPort) {
-		this.inputPort = inputPort;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getOutputPortLeft() {
-		return outputPortLeft;
-	}
-
-	public void setOutputPortLeft(PureGasPort outputPortLeft) {
-		this.outputPortLeft = outputPortLeft;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getOutputPortRight() {
-		return outputPortRight;
-	}
-
-	public void setOutputPortRight(PureGasPort outputPortRight) {
-		this.outputPortRight = outputPortRight;
-	}
 }

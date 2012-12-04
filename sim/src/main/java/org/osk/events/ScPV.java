@@ -1,4 +1,4 @@
-package org.opensimkit.events;
+package org.osk.events;
 
 /**
  * This class works with ECI coordinates.

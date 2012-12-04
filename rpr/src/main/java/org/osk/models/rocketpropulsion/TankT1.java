@@ -124,21 +124,22 @@
  *      Upgraded for handling of new port classes.
  *      A. Brandt
  */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.SimHeaders;
-import org.opensimkit.materials.MaterialProperties;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.numeric.DEQClient;
-import org.opensimkit.numeric.DEqSys;
-import org.opensimkit.ports.PureGasPort;
-import org.opensimkit.ports.PureLiquidPort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.SimHeaders;
+import org.osk.TimeHandler;
+import org.osk.materials.MaterialProperties;
+import org.osk.models.BaseModel;
+import org.osk.numeric.DEQClient;
+import org.osk.numeric.DEqSys;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a rocket stage fuel/oxidizer tank with
@@ -147,12 +148,12 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
- * @version 1.3
- * @since 2.4.0
+ * @author P. Pita
  */
-public abstract class TankT1 extends BaseModel implements DEQClient {
-	/** Logger instance for the TankT1. */
-	private static final Logger LOG = LoggerFactory.getLogger(TankT1.class);
+public class TankT1 extends BaseModel implements DEQClient {
+	@Inject Logger LOG;
+	@Inject TimeHandler timeHandler;
+	
 	/** Fuel type. */
 	private String fuel;
 	/** Oxidizer type. */
@@ -388,30 +389,14 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
 	private static final String TYPE = "TankT1";
 	private static final String SOLVER = "RKF-4/5";
-	private static final double MAXTSTEP = 5.0;
-	private static final double MINTSTEP = 0.001;
-	
 	
 
-	private PureGasPort inputPortFuelPressureGas;
-	private PureGasPort inputPortOxidizerPressureGas;
-	private PureLiquidPort outputPortFuel;
-	private PureLiquidPort outputPortOxidizer;
-
-    public TankT1(String name, 
-    		PureLiquidPort outputPortFuel, PureLiquidPort outputPortOxidizer, 
-    		PureGasPort inputPortFuelPressureGas, PureGasPort inputPortOxidizerPressureGas) {
-         super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
- 		this.outputPortFuel = outputPortFuel;
- 		this.outputPortOxidizer = outputPortOxidizer;
- 		this.inputPortFuelPressureGas = inputPortFuelPressureGas;
- 		this.inputPortOxidizerPressureGas = inputPortOxidizerPressureGas;
+    public TankT1() {
+         super(TYPE, SOLVER);
  	}
 
-    @Override
  	@PostConstruct
     public void init() {
-    	completeConnections();
     	
         double RSPOXD = 90.372;
         double RSPHE  = 2077;
@@ -511,13 +496,62 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         ZEITA=-.5;
     }
 
-    void completeConnections() {
-     	inputPortFuelPressureGas.setToModel(this);
-     	inputPortOxidizerPressureGas.setToModel(this);
-     	outputPortFuel.setFromModel(this);
-     	outputPortOxidizer.setFromModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPortFuelPressureGas.getName()  + "," + inputPortOxidizerPressureGas.getName() + "," + outputPortFuel.getName() + "," + outputPortOxidizer.getName() + ")" );
-     }
+    public ImmutablePair<FluidPort,  FluidPort> iterationStep(FluidPort inputPortFuelPressureGas, FluidPort inputPortOxidizerPressureGas) {
+        String fluid;
+        double errval;
+        int    result;
+
+        pinFPG  = inputPortFuelPressureGas.getPressure();
+        tinFPG  = inputPortFuelPressureGas.getTemperature();
+        mfinFPG = inputPortFuelPressureGas.getMassflow();
+        pinOPG  = inputPortOxidizerPressureGas.getPressure();
+        tinOPG  = inputPortOxidizerPressureGas.getTemperature();
+        mfinOPG = inputPortOxidizerPressureGas.getMassflow();
+
+        result = 0;
+
+        errval = Math.abs((mfinFPG - mfBoundFuelPress)
+                / mfBoundFuelPress);
+        if (errval > 0.02) {
+            result = -1;
+        }
+        errval = Math.abs((mfinOPG - mfBoundOxPress)/mfBoundOxPress);
+        if (errval > 0.02) {
+            result = -1;
+        }
+
+        fluid     = fuel;
+        mfoutFuel = mfBoundFuel;
+        poutFuel  = YK[9];
+        toutFuel  = YK[12];
+
+        FluidPort outputPortFuel = new FluidPort();
+        outputPortFuel.setFluid(fluid);
+        outputPortFuel.setPressure(poutFuel);
+        outputPortFuel.setTemperature(toutFuel);
+        outputPortFuel.setMassflow(mfoutFuel);
+
+        fluid         = oxidizer;
+        mfoutOxidizer = mfBoundOx;
+        poutOxidizer  = YK[3];
+        toutOxidizer  = YK[4];
+
+        //For printout in TabGenerator
+        poxt  = YK[3] / 1.E5;
+        tGOxT = YK[1];
+        tLOxT = YK[4];
+        PFuT  = YK[9] / 1.E5;
+        tGFuT = YK[11];
+        tLFuT = YK[12];
+
+        FluidPort outputPortOxidizer = new FluidPort();
+        outputPortOxidizer.setFluid(fluid);
+        outputPortOxidizer.setPressure(poutOxidizer);
+        outputPortOxidizer.setTemperature(toutOxidizer);
+        outputPortOxidizer.setMassflow(mfoutOxidizer);
+
+        return new ImmutablePair<FluidPort,  FluidPort>(outputPortFuel, outputPortOxidizer);
+    }
 
     public int DEQDeriv(final double X, final double Y[], final int N,
             final double F[]) {
@@ -865,7 +899,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         ETAOL=7.533E-3-6.167E-5*Y[4]+2.055E-7*Math.pow(Y[4],2);
         ETAOL=ETAOL-3.234E-10*Math.pow(Y[4],3)+1.966E-13*Math.pow(Y[4],4);
 
-        double PK_OX = org.opensimkit.materials.Helium.HELIUM(PHEO, Y[1], Helium_ox);
+        double PK_OX = org.osk.materials.Helium.HELIUM(PHEO, Y[1], Helium_ox);
 
         ETAGO=Helium_ox.ETA*YHEO*Math.pow(MMOLHE,.5);
         ETAGO=ETAGO+ETAOG*YDO*Math.pow(MMOLO,.5);
@@ -877,7 +911,7 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 
         /*******     In Fuel Tank    ***************************************/
 
-        double PK_brenn = org.opensimkit.materials.Helium.HELIUM(Y[9], Y[11], Helium_brenn);
+        double PK_brenn = org.osk.materials.Helium.HELIUM(Y[9], Y[11], Helium_brenn);
 
         LAMBL=.14246+9.211E-4*Y[12]-1.9029E-6*Math.pow(Y[12],2);
 
@@ -1188,15 +1222,8 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
     }
 
 
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        int result;
-
-        result = 0;
-
-        LOG.info("% {} TimeStep-Computation", name);
-
-        localNAckFlag = 0;
+    public ImmutablePair<FluidPort,  FluidPort> timeStep(
+    		 final FluidPort inputPortOxidizerPressureGas, FluidPort inputPortFuelPressureGas) {
 
         MPKTLB = mfBoundFuel;
         MPKTLO = mfBoundOx;
@@ -1206,13 +1233,15 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         THEINB = inputPortFuelPressureGas.getTemperature();
         THEINO = inputPortOxidizerPressureGas.getTemperature();
 
-        result = DEqSys.DEqSys(time, tStepSize, YK, 20, (time+tStepSize),
+        double time = timeHandler.getSimulatedMissionTimeAsDouble();
+        double tStepSize = timeHandler.getStepSizeAsDouble();
+        int result = DEqSys.DEqSys(time, tStepSize, YK, 20, (time+tStepSize),
                 SimHeaders.epsabs, SimHeaders.epsrel, IFMAX, IFANZ, IFEHL,
                 this);
 
         if (result == 1) {
-            LOG.info("Error in timestep integration of component '{}'", name);
-            localNAckFlag = 1;
+            LOG.error("Error in timestep integration of component TankT1");
+            return new ImmutablePair<FluidPort,  FluidPort>(new FluidPort(), new FluidPort());
         }
 
         ZEITA=time;
@@ -1230,115 +1259,30 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
         pBoundFuelPress  = YK[9];
         pBoundOxPress    = YK[3];
 
-        if (localNAckFlag == 1) {
-            return 1;
-        }
-        return 0;
+        FluidPort fuelPort = new FluidPort();
+        FluidPort oxPort = new FluidPort();
+        return new ImmutablePair<FluidPort,  FluidPort>(fuelPort, oxPort);
     }
 
 
-    @Override
-    public int iterationStep() {
-        String fluid;
-        double errval;
-        int    result;
-
-        LOG.info("% {} IterationStep-Computation", name);
-
-        pinFPG  = inputPortFuelPressureGas.getPressure();
-        tinFPG  = inputPortFuelPressureGas.getTemperature();
-        mfinFPG = inputPortFuelPressureGas.getMassflow();
-        pinOPG  = inputPortOxidizerPressureGas.getPressure();
-        tinOPG  = inputPortOxidizerPressureGas.getTemperature();
-        mfinOPG = inputPortOxidizerPressureGas.getMassflow();
-
-        result = 0;
-
-        errval = Math.abs((mfinFPG - mfBoundFuelPress)
-                / mfBoundFuelPress);
-        if (errval > 0.02) {
-            result = -1;
-        }
-        errval = Math.abs((mfinOPG - mfBoundOxPress)/mfBoundOxPress);
-        if (errval > 0.02) {
-            result = -1;
-        }
-
-        fluid     = fuel;
-        mfoutFuel = mfBoundFuel;
-        poutFuel  = YK[9];
-        toutFuel  = YK[12];
-
-        outputPortFuel.setFluid(fluid);
-        outputPortFuel.setPressure(poutFuel);
-        outputPortFuel.setTemperature(toutFuel);
-        outputPortFuel.setMassflow(mfoutFuel);
-
-        fluid         = oxidizer;
-        mfoutOxidizer = mfBoundOx;
-        poutOxidizer  = YK[3];
-        toutOxidizer  = YK[4];
-
-        //For printout in TabGenerator
-        poxt  = YK[3] / 1.E5;
-        tGOxT = YK[1];
-        tLOxT = YK[4];
-        PFuT  = YK[9] / 1.E5;
-        tGFuT = YK[11];
-        tLFuT = YK[12];
-
-        outputPortOxidizer.setFluid(fluid);
-        outputPortOxidizer.setPressure(poutOxidizer);
-        outputPortOxidizer.setTemperature(toutOxidizer);
-        outputPortOxidizer.setMassflow(mfoutOxidizer);
-
-        return result;
-    }
-
-
-    @Override
-    public int backIterStep() {
-        int result;
-
-        result = 0;
-
-        LOG.info("% {} BackIteration-Computation", name);
-
+    public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPortFuel, FluidPort outputPortOxidizer) {
         if (outputPortFuel.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on output port fuel"
-                    + " cannot be handled!", name);
-            result = 1;
+            LOG.error("Pressure request on output port fuel cannot be handled!");
         }
         if (outputPortFuel.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on output port fuel"
-                    + " cannot be handled!", name);
-            result = 1;
+            LOG.error("Temp. request on output port fuel cannot be handled!");
         }
         if (outputPortOxidizer.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on output port"
-                    + " oxidizer cannot be handled!", name);
-            result = 1;
+            LOG.error("Pressure request on output port ox cannot be handled!");
         }
         if (outputPortOxidizer.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on output port oxidizer"
-                    + " cannot be handled!", name);
-            result = 1;
+            LOG.error("Temp. request on output port ox cannot be handled!");
         }
-
         mfBoundFuel = outputPortFuel.getBoundaryMassflow();
         mfBoundOx   = outputPortOxidizer.getBoundaryMassflow();
-
-        inputPortFuelPressureGas.setBoundaryFluid(fuPressGas);
-        inputPortFuelPressureGas.setBoundaryPressure(-999999.99);
-        inputPortFuelPressureGas.setBoundaryTemperature(-999999.99);
-        inputPortFuelPressureGas.setBoundaryMassflow(mfBoundFuelPress);
-
-        inputPortOxidizerPressureGas.setBoundaryFluid(oxPressGas);
-        inputPortOxidizerPressureGas.setBoundaryPressure(-999999.99);
-        inputPortOxidizerPressureGas.setBoundaryTemperature(-999999.99);
-        inputPortOxidizerPressureGas.setBoundaryMassflow(mfBoundOxPress);
-
-        return result;
+		FluidPort inputPortFuelPressureGas = BoundaryUtils.createBoundaryPort(fuPressGas, mfBoundFuelPress);
+		FluidPort inputPortOxidizerPressureGas = BoundaryUtils.createBoundaryPort(oxPressGas, mfBoundOxPress);
+        return new ImmutablePair<FluidPort, FluidPort>(inputPortFuelPressureGas, inputPortOxidizerPressureGas);
     }
 
     
@@ -1968,34 +1912,5 @@ public abstract class TankT1 extends BaseModel implements DEQClient {
 	}
 	public void settLFuT(double tLFuT) {
 		this.tLFuT = tLFuT;
-	}
-	@ManagedAttribute    
-	public PureGasPort getInputPortFuelPressureGas() {
-		return inputPortFuelPressureGas;
-	}
-	public void setInputPortFuelPressureGas(PureGasPort inputPortFuelPressureGas) {
-		this.inputPortFuelPressureGas = inputPortFuelPressureGas;
-	}
-	@ManagedAttribute    
-	public PureGasPort getInputPortOxidizerPressureGas() {
-		return inputPortOxidizerPressureGas;
-	}
-	public void setInputPortOxidizerPressureGas(
-			PureGasPort inputPortOxidizerPressureGas) {
-		this.inputPortOxidizerPressureGas = inputPortOxidizerPressureGas;
-	}
-	@ManagedAttribute    
-	public PureLiquidPort getOutputPortFuel() {
-		return outputPortFuel;
-	}
-	public void setOutputPortFuel(PureLiquidPort outputPortFuel) {
-		this.outputPortFuel = outputPortFuel;
-	}
-	@ManagedAttribute    
-	public PureLiquidPort getOutputPortOxidizer() {
-		return outputPortOxidizer;
-	}
-	public void setOutputPortOxidizer(PureLiquidPort outputPortOxidizer) {
-		this.outputPortOxidizer = outputPortOxidizer;
 	}
 }

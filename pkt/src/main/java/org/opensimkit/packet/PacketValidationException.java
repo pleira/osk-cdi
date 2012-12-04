@@ -17,7 +17,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.packet;
+package org.osk.packet;
 
 /**
  * This exception is used for the validation process of the packets.

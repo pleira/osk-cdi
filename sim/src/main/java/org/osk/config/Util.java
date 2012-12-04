@@ -1,4 +1,4 @@
-package org.opensimkit.config;
+package org.osk.config;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;

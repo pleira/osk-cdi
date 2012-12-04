@@ -1,7 +1,4 @@
 /*
- * PRegT1.java
- *
- * Created on 8. Juli 2007, 21:31
  *
  *  Model definition for a gas dome pressure regulator.
  *
@@ -66,44 +63,20 @@
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by author.
- *
- *
- *
- *  2005-09
- *      OpenSimKit V 2.2
- *      Modifications enterd for XML input file parsing by
- *      Peter Heinrich  peterhe@student.ethz.ch
- *
- *  2008-05
- *      OpenSimKit V 2.4
- *      Ported from C++ to Java
- *      A. Brandt  alexander.brandt@gmail.com
- *
- *  2009-01
- *      Diverse minor cleanups and entire textual translation to english.
- *      J. Eickhoff
- *
- *  2009-04
- *      Replaced the port array by named ports.
- *      A. Brandt
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A. Brandt
  */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.materials.HeliumJKC;
-import org.opensimkit.materials.MaterialProperties;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.PureGasPort;
+import org.osk.events.TimeStep;
+import org.osk.materials.HeliumJKC;
+import org.osk.materials.MaterialProperties;
+import org.osk.models.BaseModel;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas dome pressure regulator.
@@ -111,12 +84,11 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
- * @version 1.4
- * @since 2.4.0
  */
 public class PRegT1 extends BaseModel {
-	/** Logger instance for the PRegT1. */
-	private static final Logger LOG = LoggerFactory.getLogger(PRegT1.class);
+	@Inject Logger LOG;
+	@Inject @TimeStep Double tStepSize;
+	
 	/** Diameter of pressure regul. */
 	private double innerDiameter;
 	/** Length of pressure regul. */
@@ -148,96 +120,18 @@ public class PRegT1 extends BaseModel {
 
 	private static final String TYPE = "PRegT1";
 	private static final String SOLVER = "Euler";
-	private static final double MAXTSTEP = 10.0;
-	private static final double MINTSTEP = 0.001;
-	
-	private PureGasPort inputPort;
-	private PureGasPort outputPort;
 
-    public PRegT1(final String name, PureGasPort inputPort, PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-        this.inputPort = inputPort;
-        this.outputPort = outputPort;        
+	
+    public PRegT1() {
+        super(TYPE, SOLVER);
     }
 
-    @Override
     @PostConstruct
     public void init() {
-    	completeConnections();
-        // Computation of derived initialization parameters
-        //---------------------------------------------------------------------
-        //
-        // Initializing heat flow
         qHFlow = 0.0;
     }
-    
-    void completeConnections() {
-    	inputPort.setToModel(this);
-        outputPort.setFromModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + inputPort.getName()  + "," + outputPort.getName() + ")" );
-    }
-    
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        String     fluid;
-        double     CP;
-        double     Q;
-        double     DTF;
-        double     DTB;
 
-        LOG.info("% {} TimeStep-Computation", name);
-
-        pin  = inputPort.getPressure();
-        tin  = inputPort.getTemperature();
-        mfin = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
-
-        //Skip time step computation if no flow in pressure regulator
-        if (mfin <= 1.E-6) {
-            return 0;
-        }
-
-        CP = 5223.2;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Section for computation of temp. change of filter itself        */
-        /*                                                                    */
-        /*    Gas properties of gas fluid are assumed to be contant over,     */
-        /*    entire length of filter. Same applies for the Nusselt-Number,   */
-        /*    and thus for heat transfer coefficient Alfa.                    */
-        /*                                                                    */
-        /*                                                                    */
-        /**********************************************************************/
-        /*                                                                    */
-        /*     Computation of heatflow from regulator housing to fluid        */
-        /*                                                                    */
-        /**********************************************************************/
-        qHFlow = alfa * 3.1415 * innerDiameter*length*(temperature-tstatin)/10;
-        Q = qHFlow * tStepSize;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of delta T for fluid and new fluid temperature      */
-        /*                                                                    */
-        /**********************************************************************/
-        DTF = qHFlow / (mfin * CP);
-        tstatin = tstatin + DTF;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of delta T of regulator itself and new reg. temp.   */
-        /*                                                                    */
-        /**********************************************************************/
-        DTB = Q / (mass * specificHeatCapacity);
-        temperature = temperature - DTB;
-
-        return 0;
-    }
-
-
-    @Override
-    public int iterationStep() {
+    public FluidPort iterationStep(FluidPort inputPort) {
         String     fluid;
         int I, L;
         double P1, P2, param = 0, poutNew, JKC;
@@ -245,8 +139,6 @@ public class PRegT1 extends BaseModel {
 
         // Fluid material properties for heat transfer computations
         MaterialProperties Helium = new MaterialProperties();
-
-        LOG.info("% {} IterationStep-Computation", name);
 
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
@@ -261,13 +153,7 @@ public class PRegT1 extends BaseModel {
         if (mfin <= 1.E-6) {
             pout  = pcoeff[0] * 1E5;
             tout  = tin;
-
-            outputPort.setFluid(fluid);
-            outputPort.setPressure(pout);
-            outputPort.setTemperature(tout);
-            outputPort.setMassflow(mfin);
-
-            return 0;
+            return createOutputPort(fluid);
         }
 
         CP = 5223.2;
@@ -333,7 +219,7 @@ public class PRegT1 extends BaseModel {
         tstatin = tout;
 
         // FIXME
-        double PK = org.opensimkit.materials.Helium.HELIUM(pout, tout, Helium);
+        double PK = org.osk.materials.Helium.HELIUM(pout, tout, Helium);
 
         GESCH = mfin
                 * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DICHTE);
@@ -394,64 +280,91 @@ public class PRegT1 extends BaseModel {
         tout = tout + DTF;
 
         if (DTF > 10.0) {
-            LOG.info("Temp. change > 10 deg. in press. regulator '{}'", name);
+            LOG.info("Temp. change > 10 deg. in press. regulator");
         }
 
-        /**********************************************************************/
-        /*                                                                    */
         /*   Massflow at outlet                                               */
+        return createOutputPort(fluid);
+    }
+
+    public int timeStep(FluidPort inputPort) {
+        String     fluid;
+        double     CP;
+        double     Q;
+        double     DTF;
+        double     DTB;
+
+        pin  = inputPort.getPressure();
+        tin  = inputPort.getTemperature();
+        mfin = inputPort.getMassflow();
+        fluid = inputPort.getFluid();
+
+        //Skip time step computation if no flow in pressure regulator
+        if (mfin <= 1.E-6) {
+            return 0;
+        }
+
+        CP = 5223.2;
+
+        /**********************************************************************/
+        /*                                                                    */
+        /*    Section for computation of temp. change of filter itself        */
+        /*                                                                    */
+        /*    Gas properties of gas fluid are assumed to be contant over,     */
+        /*    entire length of filter. Same applies for the Nusselt-Number,   */
+        /*    and thus for heat transfer coefficient Alfa.                    */
+        /*                                                                    */
         /*                                                                    */
         /**********************************************************************/
+        /*                                                                    */
+        /*     Computation of heatflow from regulator housing to fluid        */
+        /*                                                                    */
+        /**********************************************************************/
+        qHFlow = alfa * 3.1415 * innerDiameter*length*(temperature-tstatin)/10;
+        Q = qHFlow * tStepSize;
 
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(pout);
-        outputPort.setTemperature(tout);
-        outputPort.setMassflow(mfin);
+        /**********************************************************************/
+        /*                                                                    */
+        /*    Computation of delta T for fluid and new fluid temperature      */
+        /*                                                                    */
+        /**********************************************************************/
+        DTF = qHFlow / (mfin * CP);
+        tstatin = tstatin + DTF;
 
-        LOG.info("pout : {}", pout);
-        LOG.info("tout : {}", tout);
-        LOG.info("mfout : {}", mfin);
+        /**********************************************************************/
+        /*                                                                    */
+        /*    Computation of delta T of regulator itself and new reg. temp.   */
+        /*                                                                    */
+        /**********************************************************************/
+        DTB = Q / (mass * specificHeatCapacity);
+        temperature = temperature - DTB;
 
         return 0;
     }
 
 
-    @Override
-    public int backIterStep() {
-        int result;
-
-        result = 0;
-
-        LOG.info("% {} BackIteration-Computation", name);
-
+    public FluidPort backIterStep(FluidPort outputPort) {
         if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on port 1 cannot"
-                    + " be handled!", name);
-            result = 1;
+            LOG.error("Pressure request on port 1 cannot be handled!");
         }
         if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on port 1 cannot"
-                    + " be handled!", name);
-            //    nonResumeFlag = 1;
-            result = 1;
+            LOG.error("Temp. request on port 1 cannot be handled!");
         }
-
         mfUpBackiter  = outputPort.getBoundaryMassflow();
         pUpBackiter = outputPort.getBoundaryPressure();
         tUpBackiter = outputPort.getBoundaryTemperature();
-        LOG.info("pUpBackiter : {}", pUpBackiter);
-        LOG.info("tUpBackiter : {}", tUpBackiter);
-        LOG.info("mfUpBackiter : {}", mfUpBackiter);
-
-        inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
-        inputPort.setBoundaryPressure(-999999.99);
-        inputPort.setBoundaryTemperature(-999999.99);
-        inputPort.setBoundaryMassflow(mfUpBackiter);
-
-        return result;
+		return BoundaryUtils.createBoundaryPort(outputPort);
     }
 
-
+	public FluidPort createOutputPort(String fluid) {
+		FluidPort outputPort = new FluidPort();
+		outputPort.setFluid(fluid);
+		outputPort.setPressure(pout);
+		outputPort.setTemperature(tout);
+		outputPort.setMassflow(mfin);
+		return outputPort;
+	}
+   
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
 
@@ -608,21 +521,4 @@ public class PRegT1 extends BaseModel {
 		this.mfUpBackiter = mfUpBackiter;
 	}
 
-	@ManagedAttribute
-	public PureGasPort getInputPort() {
-		return inputPort;
-	}
-
-	public void setInputPort(PureGasPort inputPort) {
-		this.inputPort = inputPort;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getOutputPort() {
-		return outputPort;
-	}
-
-	public void setOutputPort(PureGasPort outputPort) {
-		this.outputPort = outputPort;
-	}
 }

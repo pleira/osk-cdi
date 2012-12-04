@@ -1,4 +1,4 @@
-package org.opensimkit.models.astris;
+package org.osk.models.astris;
 
 import javax.enterprise.context.ApplicationScoped;
 

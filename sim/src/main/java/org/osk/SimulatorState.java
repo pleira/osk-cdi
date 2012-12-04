@@ -18,14 +18,12 @@
  *
  */
 
-package org.opensimkit;
+package org.osk;
 
 /**
  * Enum representing the possible simulator states.
  *
  * @author A. Brandt
- * @version 1.0
- * @since 2.5.1
  */
 public enum SimulatorState {
     RUNNING,

@@ -2,14 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.opensimkit.console;
+package org.osk.console;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.channels.SocketChannel;
-import org.opensimkit.oskpacket.OSKPacketReceiver;
-import org.opensimkit.packet.PacketDecoder;
+import org.osk.oskpacket.OSKPacketReceiver;
+import org.osk.packet.PacketDecoder;
 
 /**
  * This is the console logger thread reading simulator result data for display

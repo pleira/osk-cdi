@@ -17,7 +17,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.oskpacket;
+package org.osk.oskpacket;
 
 /**
  * An implementation of the CRC16-CCITT algorithm.

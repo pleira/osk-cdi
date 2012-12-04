@@ -25,20 +25,16 @@
  *      No warranty and liability for correctness by author.
  *
  */
- package org.opensimkit.models.rocketpropulsion;
+ package org.osk.models.rocketpropulsion;
 
- import java.io.FileWriter;
-import java.io.IOException;
+ import javax.annotation.PostConstruct;
 
-import javax.annotation.PostConstruct;
-
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.SimHeaders;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.AnalogPort;
+import org.osk.models.BaseModel;
+import org.osk.ports.AnalogPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a controller component provding 2 analog output ports.
@@ -46,8 +42,6 @@ import org.slf4j.LoggerFactory;
  *  intervals as value triples: onTime, offTime, onValue.
  *
  * @author J. Eickhoff
- * @version 1.0
- * @since 3.3
  */
 public class IntervalController extends BaseModel {
     /** Logger instance for the IntervalController. */
@@ -85,8 +79,6 @@ public class IntervalController extends BaseModel {
 
     private static final String TYPE      = "IntervalController";
     private static final String SOLVER    = "none";
-    private static final double MAXTSTEP  = 10.0;
-    private static final double MINTSTEP  = 0.001;
     
     private static final int    REGULSTEP = 1;
 
@@ -99,17 +91,14 @@ public class IntervalController extends BaseModel {
      * @param name Name of the instance.
      * @param kernel Reference to the kernel.
      */
-     public IntervalController(final String name) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
+     public IntervalController() {
+        super(TYPE, SOLVER);
     }
 
-    @Override
     @PostConstruct
     public void init() {
-    	completeConnections();
         /* Computation of derived initialization parameters. */
         localtime = 0.0;
-        LOG.info("% {} Init", name);
         System.out.println("Time " + localtime);
         System.out.println("Init " + ctrlSet0Chan1[2]);
         System.out.println("Init " + ctrlSet0Chan2[2]);
@@ -127,13 +116,7 @@ public class IntervalController extends BaseModel {
         System.out.println("TheValues" + ctrlSet9Chan1[0] + " " +  ctrlSet9Chan1[1] + " " + ctrlSet9Chan1[2]);
     }
     
-    void completeConnections() {
-    	controlPort1.setToModel(this);
-    	controlPort2.setToModel(this);
-    	LOG.info("completeConnections for " + name + ", (" + controlPort1.getName()  + "," + controlPort2.getName() + ")" );
-    }
 
-    @Override
     public int timeStep(final double time, final double tStepSize) {
 
         if (localtime == 0.0) {
@@ -232,7 +215,6 @@ public class IntervalController extends BaseModel {
             controlValue2 = controlRangeMax;
         }
 
-        LOG.info("% {} TimeStep-Computation", name);
         LOG.info("time:  '{}' ", localtime);
         LOG.info("controlValue1:  '{}' ", controlValue1);
         LOG.info("controlValue2:  '{}' ", controlValue2);
@@ -243,10 +225,7 @@ public class IntervalController extends BaseModel {
         return 0;
     }
 
-
-    @Override
     public int regulStep() {
-        LOG.info("% {} RegulStep-Computation", name);
         LOG.info("controlValue1:  '{}' ", controlValue1);
         LOG.info("controlValue2:  '{}' ", controlValue2);
 

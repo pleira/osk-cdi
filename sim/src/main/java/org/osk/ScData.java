@@ -1,4 +1,4 @@
-package org.opensimkit;
+package org.osk;
 
 
 public class ScData {

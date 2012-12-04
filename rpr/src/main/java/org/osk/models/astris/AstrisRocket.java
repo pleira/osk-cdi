@@ -1,4 +1,4 @@
-package org.opensimkit.models.astris;
+package org.osk.models.astris;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -9,37 +9,32 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.management.InstanceAlreadyExistsException;
 
-import net.gescobar.jmx.Management;
-import net.gescobar.jmx.ManagementException;
-
-import org.opensimkit.models.Mesh;
-import org.opensimkit.models.Model;
-import org.opensimkit.models.astris.parts.Engine20;
-import org.opensimkit.models.astris.parts.EngineController21;
-import org.opensimkit.models.astris.parts.FFV18;
-import org.opensimkit.models.astris.parts.FFV19;
-import org.opensimkit.models.astris.parts.Filter06;
-import org.opensimkit.models.astris.parts.HPBottle00;
-import org.opensimkit.models.astris.parts.HPBottle01;
-import org.opensimkit.models.astris.parts.Junction04;
-import org.opensimkit.models.astris.parts.PReg08;
-import org.opensimkit.models.astris.parts.PReg12;
-import org.opensimkit.models.astris.parts.PReg15;
-import org.opensimkit.models.astris.parts.Pipe02;
-import org.opensimkit.models.astris.parts.Pipe03;
-import org.opensimkit.models.astris.parts.Pipe05;
-import org.opensimkit.models.astris.parts.Pipe07;
-import org.opensimkit.models.astris.parts.Pipe09;
-import org.opensimkit.models.astris.parts.Pipe11;
-import org.opensimkit.models.astris.parts.Pipe13;
-import org.opensimkit.models.astris.parts.Pipe14;
-import org.opensimkit.models.astris.parts.Pipe16;
-import org.opensimkit.models.astris.parts.ScStructure22;
-import org.opensimkit.models.astris.parts.Split10;
-import org.opensimkit.models.astris.parts.Tank17;
-import org.opensimkit.models.environment.OSKGravityModel;
+import org.osk.models.Model;
+import org.osk.models.astris.parts.Engine20;
+import org.osk.models.astris.parts.EngineController21;
+import org.osk.models.astris.parts.FFV18;
+import org.osk.models.astris.parts.FFV19;
+import org.osk.models.astris.parts.Filter06;
+import org.osk.models.astris.parts.HPBottle00;
+import org.osk.models.astris.parts.HPBottle01;
+import org.osk.models.astris.parts.Junction04;
+import org.osk.models.astris.parts.PReg08;
+import org.osk.models.astris.parts.PReg12;
+import org.osk.models.astris.parts.PReg15;
+import org.osk.models.astris.parts.Pipe02;
+import org.osk.models.astris.parts.Pipe03;
+import org.osk.models.astris.parts.Pipe05;
+import org.osk.models.astris.parts.Pipe07;
+import org.osk.models.astris.parts.Pipe09;
+import org.osk.models.astris.parts.Pipe11;
+import org.osk.models.astris.parts.Pipe13;
+import org.osk.models.astris.parts.Pipe14;
+import org.osk.models.astris.parts.Pipe16;
+import org.osk.models.astris.parts.ScStructure22;
+import org.osk.models.astris.parts.Split10;
+import org.osk.models.astris.parts.Tank17;
+import org.osk.models.environment.OSKGravityModel;
 /**
  * This class is instantiated by the CDI container. 
  * Itself, it instantiates the different elements of the rocket model.
@@ -79,9 +74,9 @@ public class AstrisRocket  {
 	@Inject OSKGravityModel gravityModel23;
 
 	// Boundary conditions
-	Mesh mesh0 = new Mesh("mesh_0", "top");
-	Mesh mesh1 = new Mesh("mesh_1", "sub");
-	Mesh mesh2 = new Mesh("mesh_2", "sub");
+//	Mesh mesh0 = new Mesh("mesh_0", "top");
+//	Mesh mesh1 = new Mesh("mesh_1", "sub");
+//	Mesh mesh2 = new Mesh("mesh_2", "sub");
 
 	final LinkedList<Model> timeStepItems = new LinkedList<Model>();
 
@@ -116,33 +111,33 @@ public class AstrisRocket  {
 
 	void initItems() {
 		
-		timeStepItems.add(hpbottle00);
-		timeStepItems.add(hpbottle01);
-		timeStepItems.add(pipe02);
-		timeStepItems.add(pipe03);
-		timeStepItems.add(junction04);
-		timeStepItems.add(pipe05);
-		timeStepItems.add(filter06);
-		timeStepItems.add(pipe07);
-		timeStepItems.add(preg08);
-		timeStepItems.add(pipe09);
-		timeStepItems.add(split10);
-		timeStepItems.add(pipe11);
-		timeStepItems.add(preg12);
-		timeStepItems.add(pipe13);
-		timeStepItems.add(pipe14);
-		timeStepItems.add(preg15);
-		timeStepItems.add(pipe16);
-		timeStepItems.add(tank17);
-		timeStepItems.add(fflow18);
-		timeStepItems.add(fflow19);
-		timeStepItems.add(engine20);
-		timeStepItems.add(engineController21);
-		timeStepItems.add(scStructure22);
-		timeStepItems.add(gravityModel23);
-		
-		regulationItems.put(engineController21.getName(), engineController21);
-		iterItems.put(mesh0.getName(), mesh0);
+//		timeStepItems.add(hpbottle00);
+//		timeStepItems.add(hpbottle01);
+//		timeStepItems.add(pipe02);
+//		timeStepItems.add(pipe03);
+//		timeStepItems.add(junction04);
+//		timeStepItems.add(pipe05);
+//		timeStepItems.add(filter06);
+//		timeStepItems.add(pipe07);
+//		timeStepItems.add(preg08);
+//		timeStepItems.add(pipe09);
+//		timeStepItems.add(split10);
+//		timeStepItems.add(pipe11);
+//		timeStepItems.add(preg12);
+//		timeStepItems.add(pipe13);
+//		timeStepItems.add(pipe14);
+//		timeStepItems.add(preg15);
+//		timeStepItems.add(pipe16);
+//		timeStepItems.add(tank17);
+//		timeStepItems.add(fflow18);
+//		timeStepItems.add(fflow19);
+//		timeStepItems.add(engine20);
+//		timeStepItems.add(engineController21);
+//		timeStepItems.add(scStructure22);
+//		timeStepItems.add(gravityModel23);
+//		
+//		regulationItems.put(engineController21.getName(), engineController21);
+//		iterItems.put(mesh0.getName(), mesh0);
 
 		
 //		items.put(mesh1.getName(), mesh1);
@@ -153,49 +148,49 @@ public class AstrisRocket  {
 		// initialize the meshes with the elements contained in each.
 		// The solver will impose later the boundary conditions.
 		// Order matters
-		mesh0.add(engineController21);
-		mesh0.add(mesh1);
-		mesh0.add(scStructure22);
-		mesh0.add(gravityModel23);
-
-		mesh1.add(mesh2);
-		mesh1.add(pipe05);
-		mesh1.add(filter06);
-		mesh1.add(pipe07);
-		mesh1.add(preg08);
-		mesh1.add(pipe09);
-		mesh1.add(split10);
-		mesh1.add(pipe11);
-		mesh1.add(preg12);
-		mesh1.add(pipe13);
-		mesh1.add(pipe14);
-		mesh1.add(preg15);
-		mesh1.add(pipe16);
-		mesh1.add(tank17);
-		mesh1.add(fflow18);
-		mesh1.add(fflow19);
-		mesh1.add(engine20);
-
-		mesh2.add(hpbottle00);
-		mesh2.add(hpbottle01);
-		mesh2.add(pipe02);
-		mesh2.add(pipe03);
-		mesh2.add(junction04);
+//		mesh0.add(engineController21);
+//		mesh0.add(mesh1);
+//		mesh0.add(scStructure22);
+//		mesh0.add(gravityModel23);
+//
+//		mesh1.add(mesh2);
+//		mesh1.add(pipe05);
+//		mesh1.add(filter06);
+//		mesh1.add(pipe07);
+//		mesh1.add(preg08);
+//		mesh1.add(pipe09);
+//		mesh1.add(split10);
+//		mesh1.add(pipe11);
+//		mesh1.add(preg12);
+//		mesh1.add(pipe13);
+//		mesh1.add(pipe14);
+//		mesh1.add(preg15);
+//		mesh1.add(pipe16);
+//		mesh1.add(tank17);
+//		mesh1.add(fflow18);
+//		mesh1.add(fflow19);
+//		mesh1.add(engine20);
+//
+//		mesh2.add(hpbottle00);
+//		mesh2.add(hpbottle01);
+//		mesh2.add(pipe02);
+//		mesh2.add(pipe03);
+//		mesh2.add(junction04);
 	}
     
     // move this method out of this class (catch an event and then, register? 
 	private void registerMBeans() {
-		for (Model model : timeStepItems) {
-			try {
-				Management.register(model,
-						"org.opensimkit:type=" + model.getType() + ",name="
-								+ model.getName());
-			} catch (InstanceAlreadyExistsException e) {
-				e.printStackTrace();
-			} catch (ManagementException e) {
-				e.printStackTrace();
-			}
-		}
+//		for (Model model : timeStepItems) {
+//			try {
+//				Management.register(model,
+//						"org.osk:type=" + model.getType() + ",name="
+//								+ model.getName());
+//			} catch (InstanceAlreadyExistsException e) {
+//				e.printStackTrace();
+//			} catch (ManagementException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 	 
 //	Use the annotated method to check the instantiation of the rocket model

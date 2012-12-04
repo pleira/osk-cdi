@@ -18,7 +18,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.packet;
+package org.osk.packet;
 
 import java.nio.ByteBuffer;
 

@@ -16,7 +16,7 @@
 *
 */
 
-package org.opensimkit.console;
+package org.osk.console;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;

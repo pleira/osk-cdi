@@ -1,12 +1,12 @@
-package org.opensimkit.models.astris;
+package org.osk.models.astris;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
-import org.opensimkit.ports.AnalogPort;
-import org.opensimkit.ports.PureGasPort;
-import org.opensimkit.ports.PureLiquidPort;
+import org.osk.ports.AnalogPort;
+import org.osk.ports.FluidPort;
+import org.osk.ports.FluidPort;
 
 /**
  * This class is a utility class to instantiate the connections used in 
@@ -33,29 +33,29 @@ public class PortProducer {
     // It would be interesting to code a CDI extension and generate such values in 
     // the CDI container
 
-	@Produces @Named("23_Fuel_Flow_Control_Signal") final AnalogPort prfflow23 = new AnalogPort(id23);
-    @Produces @Named("24_Ox_Flow_Control_Signal") final AnalogPort proxflow24 = new AnalogPort(id24);
-    @Produces @Named("00_PureGasDat") final PureGasPort gp00 = new PureGasPort("00_PureGasDat");
-    @Produces @Named("01_PureGasDat") final PureGasPort gp01 = new PureGasPort("01_PureGasDat");
-    @Produces @Named("02_PureGasDat") final PureGasPort gp02 = new PureGasPort("02_PureGasDat");
-    @Produces @Named("03_PureGasDat") final PureGasPort gp03 = new PureGasPort("03_PureGasDat");
-    @Produces @Named("04_PureGasDat") final PureGasPort gp04 = new PureGasPort("04_PureGasDat");
-    @Produces @Named("05_PureGasDat") final PureGasPort gp05 = new PureGasPort("05_PureGasDat");
-    @Produces @Named("06_PureGasDat") final PureGasPort gp06 = new PureGasPort("06_PureGasDat");
-    @Produces @Named("07_PureGasDat") final PureGasPort gp07 = new PureGasPort("07_PureGasDat");
-    @Produces @Named("08_PureGasDat") final PureGasPort gp08 = new PureGasPort("08_PureGasDat");
-    @Produces @Named("09_PureGasDat") final PureGasPort gp09 = new PureGasPort("09_PureGasDat");
-    @Produces @Named("10_PureGasDat") final PureGasPort gp10 = new PureGasPort("10_PureGasDat");
-    @Produces @Named("11_PureGasDat") final PureGasPort gp11 = new PureGasPort("11_PureGasDat");
-    @Produces @Named("13_PureGasDat") final PureGasPort gp13 = new PureGasPort("13_PureGasDat");
-    @Produces @Named("12_PureGasDat") final PureGasPort gp12 = new PureGasPort("12_PureGasDat");
-    @Produces @Named("14_PureGasDat") final PureGasPort gp14 = new PureGasPort("14_PureGasDat");
-    @Produces @Named("17_PureGasDat") final PureGasPort gp17 = new PureGasPort("17_PureGasDat");
-    @Produces @Named("15_PureGasDat") final PureGasPort gp15 = new PureGasPort("15_PureGasDat");
-    @Produces @Named("16_PureGasDat") final PureGasPort gp16 = new PureGasPort("16_PureGasDat");
-	@Produces @Named("18_PureLiquidDat") final PureLiquidPort plp18 = new PureLiquidPort(pldid18); 
-	@Produces @Named("19_PureLiquidDat") final PureLiquidPort plp19 = new PureLiquidPort(pldid19); 
-	@Produces @Named("20_PureLiquidDat") final PureLiquidPort plp20 = new PureLiquidPort(pldid20); 
-	@Produces @Named("21_PureLiquidDat") final PureLiquidPort plp21 = new PureLiquidPort(pldid21); 
+//	@Produces @Named("23_Fuel_Flow_Control_Signal") final AnalogPort prfflow23 = new AnalogPort(id23);
+//    @Produces @Named("24_Ox_Flow_Control_Signal") final AnalogPort proxflow24 = new AnalogPort(id24);
+//    @Produces @Named("00_PureGasDat") final FluidPort gp00 = new FluidPort("00_PureGasDat");
+//    @Produces @Named("01_PureGasDat") final FluidPort gp01 = new FluidPort("01_PureGasDat");
+//    @Produces @Named("02_PureGasDat") final FluidPort gp02 = new FluidPort("02_PureGasDat");
+//    @Produces @Named("03_PureGasDat") final FluidPort gp03 = new FluidPort("03_PureGasDat");
+//    @Produces @Named("04_PureGasDat") final FluidPort gp04 = new FluidPort("04_PureGasDat");
+//    @Produces @Named("05_PureGasDat") final FluidPort gp05 = new FluidPort("05_PureGasDat");
+//    @Produces @Named("06_PureGasDat") final FluidPort gp06 = new FluidPort("06_PureGasDat");
+//    @Produces @Named("07_PureGasDat") final FluidPort gp07 = new FluidPort("07_PureGasDat");
+//    @Produces @Named("08_PureGasDat") final FluidPort gp08 = new FluidPort("08_PureGasDat");
+//    @Produces @Named("09_PureGasDat") final FluidPort gp09 = new FluidPort("09_PureGasDat");
+//    @Produces @Named("10_PureGasDat") final FluidPort gp10 = new FluidPort("10_PureGasDat");
+//    @Produces @Named("11_PureGasDat") final FluidPort gp11 = new FluidPort("11_PureGasDat");
+//    @Produces @Named("13_PureGasDat") final FluidPort gp13 = new FluidPort("13_PureGasDat");
+//    @Produces @Named("12_PureGasDat") final FluidPort gp12 = new FluidPort("12_PureGasDat");
+//    @Produces @Named("14_PureGasDat") final FluidPort gp14 = new FluidPort("14_PureGasDat");
+//    @Produces @Named("17_PureGasDat") final FluidPort gp17 = new FluidPort("17_PureGasDat");
+//    @Produces @Named("15_PureGasDat") final FluidPort gp15 = new FluidPort("15_PureGasDat");
+//    @Produces @Named("16_PureGasDat") final FluidPort gp16 = new FluidPort("16_PureGasDat");
+//	@Produces @Named("18_PureLiquidDat") final FluidPort() plp18 = new FluidPort()(pldid18); 
+//	@Produces @Named("19_PureLiquidDat") final FluidPort() plp19 = new FluidPort()(pldid19); 
+//	@Produces @Named("20_PureLiquidDat") final FluidPort() plp20 = new FluidPort()(pldid20); 
+//	@Produces @Named("21_PureLiquidDat") final FluidPort() plp21 = new FluidPort()(pldid21); 
 	
 }

@@ -1,18 +1,74 @@
-package org.opensimkit.models.astris.parts;
+package org.osk.models.astris.parts;
 
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.opensimkit.models.rocketpropulsion.JunctionT1;
-import org.opensimkit.ports.PureGasPort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.events.BackIter;
+import org.osk.events.Iter;
+import org.osk.events.TimeIter;
+import org.osk.models.rocketpropulsion.JunctionT1;
+import org.osk.ports.FluidPort;
 
 
-public class Junction04 extends JunctionT1 {
+public class Junction04  {
 		
-	@Inject
-	public Junction04(@Named("02_PureGasDat") PureGasPort inputPortLeft,
-			@Named("03_PureGasDat") PureGasPort inputPortRight,
-			@Named("04_PureGasDat") PureGasPort outputPort) {
-		super("Junction04", inputPortLeft, inputPortRight, outputPort);
+	public final static String NAME = "Junction04"; 
+	
+	@Inject JunctionT1 model;
+	@Inject @Named(NAME) @Iter Event<FluidPort> event;
+	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
+	@Inject @Named(Pipe02.NAME) @BackIter Event<FluidPort> backEvent02;
+	@Inject @Named(Pipe03.NAME) @BackIter Event<FluidPort> backEvent03;
+
+	FluidPort left;
+	FluidPort right;
+	
+	public void iterationLeft(@Observes @Named(Pipe02.NAME) @Iter FluidPort inputPort) {
+		left = inputPort;
+		if (right !=  null) {
+			fireIterationStep();
+		}
 	}
+
+	public void iterationRight(@Observes @Named(Pipe03.NAME) @Iter FluidPort inputPort) {
+		right = inputPort;
+		if (left !=  null) {
+			fireIterationStep();
+		}
+	}
+
+	public void timeIterationLeft(@Observes @Named(Pipe02.NAME) @TimeIter FluidPort inputPort) {
+		left = inputPort;
+		if (right !=  null) {
+			fireTimeIteration();
+		}
+	}
+	public void timeIterationRight(@Observes @Named(Pipe03.NAME) @TimeIter FluidPort inputPort) {
+		right = inputPort;
+		if (left !=  null) {
+			fireTimeIteration();
+		}
+	}
+
+	public void backIterate(@Observes @Named(NAME) FluidPort outputPort) {
+		ImmutablePair<FluidPort, FluidPort> pair = model.backIterStep(outputPort);
+		backEvent02.fire(pair.left);
+		backEvent03.fire(pair.right);
+	}
+
+	private void fireIterationStep() {
+		FluidPort output = model.iterationStep(left, right);
+		event.fire(output);
+		left = right = null; // events processed
+	}
+
+	private void fireTimeIteration() {
+		FluidPort output = model.createOutputPort(left.getFluid());
+		outputEvent.fire(output);
+		left = right = null; // events processed
+	}
+	
 }

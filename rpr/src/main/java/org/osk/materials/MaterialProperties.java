@@ -37,15 +37,13 @@
  *
  */
 
-package org.opensimkit.materials;
+package org.osk.materials;
 
 /**
  * Defining data structure for fluid properties used in OpenSimKit models.
  *
  * @author J. Eickhoff
  * @author A. Brandt
- * @version 1.0
- * @since 2.4.0
  */
 public final class MaterialProperties {
     /* Wärmeleitfähigkeit. */

@@ -1,7 +1,4 @@
-/*
- * HPBottleT1.java
- *
- * Created on 8. Juli 2007, 16:18
+/**
  *
  *  Model definition for a gas pressure vessel.
  *
@@ -36,79 +33,25 @@
  *    Studienarbeit am Institut fuer Thermodynamik der Luft- und Raumfahrt
  *    Universitaet Stuttgart, Pfaffenwaldring 31, 7000 Stuttgart 80, 1988
  *
- *-----------------------------------------------------------------------------
- * Modification History:
- *
- *  2004-12-05
- *      C++ code version created  J. Eickhoff:
- *
- *      Class architecture is a derivative from ObjectSim 2.0.3.,
- *      a simulation program published in:
- *
- *        Eickhoff, J.:
- *        Modulare Programmarchitektur fuer ein wissensbasiertes
- *        Simulationssystem mit erweiterter Anwendbarkeit in der
- *        Entwicklung und Betriebsberwachung verfahrenstechnischer
- *        Anlagen.
- *        PhD thesis in Department Process Engineering of
- *        TU Hamburg-Harburg, 1996.
- *
- *      See also file history cited there and see historic relation of
- *      this OpenSimKit class to a.m. ObjectSim explained in
- *      OpenSimKit Documentation.
- *
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by author.
- *
- *
- *
- *  2005-09
- *      OpenSimKit V 2.2
- *      Modifications enterd for XML input file parsing by
- *      Peter Heinrich  peterhe@student.ethz.ch
- *
- *  2008-05
- *      OpenSimKit V 2.4
- *      Ported from C++ to Java
- *      A. Brandt  alexander.brandt@gmail.com
- *
- *  2009-01
- *      Diverse minor cleanups and entire textual translation to english.
- *      J. Eickhoff
- *
- *  2009-04
- *      Replaced the port array by named ports.
- *      A. Brandt
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A. Brandt
  */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.SimHeaders;
-import org.opensimkit.materials.HeliumJKC;
-import org.opensimkit.materials.MaterialProperties;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.PureGasPort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.SimHeaders;
+import org.osk.materials.HeliumJKC;
+import org.osk.materials.MaterialProperties;
+import org.osk.models.BaseModel;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Model definition for a gas pressure vessel.
- *
- * @author J. Eickhoff
- * @author P. Heinrich
- * @author A. Brandt
- * @version 1.4
- * @since 2.4.0
- */
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
+
 public abstract class HPBottleT1 extends BaseModel {
 	/** Logger instance for the HPBottleT1. */
 	private static final Logger LOG = LoggerFactory.getLogger(HPBottleT1.class);
@@ -153,20 +96,14 @@ public abstract class HPBottleT1 extends BaseModel {
 
 	private static final String TYPE = "HPBottleT1";
 	private static final String SOLVER = "Euler";
-	private static final double MAXTSTEP = 5.0;
-	private static final double MINTSTEP = 0.001;
 	
-	private final PureGasPort outputPort;
-
-    public HPBottleT1(final String name,PureGasPort outputPort) {
-        super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-        this.outputPort = outputPort;
+	
+    public HPBottleT1() {
+        super(TYPE, SOLVER);
     }
 
     @PostConstruct
-    @Override
     public void init() {
-    	completeConnections();
         MaterialProperties helium = new MaterialProperties();
         double radius;
 
@@ -200,7 +137,7 @@ public abstract class HPBottleT1 extends BaseModel {
         twold = twall;
         /* Initializing initial mass in bottle. */
         /** TODO Look here, is this correct? */
-        ptotal = org.opensimkit.materials.Helium.HELIUM(ptotal, ttotal, helium);
+        ptotal = org.osk.materials.Helium.HELIUM(ptotal, ttotal, helium);
         mtotal = helium.DICHTE * volume;
 
         /* Initializing default value for mass flow. */
@@ -208,22 +145,18 @@ public abstract class HPBottleT1 extends BaseModel {
 
         LOG.info("mass : {}", mass);
         LOG.info("volume : {}", volume);
-        LOG.info("cbottle : {}", specificHeatCapacity);
+        LOG.info("specificHeatCapacity : {}", specificHeatCapacity);
         LOG.info("ptotal : {}", ptotal);
         LOG.info("ttotal : {}", ttotal);
         LOG.info("fluid : {}", fluid);
     }
+    
 
-    void completeConnections() {
-        outputPort.setFromModel(this);
-    	LOG.info("completeConnections for " + name + "(" +  outputPort.getName() + ")");
+    public FluidPort iterationStep() {
+        return newOutputPort();
     }
 
-
-    @Override
-    public int timeStep(final double time, final double tStepSize) {
-        LOG.info("% {} TimeStep-Computation", name);
-
+    public void timeStep(final double time, final double timeStep) {
         MaterialProperties helium = new MaterialProperties();
         double RALLG, RSPEZ, CP, CV;
         double PBEZ, DMASSE;
@@ -233,11 +166,7 @@ public abstract class HPBottleT1 extends BaseModel {
         double FAKTOR, ST, PLANF, PLEND, PLAUF, P = 0, Wert;
         double gload, PRAN, GRAS, NU, ALFA, QLEIST, q;
 
-        LOG.info("% Start Conditions...");
-        LOG.info("ptotal : {}", ptotal);
-        LOG.info("ttotal : {}", ttotal);
-        LOG.info("mtotal : {}", mtotal);
-        LOG.info("mftotal : {}", mftotal);
+        logState("% HPBottleT1 Start Conditions...");
 
         RALLG = 8314.3;
         RSPEZ = 2077;
@@ -247,7 +176,7 @@ public abstract class HPBottleT1 extends BaseModel {
 
         PBEZ = 5.0;
 
-        DMASSE = mftotal * tStepSize;
+        DMASSE = mftotal * timeStep;
         helium.DICHTE = mtotal / volume;
 
         /**********************************************************************/
@@ -299,9 +228,9 @@ public abstract class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        DTEMP = qHFlow * tStepSize /(mtotal * CV)
-            + mftotal * ttotal * tStepSize /mtotal
-            - H * mftotal * tStepSize/(mtotal * CV);
+        DTEMP = qHFlow * timeStep /(mtotal * CV)
+            + mftotal * ttotal * timeStep /mtotal
+            - H * mftotal * timeStep/(mtotal * CV);
 
         /**********************************************************************/
         /*                                                                    */
@@ -334,9 +263,9 @@ public abstract class HPBottleT1 extends BaseModel {
         PLANF=.7*helium.DICHTE*RSPEZ*ttotal;
         PLEND=pinit*1.1;
         ST=1E6;
-        // FIXME: check for maximum 1000 iterations
+        // FIXME: check for maximum 10000 iterations
         int i = 0;
-        for(PLAUF=PLANF;PLAUF<PLEND && i<1000;PLAUF+=ST, i++) {
+        for(PLAUF=PLANF;PLAUF<PLEND && i<10000;PLAUF+=ST, i++) {
 
             helium.Z=1.0+FAKTOR*PLAUF/1E5;
             P=helium.Z*helium.DICHTE*RSPEZ*ttotal;
@@ -351,8 +280,8 @@ public abstract class HPBottleT1 extends BaseModel {
                 PLAUF=PLANF;
                 }
         }
-        if (i>=1000) {
-        	LOG.warn("Problem iterating the Pressure for " + getName());
+        if (i>=10000) {
+        	LOG.warn("!!! Problem iterating the Pressure in HPTankT1");
         }
         //ptotal=P;
 
@@ -363,7 +292,7 @@ public abstract class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        ptotal = org.opensimkit.materials.Helium.HELIUM(P, ttotal, helium);
+        ptotal = org.osk.materials.Helium.HELIUM(P, ttotal, helium);
 
         /**********************************************************************/
         /*                                                                    */
@@ -382,7 +311,7 @@ public abstract class HPBottleT1 extends BaseModel {
         NU=.098*Math.pow((GRAS*PRAN),.345);
         ALFA=NU*helium.LAMBDA/diam;
         QLEIST=ALFA*surface*(twall-ttotal);
-        q=qHFlow*tStepSize;
+        q=qHFlow*timeStep;
 
         /**********************************************************************/
         /*                                                                    */
@@ -394,73 +323,53 @@ public abstract class HPBottleT1 extends BaseModel {
         twall=twall-(q/(mass*specificHeatCapacity));
         qHFlow = QLEIST;
 
-        pgrad = (ptotal - pold) / tStepSize;
-        tgrad = (ttotal - told) / tStepSize;
-        twgrad = (twall - twold) / tStepSize;
+        pgrad = (ptotal - pold) / timeStep;
+        tgrad = (ttotal - told) / timeStep;
+        twgrad = (twall - twold) / timeStep;
 
         pold = ptotal;
         told = ttotal;
         twold = twall;
+        logState("% End Conditions...");
+         
+    }
 
-        LOG.info("% End Conditions...");
-        LOG.info("ptotal : {}", ptotal);
-        LOG.info("ttotal : {}", ttotal);
-        LOG.info("mtotal : {}", mtotal);
-        LOG.info("mftotal : {}", mftotal);
+    public void backIterStep(FluidPort outputPort) {
 
-        return 0;
+        mftotal = outputPort.getBoundaryMassflow();
+        if (outputPort.getBoundaryPressure() >= 0.0) {
+            LOG.error("Pressure request on port 0 cannot be handled!");
+        }
+        if (outputPort.getBoundaryTemperature() >= 0.0) {
+            LOG.error("Temp. request on port 0 cannot be handled!");
+        }
+        // TBC Do we need this: getBackIterEvent().fire(outputPort);
     }
 
 
-    @Override
-    public int iterationStep() {
-        LOG.info("% {} IterationStep-Computation", name);
-
+	private void logState(String header) {
+		LOG.info(header);
         LOG.info("ptotal : {}", ptotal);
         LOG.info("ttotal : {}", ttotal);
         LOG.info("mtotal : {}", mtotal);
         LOG.info("mftotal : {}", mftotal);
+	}
 
+	public ImmutablePair<Double, FluidPort> createInputPortIter(double timeStep) {
+		return new ImmutablePair<Double, FluidPort> (timeStep, newOutputPort());
+	}
+	 
+
+	private FluidPort newOutputPort() {
+		FluidPort outputPort = new FluidPort();
         outputPort.setFluid(fluid);
         outputPort.setPressure(ptotal);
         outputPort.setTemperature(ttotal);
         outputPort.setMassflow(mftotal);
+		return outputPort;
+	}
 
-        return 0;
-    }
 
-
-    @Override
-    public int backIterStep() {
-        int result;
-
-        result = 0;
-
-        LOG.info("% {} BackIteration-Computation", name);
-
-        mftotal = outputPort.getBoundaryMassflow();
-
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Pressure request on port 0 cannot"
-                    + " be handled!", name);
-            //nonResumeFlag = 1;
-            result = 1;
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.info("Error! Comp. '{}': Temp. request on port 0 cannot"
-                    + " be handled!", name);
-            result = 1;
-        }
-
-        LOG.info("ptotal : {}", ptotal);
-        LOG.info("ttotal : {}", ttotal);
-        LOG.info("mtotal : {}", mtotal);
-        LOG.info("mftotal : {}", mftotal);
-
-        return result;
-    }
-
-    
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions
 

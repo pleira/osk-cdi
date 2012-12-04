@@ -18,7 +18,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.oskpacket;
+package org.osk.oskpacket;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.opensimkit.packet.PacketDecoder;
+import org.osk.packet.PacketDecoder;
 
 /**
  * This class is meant to receive all OSK packets and to forward them to their

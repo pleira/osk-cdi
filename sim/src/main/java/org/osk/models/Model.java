@@ -19,7 +19,7 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.models;
+package org.osk.models;
 
 
 /**
@@ -27,8 +27,6 @@ package org.opensimkit.models;
  * model.
  *
  * @author A. Brandt
- * @version 1.0
- * @since 2.4.6
  */
 public interface Model {
 //    public int initCalcSteps(CTimeStep ctime, CRegulStep cregul);

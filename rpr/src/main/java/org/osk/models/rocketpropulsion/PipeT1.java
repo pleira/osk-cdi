@@ -49,43 +49,19 @@
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by author.
- *
- *
- *
- *  2005-09
- *      OpenSimKit V 2.2
- *      Modifications enterd for XML input file parsing by
- *        Peter Heinrich  peterhe@student.ethz.ch
- *
- *  2008-05
- *      OpenSimKit V 2.4
- *      Ported from C++ to Java
- *      A. Brandt  alexander.brandt@gmail.com
- *
- *  2009-01
- *      Diverse minor cleanups and entire textual translation to english.
- *      J. Eickhoff
- *
- *  2009-04
- *      Replaced the port array by named ports.
- *      A. Brandt
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A. Brandt
  */
-package org.opensimkit.models.rocketpropulsion;
+package org.osk.models.rocketpropulsion;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import net.gescobar.jmx.annotation.ManagedAttribute;
-
-import org.opensimkit.materials.MaterialProperties;
-import org.opensimkit.models.BaseModel;
-import org.opensimkit.ports.PureGasPort;
+import org.osk.events.TimeStep;
+import org.osk.materials.MaterialProperties;
+import org.osk.models.BaseModel;
+import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe.
@@ -93,12 +69,12 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
- * @version 1.4
- * @since 2.4.0
+ * @author P. Pita
  */
 public class PipeT1 extends BaseModel {
-	/** Logger instance for the PipeT1. */
-	private static final Logger LOG = LoggerFactory.getLogger(PipeT1.class);
+	@Inject Logger LOG;
+	@Inject @TimeStep Double tStepSize;
+	
 	/** Diameter of pipe. */
 	private double innerDiameter;
 	/** Length of pipe. */
@@ -132,118 +108,25 @@ public class PipeT1 extends BaseModel {
 
 	private static final String TYPE = "PipeT1";
 	private static final String SOLVER = "Euler";
-	private static final double MAXTSTEP = 10.0;
-	private static final double MINTSTEP = 0.001;
 
-	private PureGasPort inputPort;
-	private PureGasPort outputPort;
-
-	public PipeT1(final String name, PureGasPort inputPort,
-			PureGasPort outputPort) {
-		super(name, TYPE, SOLVER, MAXTSTEP, MINTSTEP);
-		this.inputPort = inputPort;
-		this.outputPort = outputPort;
+	public PipeT1() {
+		super(TYPE, SOLVER);
 	}
 
-	@Override
 	@PostConstruct
 	public void init() {
-		completeConnections();
+//		completeConnections();
 		/* Mass of one pipe element. */
 		massPElem = specificMass * length / 10;
 	}
-
-	void completeConnections() {
-		inputPort.setToModel(this);
-		outputPort.setFromModel(this);
-		LOG.info("completeConnections for " + name + ", ("
-				+ inputPort.getName() + "," + outputPort.getName() + ")");
-	}
-
-	@Override
-	public int timeStep(final double time, final double tStepSize) {
-		String fluid;
-		double CP, Q, DTF, DTB;
-		int J;
-
-		LOG.info("% {} TimeStep-Computation", name);
-
-		pin = inputPort.getPressure();
-		tin = inputPort.getTemperature();
-		mfin = inputPort.getMassflow();
-		fluid = inputPort.getFluid();
-
-		/* Skip time step computation if no flow in pipe. */
-		if (mfin <= 1.E-6) {
-			return 0;
-		}
-
-		CP = 5223.2;
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Temperature change of pipe */
-		/*                                                                    */
-		/* Section for computation of temperature change of pipe. */
-		/* Coding is an approximation splitting pipe into 10 subsections */
-		/* with individual temperature. */
-		/*                                                                    */
-		/* J= Number of pipe section */
-		/*                                                                    */
-		/* Fluid properties (viscosity ...) are considered to be */
-		/* constant over entire pipe, same as Nusselt number and thus */
-		/* heat transfer coefficient Alfa. */
-		/*                                                                    */
-		/* Computation of the heat transfer numbers, */
-		/* XI,Prandtl-Zahl, Nusselt, ALFA. */
-		/* please refer to [1] section 3.3.3.2, Eq..(3.1) ff */
-		/*                                                                    */
-		/* Change: Approximation of Laval number at pipe outlet to be same */
-		/* as L1 at pipe inlet port. */
-		/*                                                                    */
-		/* Computation of heatflow from pipe to fluid */
-		/* for each pipe of the 10 pipe elements. */
-		/*                                                                    */
-		/**********************************************************************/
-		for (J = 0; J < 10; J++) {
-			qHFlow[J] = alfa * 3.1415 * innerDiameter * length
-					* (temperatures[J] - tstatin) / 10;
-			Q = qHFlow[J] * tStepSize;
-
-			/******************************************************************/
-			/*                                                                */
-			/* Computation of delta T for fluid and new fluid temperature */
-			/* for each pipe element */
-			/*                                                                */
-			/******************************************************************/
-			DTF = qHFlow[J] / (mfin * CP);
-			tstatin = tstatin + DTF;
-
-			/******************************************************************/
-			/*                                                                */
-			/* Computation of delta T of each pipe section */
-			/* and computation of new pipe temp. for each section */
-			/*                                                                */
-			/******************************************************************/
-			DTB = Q / (massPElem * specificHeatCapacity);
-			temperatures[J] = temperatures[J] - DTB;
-		}
-		return 0;
-	}
-
-	@Override
-	public int iterationStep() {
+	
+	public FluidPort iterationStep(FluidPort inputPort) {
 		String fluid;
 		double RSPEZ, CP;
 		double GESCH, RE, REbound, LA;
 		double zeta;
 		double XI, PR, NU, DTF;
 		int J;
-
-		/** Fluid material properties for heat transfer computations. */
-		MaterialProperties Helium = new MaterialProperties();
-
-		LOG.info("% {} IterationStep-Computation", name);
 
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
@@ -254,20 +137,16 @@ public class PipeT1 extends BaseModel {
 		if (mfin <= 1.E-6) {
 			pout = pin;
 			tout = tin;
-
-			outputPort.setFluid(fluid);
-			outputPort.setPressure(pout);
-			outputPort.setTemperature(tout);
-			outputPort.setMassflow(mfin);
-
-			return 0;
+			return createOutputPort(fluid);
 		}
 
 		RSPEZ = 2077;
 		CP = 5223.2;
 
 		// FIXME
-		double PK = org.opensimkit.materials.Helium.HELIUM(pin, tin, Helium);
+		/** Fluid material properties for heat transfer computations. */
+		MaterialProperties Helium = new MaterialProperties();
+		double PK = org.osk.materials.Helium.HELIUM(pin, tin, Helium);
 
 		GESCH = 4. * mfin
 				/ (Helium.DICHTE * 3.1415 * Math.pow(innerDiameter, 2));
@@ -399,8 +278,7 @@ public class PipeT1 extends BaseModel {
 		tout = tstatin;
 
 		if ((tout - tin) > 10.0) {
-			LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
-			LOG.info("Temp. change > 10 deg. in pipe '{}'", name);
+			LOG.info("Temp. change > 10 deg. in pipe");
 		}
 
 		/**********************************************************************/
@@ -409,52 +287,105 @@ public class PipeT1 extends BaseModel {
 		/*                                                                    */
 		/**********************************************************************/
 
-		outputPort.setFluid(fluid);
-		outputPort.setPressure(pout);
-		outputPort.setTemperature(tout);
-		outputPort.setMassflow(mfin);
+//		LOG.info(" -> pout := {}", pout);
+//		LOG.info(" -> tout := {}", tout);
+//		LOG.info(" -> mfin/out := {}", mfin);
 
-		LOG.info(" -> pout := {}", pout);
-		LOG.info(" -> tout := {}", tout);
-		LOG.info(" -> mfin/out := {}", mfin);
+		return createOutputPort(fluid);
+	}
 
+	public int timeStep(final FluidPort inputPort) {
+		String fluid;
+		double CP, Q, DTF, DTB;
+		int J;
+
+		pin = inputPort.getPressure();
+		tin = inputPort.getTemperature();
+		mfin = inputPort.getMassflow();
+		fluid = inputPort.getFluid();
+
+		/* Skip time step computation if no flow in pipe. */
+		if (mfin <= 1.E-6) {
+			return 0;
+		}
+
+		CP = 5223.2;
+
+		/**********************************************************************/
+		/*                                                                    */
+		/* Temperature change of pipe */
+		/*                                                                    */
+		/* Section for computation of temperature change of pipe. */
+		/* Coding is an approximation splitting pipe into 10 subsections */
+		/* with individual temperature. */
+		/*                                                                    */
+		/* J= Number of pipe section */
+		/*                                                                    */
+		/* Fluid properties (viscosity ...) are considered to be */
+		/* constant over entire pipe, same as Nusselt number and thus */
+		/* heat transfer coefficient Alfa. */
+		/*                                                                    */
+		/* Computation of the heat transfer numbers, */
+		/* XI,Prandtl-Zahl, Nusselt, ALFA. */
+		/* please refer to [1] section 3.3.3.2, Eq..(3.1) ff */
+		/*                                                                    */
+		/* Change: Approximation of Laval number at pipe outlet to be same */
+		/* as L1 at pipe inlet port. */
+		/*                                                                    */
+		/* Computation of heatflow from pipe to fluid */
+		/* for each pipe of the 10 pipe elements. */
+		/*                                                                    */
+		/**********************************************************************/
+		for (J = 0; J < 10; J++) {
+			qHFlow[J] = alfa * 3.1415 * innerDiameter * length
+					* (temperatures[J] - tstatin) / 10;
+			Q = qHFlow[J] * tStepSize;
+
+			/******************************************************************/
+			/*                                                                */
+			/* Computation of delta T for fluid and new fluid temperature */
+			/* for each pipe element */
+			/*                                                                */
+			/******************************************************************/
+			DTF = qHFlow[J] / (mfin * CP);
+			tstatin = tstatin + DTF;
+
+			/******************************************************************/
+			/*                                                                */
+			/* Computation of delta T of each pipe section */
+			/* and computation of new pipe temp. for each section */
+			/*                                                                */
+			/******************************************************************/
+			DTB = Q / (massPElem * specificHeatCapacity);
+			temperatures[J] = temperatures[J] - DTB;
+		}
 		return 0;
 	}
 
-	@Override
-	public int backIterStep() {
-		int result;
-
-		result = 0;
-
-		LOG.info("% {} BackIteration-Computation", name);
-
+	public FluidPort backIterStep(FluidPort outputPort) {
 		if (outputPort.getBoundaryPressure() >= 0.0) {
-			LOG.info("Error with {}: Pressure request on output port {} cannot"
-					+ " be handled!", name, outputPort.getName());
-			result = 1;
+			LOG.error("Pressure request on output port cannot be handled!");
 		}
 		if (outputPort.getBoundaryTemperature() >= 0.0) {
-			LOG.info("Error with {}: Temp. request on output port {} cannot"
-					+ " be handled!", name, outputPort.getName());
-			result = 1;
+			LOG.error("Temp. request on output port cannot be handled!");
 		}
 
 		mfUpBackiter = outputPort.getBoundaryMassflow();
 		pUpBackiter = outputPort.getBoundaryPressure();
 		tUpBackiter = outputPort.getBoundaryTemperature();
-		LOG.info(" -> pUpBackiter := {}", pUpBackiter);
-		LOG.info(" -> tUpBackiter := {}", tUpBackiter);
-		LOG.info(" -> mfUpBackiter := {}", mfUpBackiter);
-
-		inputPort.setBoundaryFluid(outputPort.getBoundaryFluid());
-		inputPort.setBoundaryPressure(-999999.99);
-		inputPort.setBoundaryTemperature(-999999.99);
-		inputPort.setBoundaryMassflow(mfUpBackiter);
-
-		return result;
+		return BoundaryUtils.createBoundaryPort(outputPort);
 	}
 
+
+	public FluidPort createOutputPort(String fluid) {
+		FluidPort outputPort = new FluidPort();
+		outputPort.setFluid(fluid);
+		outputPort.setPressure(pout);
+		outputPort.setTemperature(tout);
+		outputPort.setMassflow(mfin);
+		return outputPort;
+	}
+	
 	// -----------------------------------------------------------------------------------
 	// Methods added for JMX monitoring and setting initial properties via CDI
 	// Extensions
@@ -619,24 +550,6 @@ public class PipeT1 extends BaseModel {
 
 	public void setMfUpBackiter(double mfUpBackiter) {
 		this.mfUpBackiter = mfUpBackiter;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getInputPort() {
-		return inputPort;
-	}
-
-	public void setInputPort(PureGasPort inputPort) {
-		this.inputPort = inputPort;
-	}
-
-	@ManagedAttribute
-	public PureGasPort getOutputPort() {
-		return outputPort;
-	}
-
-	public void setOutputPort(PureGasPort outputPort) {
-		this.outputPort = outputPort;
 	}
 
 }

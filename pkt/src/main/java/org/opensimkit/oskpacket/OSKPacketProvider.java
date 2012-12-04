@@ -4,7 +4,7 @@
  * Created on 10. December 2008, 18:32
  *
  *  The OSK Packet Provider class implements the
- *  {@link org.opensimkit.packet.PacketProvider} interface.
+ *  {@link org.osk.packet.PacketProvider} interface.
  *
  *-----------------------------------------------------------------------------
  * Modification History:
@@ -18,13 +18,13 @@
  *      No warranty and liability for correctness by author.
  *
  */
-package org.opensimkit.oskpacket;
+package org.osk.oskpacket;
 
-import org.opensimkit.packet.PacketProvider;
+import org.osk.packet.PacketProvider;
 
 /**
  *  The OSK Packet Provider class implements the
- *  {@link org.opensimkit.packet.PacketProvider} interface.
+ *  {@link org.osk.packet.PacketProvider} interface.
  * @author OSK-J Team
  * @version 1.0
  * @since 2.5.1

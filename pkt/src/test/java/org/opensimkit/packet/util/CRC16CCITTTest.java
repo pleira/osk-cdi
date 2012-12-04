@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-package org.opensimkit.packet.util;
+package org.osk.packet.util;
 
-import org.opensimkit.oskpacket.CRC16CCITT;
+import org.osk.oskpacket.CRC16CCITT;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
