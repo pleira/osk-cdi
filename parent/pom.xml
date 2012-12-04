@@ -14,12 +14,12 @@
 	 -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <org.jboss.weld.se.weld-se.version>1.1.9.Final</org.jboss.weld.se.weld-se.version>
-    <deltaspike.version>0.3-incubating</deltaspike.version>
+    <org.jboss.weld.se.weld-se.version>2.0.0.Beta1</org.jboss.weld.se.weld-se.version>
+    <deltaspike.version>0.4-incubating</deltaspike.version>
   </properties>
   <modules>
     <module>../sim</module>
-    <module>../pkt</module>
+<!--     <module>../pkt</module> -->
     <module>../rpr</module>
   </modules>
   <dependencyManagement>
@@ -29,6 +29,17 @@
         <artifactId>weld-se</artifactId>
         <version>${org.jboss.weld.se.weld-se.version}</version>
       </dependency>
+<dependency>
+    <groupId>org.apache.deltaspike.core</groupId>
+    <artifactId>deltaspike-core-api</artifactId>
+    <version>${deltaspike.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.deltaspike.core</groupId>
+    <artifactId>deltaspike-core-impl</artifactId>
+    <version>${deltaspike.version}</version>
+</dependency>
+      
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -46,6 +57,26 @@
     <!--                 <groupId>org.jboss.weld</groupId> -->
     <!--                 <artifactId>weld-logger</artifactId> -->
     <!--             </dependency> -->
+<dependency>
+    <groupId>org.apache.deltaspike.core</groupId>
+    <artifactId>deltaspike-core-api</artifactId>
+    <version>${deltaspike.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.deltaspike.core</groupId>
+    <artifactId>deltaspike-core-impl</artifactId>
+    <version>${deltaspike.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.deltaspike.cdictrl</groupId>
+    <artifactId>deltaspike-cdictrl-api</artifactId>
+    <version>${deltaspike.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.deltaspike.cdictrl</groupId>
+    <artifactId>deltaspike-cdictrl-weld</artifactId>
+    <version>${deltaspike.version}</version>
+</dependency>
         <dependency>
             <groupId>net.gescobar</groupId>
             <artifactId>jmx-annotations</artifactId>
@@ -87,6 +118,34 @@
             <url>http://repository.elibom.net/nexus/content/repositories/releases</url>  
         </repository>
     <repository>
+      <id>apache-deltaspike-cdictrl-repository</id>
+      <url>https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/cdictrl/deltaspike-cdictrl-api/0.4-incubating-SNAPSHOT/</url>
+      <layout>default</layout>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>apache-deltaspike-core-repository</id>
+      <url>https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/core/deltaspike-core-api/0.4-incubating-SNAPSHOT/</url>
+    </repository>
+    <repository>
+      <id>apache-deltaspike-core-impl-repository</id>
+      <url>https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/core/deltaspike-core-impl/0.4-incubating-SNAPSHOT/</url>
+      <layout>default</layout>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>jboss-public-repository-group</id>
       <name>JBoss Public Maven Repository Group</name>
       <url>http://repository.jboss.org/nexus/content/groups/public</url>
@@ -100,6 +159,8 @@
         <updatePolicy>never</updatePolicy>
       </snapshots>
     </repository>
+    
+<!--     https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/cdictrl/deltaspike-cdictrl-api/0.2-incubating-SNAPSHOT/ -->
   </repositories>
   <pluginRepositories>
     <pluginRepository>

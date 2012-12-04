@@ -55,11 +55,6 @@
       <artifactId>jat-osk</artifactId>
       <version>1.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.opensimkit</groupId>
-      <artifactId>pkt</artifactId>
-      <version>0.1-SNAPSHOT</version>
-    </dependency>
   </dependencies>
   <build>
     <plugins>

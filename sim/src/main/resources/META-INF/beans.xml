@@ -3,7 +3,7 @@
 	   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 
 	<interceptors>
-		<class>org.opensimkit.interceptors.AuditTimeInterceptor</class>
+		<class>org.osk.interceptors.AuditTimeInterceptor</class>
 	</interceptors>
 
 </beans>
