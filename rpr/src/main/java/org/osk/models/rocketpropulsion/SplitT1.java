@@ -4,6 +4,7 @@
  * Created on 8. Juli 2007, 21:35
  *
  *  Model definition for a pipe split:
+t this.name = name;  
  *
  *                          /+--  Left Output Port
  *                         /
@@ -83,6 +84,7 @@
 package org.osk.models.rocketpropulsion;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -92,12 +94,14 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe split. Component for connecting two pure gas
+t this.name = name;  
  * pipes. Computation only coveres adding of mass flow rates.
  *
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
  */
+@Log
 public class SplitT1 extends BaseModel {
 	/** Logger instance for the SplitT1. */
 	private static final Logger LOG = LoggerFactory.getLogger(SplitT1.class);
@@ -136,6 +140,10 @@ public class SplitT1 extends BaseModel {
         pout = pin;
         tout = tin;
         if (mfin > 0.0) {
+        	if (mfboundLeft == 0.0 && mfboundRight == 0.0) {
+        		LOG.warn("Not initialized mfboundLeft and mfboundRight. Using 0.5.");
+        		mfboundLeft = mfboundRight = 0.5;
+        	}
             mfoutLeft  = mfin
                     * (mfboundLeft / (mfboundLeft + mfboundRight));
             mfoutRight = mfin

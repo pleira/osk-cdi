@@ -1,4 +1,5 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -16,7 +17,8 @@ import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
 
 
-public class FFV19 extends FluidFlowValve {
+@Log
+public class FFV19 {
 		
 	public final static String NAME = "FFV19";
 
@@ -29,28 +31,28 @@ public class FFV19 extends FluidFlowValve {
 	FluidPort inputPort;
 	AnalogPort controlPort;
 	
-	public void iterationFuel(@Observes @Named(Tank17.NAME) @Fuel @Iter FluidPort input) {
+	public void iterationFuel(@Observes @Named(Tank17.NAME) @Oxid @Iter FluidPort input) {
 		inputPort = input;
 		if (controlPort != null) {
 			fireIteration();
 		}
 	}
 	
-	public void regulationControl(@Observes @Named(EngineController21.NAME) @Fuel AnalogPort input) {
+	public void regulationControl(@Observes @Named(EngineController21.NAME) @Oxid AnalogPort input) {
 		controlPort = input;
 		if (inputPort != null) {
 			fireIteration();
 		}
 	}
 
-	public void timeIteration(@Observes @Named(Tank17.NAME) @Fuel @TimeIter FluidPort input) {
+	public void timeIteration(@Observes @Named(Tank17.NAME) @Oxid @TimeIter FluidPort input) {
 		inputPort = input;
 		if (controlPort != null) {
 			fireTimeIteration();
 		}
 	}
 
-	public void timeIteration(@Observes @Named(EngineController21.NAME) @Fuel @TimeIter AnalogPort input) {
+	public void timeIteration(@Observes @Named(EngineController21.NAME) @Oxid @TimeIter AnalogPort input) {
 		controlPort = input;
 		if (inputPort != null) {
 			fireTimeIteration();

@@ -44,8 +44,6 @@ import javax.inject.Inject;
 import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
 import org.osk.config.NumberConfig;
 import org.osk.events.TimeStep;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Central manager of the simulation time.
@@ -76,36 +74,21 @@ public class TimeHandler {
     private static final int TIME_SYSTEM = 0;
     private static final int TIME_SIMULATION = 1;
     private static final int TIME_STEPS = 2;
-    private static final Logger LOG
-            = LoggerFactory.getLogger(TimeHandler.class);
-
-    private final String name = "timeHandler";
     private final long[] time = new long[3];
-    private DateFormat formatCel;
-
-     private String simulatedMissionTimeString; // = "2010-03-01T22:55:00.000+0000";
-     private int interval;
-     
-     private int stepSize;
-
+    private String simulatedMissionTimeString; // = "2010-03-01T22:55:00.000+0000";
+    private int interval;     
+    private int stepSize;
 
     @PostConstruct
-    public void init() {
+    public void init() throws ParseException {
         // 1985-04-12T23:20:50.100Z
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         format.setLenient(true);
-        formatCel = new SimpleDateFormat("yyyy, MM, dd, HH, mm, ss");
-        formatCel.setLenient(true);
-
         time[TIME_SYSTEM] = 0;
         time[TIME_STEPS] = 0;
         time[TIME_SIMULATION] = 0;
-        try {
-           time[TIME_SIMULATION]
+        time[TIME_SIMULATION]
                    = format.parse(simulatedMissionTimeString).getTime();
-        } catch (ParseException ex) {
-            LOG.error("Exception:", ex);
-        }
     }
 
     public long getSystemTime() {
@@ -115,11 +98,7 @@ public class TimeHandler {
     public long getSimulatedMissionTime() {
         return time[TIME_SIMULATION];
     }
-
-    public String getCelestiaUTCJulian2000() {
-        return formatCel.format(time[TIME_SIMULATION]);
-    }
-    
+   
     public double getSimulatedMissionTimeAsDouble() {
         return time[TIME_SIMULATION] / 1000.;
     }
@@ -151,10 +130,6 @@ public class TimeHandler {
         time[TIME_SYSTEM] += interval;
     }
 
-    public String getName() {
-        return name;
-    }
-
 	public String getSimulatedMissionTimeString() {
 		return simulatedMissionTimeString;
 	}
@@ -174,7 +149,5 @@ public class TimeHandler {
 	public void setStepSize(@NumberConfig(name = "time.stepSize") Integer stepSize) {
 		this.stepSize = stepSize;
 	}
-	
-	
 
 }

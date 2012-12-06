@@ -1,6 +1,7 @@
 /**
  *
  *  Model definition for a gas pressure vessel.
+t this.name = name;  
  *
  *
  *                            ++++
@@ -39,22 +40,23 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.SimHeaders;
+import org.osk.TimeHandler;
+import org.osk.interceptors.Log;
 import org.osk.materials.HeliumJKC;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
-public abstract class HPBottleT1 extends BaseModel {
-	/** Logger instance for the HPBottleT1. */
-	private static final Logger LOG = LoggerFactory.getLogger(HPBottleT1.class);
+@Log
+public class HPBottleT1 extends BaseModel {
+	@Inject Logger LOG; 
+	@Inject TimeHandler timeHandler;
 	/** Mass of pressure vessel. */
 	private double mass;
 	/** Volume of vessel. */
@@ -97,13 +99,12 @@ public abstract class HPBottleT1 extends BaseModel {
 	private static final String TYPE = "HPBottleT1";
 	private static final String SOLVER = "Euler";
 	
-	
     public HPBottleT1() {
         super(TYPE, SOLVER);
     }
 
-    @PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;  
         MaterialProperties helium = new MaterialProperties();
         double radius;
 
@@ -120,7 +121,7 @@ public abstract class HPBottleT1 extends BaseModel {
         /* Initializing heat flow. */
         qHFlow = 0.0;
         /* Initializing start pressure (to be saved). */
-        pinit = ptotal;
+        pinit = ptotal; 
         /* Initializing initial bottle wall temperature. */
         twall = ttotal;
         /* Initializing pressure gradient. */
@@ -149,6 +150,7 @@ public abstract class HPBottleT1 extends BaseModel {
         LOG.info("ptotal : {}", ptotal);
         LOG.info("ttotal : {}", ttotal);
         LOG.info("fluid : {}", fluid);
+        assert fluid.equals("Helium");
     }
     
 
@@ -156,7 +158,7 @@ public abstract class HPBottleT1 extends BaseModel {
         return newOutputPort();
     }
 
-    public void timeStep(final double time, final double timeStep) {
+    public void timeStep() {
         MaterialProperties helium = new MaterialProperties();
         double RALLG, RSPEZ, CP, CV;
         double PBEZ, DMASSE;
@@ -175,8 +177,9 @@ public abstract class HPBottleT1 extends BaseModel {
         CV = 3146.5;
 
         PBEZ = 5.0;
-
-        DMASSE = mftotal * timeStep;
+        
+        double timeStep = timeHandler.getStepSizeAsDouble();
+		DMASSE = mftotal * timeStep ;
         helium.DICHTE = mtotal / volume;
 
         /**********************************************************************/
@@ -346,7 +349,6 @@ public abstract class HPBottleT1 extends BaseModel {
         // TBC Do we need this: getBackIterEvent().fire(outputPort);
     }
 
-
 	private void logState(String header) {
 		LOG.info(header);
         LOG.info("ptotal : {}", ptotal);
@@ -355,10 +357,9 @@ public abstract class HPBottleT1 extends BaseModel {
         LOG.info("mftotal : {}", mftotal);
 	}
 
-	public ImmutablePair<Double, FluidPort> createInputPortIter(double timeStep) {
-		return new ImmutablePair<Double, FluidPort> (timeStep, newOutputPort());
+	public FluidPort createInputPortIter() {
+		return newOutputPort();
 	}
-	 
 
 	private FluidPort newOutputPort() {
 		FluidPort outputPort = new FluidPort();
@@ -368,7 +369,6 @@ public abstract class HPBottleT1 extends BaseModel {
         outputPort.setMassflow(mftotal);
 		return outputPort;
 	}
-
 
     //-----------------------------------------------------------------------------------
     // Methods added for JMX monitoring	and setting initial properties via CDI Extensions

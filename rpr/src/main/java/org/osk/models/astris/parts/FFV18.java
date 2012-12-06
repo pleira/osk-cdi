@@ -1,4 +1,5 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -15,6 +16,7 @@ import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
 
 
+@Log
 public class FFV18  {
 		
 	public final static String NAME = "FFV18";

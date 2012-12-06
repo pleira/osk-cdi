@@ -4,6 +4,7 @@
  * Created on 8. July 2007, 21:30
  *
  *  Model definition for a pipe.
+t this.name = name;  
  *
  *  Input Port --+<- Sect1-><- Sect2-><- Sect3->.....<- Sect10->+-- Output Port
  *
@@ -52,10 +53,10 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
+import org.osk.interceptors.Log;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
@@ -65,12 +66,14 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe.
+t this.name = name;  
  * 
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
  * @author P. Pita
  */
+@Log
 public class PipeT1 extends BaseModel {
 	@Inject Logger LOG;
 	@Inject @TimeStep Double tStepSize;
@@ -113,9 +116,8 @@ public class PipeT1 extends BaseModel {
 		super(TYPE, SOLVER);
 	}
 
-	@PostConstruct
-	public void init() {
-//		completeConnections();
+	public void init(String name) {
+		this.name = name;
 		/* Mass of one pipe element. */
 		massPElem = specificMass * length / 10;
 	}
@@ -127,6 +129,7 @@ public class PipeT1 extends BaseModel {
 		double zeta;
 		double XI, PR, NU, DTF;
 		int J;
+		LOG.info(name);
 
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
@@ -287,9 +290,9 @@ public class PipeT1 extends BaseModel {
 		/*                                                                    */
 		/**********************************************************************/
 
-//		LOG.info(" -> pout := {}", pout);
-//		LOG.info(" -> tout := {}", tout);
-//		LOG.info(" -> mfin/out := {}", mfin);
+		LOG.info(" -> pout := {}", pout);
+		LOG.info(" -> tout := {}", tout);
+		LOG.info(" -> mfin/out := {}", mfin);
 
 		return createOutputPort(fluid);
 	}

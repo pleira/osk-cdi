@@ -1,5 +1,7 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -17,6 +19,7 @@ import org.osk.events.ScPV;
 import org.osk.events.TimeIter;
 import org.osk.models.structure.ScStructure;
 
+@Log
 public class ScStructure22 {
 
 	public final static String NAME = "ScStructure22";
@@ -48,6 +51,11 @@ public class ScStructure22 {
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
 
 	@Inject
 	void initScPositionECI(@ConfigProperty(name = "sc.scPositionECI", defaultValue = "6978137.0 0.0 0.0") String values) {

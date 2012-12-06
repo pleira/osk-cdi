@@ -73,14 +73,12 @@ package org.osk.solver;
 
 import java.io.IOException;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.osk.SimHeaders;
-import org.osk.SimulatorState;
 import org.osk.TimeHandler;
 import org.osk.events.BackIter;
 import org.osk.events.Iter;
@@ -99,18 +97,10 @@ import org.slf4j.Logger;
  * @author T. Pieper
  * @author P. Pita
  */
-@ApplicationScoped
 public class SeqModSim  {
     @Inject Logger LOG; 
-    public final String    name = "Simulation";
     @Inject TimeHandler    timeHandler;
-    private boolean        isComputing;
-    private double         time;
-    private double         tinit;
-    private SimulatorState state;
    
-    @Inject SimHeaders simHeaders;
-    
     @Inject @Iter Event<Iteration> iterEvent;
     @Inject @BackIter Event<Iteration> backIterEvent;
     @Inject @RegulIter Event<Iteration> regulIterEvent;
@@ -133,8 +123,8 @@ public class SeqModSim  {
  //       ExecutorService service = Executors.newSingleThreadExecutor();
 //		service.submit(this);
 
-        time  = timeHandler.getSimulatedMissionTimeAsDouble();
-        tinit = timeHandler.getSimulatedMissionTimeAsDouble();
+        double time  = timeHandler.getSimulatedMissionTimeAsDouble();
+        double tinit = timeHandler.getSimulatedMissionTimeAsDouble();
 
         LOG.info("Starting simulation...\n");
         LOG.info("Time: {}", time);
@@ -145,8 +135,10 @@ public class SeqModSim  {
         iterEvent.fire(new Iteration());
         time = tinit;
 
-        while (true) {
+//        while (true) {
+        LOG.info("Time iteration...\n");
             timeEvent.fire(new TimeIteration(time, timeHandler.getStepSizeAsDouble()));
+            LOG.info("Back iteration...\n");
             backIterEvent.fire(new Iteration());
             regulIterEvent.fire(new Iteration());
             time = time + timeHandler.getStepSizeAsDouble();
@@ -154,40 +146,7 @@ public class SeqModSim  {
             LOG.info("Time: {}",
                String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
                timeHandler.getSimulatedMissionTime()));
-        }
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean getIsComputing() {
-        return isComputing;
-    }
-
-    public synchronized void setIsComputing(final boolean isComputing) {
-        this.isComputing = isComputing;
-    }
-
-    public synchronized SimulatorState getState() {
-        return state;
-    }
-
-    public synchronized void setStateToRunning() {
-        state = SimulatorState.RUNNING;
-    }
-
-    public synchronized void setStateToNotRunning() {
-        state = SimulatorState.NOT_RUNNING;
-    }
-
-    public synchronized void setStateToPaused() {
-        state = SimulatorState.PAUSED;
-    }
-
-    public synchronized void setStateToStopping() {
-        state = SimulatorState.STOPPING;
+//        }
     }
 
 }

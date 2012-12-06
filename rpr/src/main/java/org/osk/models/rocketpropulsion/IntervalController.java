@@ -2,6 +2,7 @@
  * IntervalController.java
  *
  *  Model definition for a controller component provding 2 analog output ports.
+t this.name = name;  
  *  Control values for both channels are definable for up to 10 individual 
  *  intervals as value triples: onTime, offTime, onValue.
  *
@@ -29,6 +30,7 @@
 
  import javax.annotation.PostConstruct;
 
+import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 import org.slf4j.Logger;
@@ -38,11 +40,13 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a controller component provding 2 analog output ports.
+t this.name = name;  
  *  Control values for both channels are definable for up to 10 individual 
  *  intervals as value triples: onTime, offTime, onValue.
  *
  * @author J. Eickhoff
  */
+@Log
 public class IntervalController extends BaseModel {
     /** Logger instance for the IntervalController. */
     private static final Logger LOG

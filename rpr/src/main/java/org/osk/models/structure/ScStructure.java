@@ -182,7 +182,8 @@ public class ScStructure extends BaseModel {
 	}
 
 	@PostConstruct
-	public void init() {
+	public void init(String name) {
+		this.name = name;
 		/* Computation of derived initialization parameters. */
 		thrustMag = 0.0;
 		tVec[0] = 0;

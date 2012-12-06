@@ -56,10 +56,9 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.events.D4Value;
+import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -68,6 +67,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 /**
  * Model definition for an engine.
+t this.name = name;  
  *
  * @author M. Kobald
  * @author A. Bohr
@@ -76,6 +76,7 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
  * @author P. Pita
  * 
  */
+@Log
 public class Engine extends BaseModel {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
@@ -161,8 +162,8 @@ public class Engine extends BaseModel {
         super(TYPE, SOLVER);
     }
 
-    @PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;  
         localtime = 0.0;
         thrustVector[0] = 0;
         thrustVector[1] = 1;

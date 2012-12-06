@@ -15,7 +15,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <org.jboss.weld.se.weld-se.version>2.0.0.Beta1</org.jboss.weld.se.weld-se.version>
-    <deltaspike.version>0.4-incubating</deltaspike.version>
+    <deltaspike.version>0.3-incubating</deltaspike.version>
   </properties>
   <modules>
     <module>../sim</module>

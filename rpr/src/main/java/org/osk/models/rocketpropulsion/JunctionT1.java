@@ -4,6 +4,7 @@
  * Created on 8. Juli 2007, 21:24
  *
  *  Model definition for a pipe junction:
+t this.name = name;  
  *
  *         Left Input Port   --+\
  *                               \
@@ -81,10 +82,9 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.SimHeaders;
+import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -94,12 +94,14 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe junction. Model for connecting two pure gas
+t this.name = name;  
  * pipes. Computation only coveres adding of mass flow rates.
  *
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
  */
+@Log
 public class JunctionT1 extends BaseModel {
 	/** Logger instance for the JunctionT1. */
 	private static final Logger LOG = LoggerFactory.getLogger(JunctionT1.class);
@@ -134,8 +136,8 @@ public class JunctionT1 extends BaseModel {
         super(TYPE, SOLVER);
     }
 
-    @PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;
         /* Computation of derived initialization parameters. */
         /* Initializing split factor. */
         splitfactor = 0.5;

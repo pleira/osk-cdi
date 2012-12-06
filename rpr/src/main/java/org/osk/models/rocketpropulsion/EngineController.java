@@ -2,6 +2,7 @@
  * EngineController.java
  *
  *  Model definition for a controller component providing 2 analog output ports.
+t this.name = name;  
  *  Control Function is time dependent and is currently hard coded inside model.
  *
  *                 +-------------------------+
@@ -18,11 +19,11 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.events.TimeStep;
+import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 
@@ -30,10 +31,12 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a controller component providing 2 analog output ports.
+t this.name = name;  
  * Control Function is time dependent and is currently hard coded inside model.
  *
  * @author J. Eickhoff
  */
+@Log
 public class EngineController extends BaseModel {
 
 //	@Inject Logger LOG;
@@ -56,8 +59,8 @@ public class EngineController extends BaseModel {
          super(TYPE, SOLVER);
     }
 
-    @PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;  
         /* Computation of derived initialization parameters. */
         localtime = 0.0;
         controlValueActual = controlRangeMax;

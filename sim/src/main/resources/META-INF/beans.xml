@@ -4,6 +4,7 @@
 
 	<interceptors>
 		<class>org.osk.interceptors.AuditTimeInterceptor</class>
+		<class>org.osk.interceptors.LoggingInterceptor</class>
 	</interceptors>
 
 </beans>

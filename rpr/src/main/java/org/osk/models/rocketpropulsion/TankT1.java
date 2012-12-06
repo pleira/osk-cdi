@@ -4,6 +4,7 @@
  * Created on 8. Juli 2007, 21:39
  *
  *  Model definition for a rocket stage fuel/oxidizer tank with
+t this.name = name;  
  *  medium energetic fuels.
  *
  *                                V  inputPortFuelPressureGas
@@ -126,12 +127,12 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.SimHeaders;
 import org.osk.TimeHandler;
+import org.osk.interceptors.Log;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.numeric.DEQClient;
@@ -143,6 +144,7 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a rocket stage fuel/oxidizer tank with
+t this.name = name;  
  * medium energetic fuels.
  *
  * @author J. Eickhoff
@@ -150,6 +152,7 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
  * @author A. Brandt
  * @author P. Pita
  */
+@Log
 public class TankT1 extends BaseModel implements DEQClient {
 	@Inject Logger LOG;
 	@Inject TimeHandler timeHandler;
@@ -395,8 +398,8 @@ public class TankT1 extends BaseModel implements DEQClient {
          super(TYPE, SOLVER);
  	}
 
- 	@PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;  
     	
         double RSPOXD = 90.372;
         double RSPHE  = 2077;

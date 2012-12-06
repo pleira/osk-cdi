@@ -1,5 +1,7 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -15,6 +17,7 @@ import org.osk.models.rocketpropulsion.PRegT1;
 import org.osk.ports.FluidPort;
 
 
+@Log
 public class PReg08  {
 		
 	public final static String NAME = "PReg08";
@@ -43,34 +46,39 @@ public class PReg08  {
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
 
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
+
 	@Inject
-	void initLength(@NumberConfig(name = "preg08.length", defaultValue = "0.1") Double value) {
+	void initLength(@NumberConfig(name = "preg8.length", defaultValue = "0.1") Double value) {
 	model.setLength(value);
 	}
 	
 	@Inject
-	void initMass(@NumberConfig(name = "preg08.mass", defaultValue = "2.6") Double value) {
+	void initMass(@NumberConfig(name = "preg8.mass", defaultValue = "2.6") Double value) {
 	model.setMass(value);
 	}
 	
 	@Inject
-	void initInnerDiameter(@NumberConfig(name = "preg08.innerDiameter", defaultValue = "0.014") Double value) {
+	void initInnerDiameter(@NumberConfig(name = "preg8.innerDiameter", defaultValue = "0.014") Double value) {
 	model.setInnerDiameter(value);
 	}
 	
 	@Inject
-	void initSpecificHeatCapacity(@NumberConfig(name = "preg08.specificHeatCapacity", defaultValue = "900.0") Double value) {
+	void initSpecificHeatCapacity(@NumberConfig(name = "preg8.specificHeatCapacity", defaultValue = "900.0") Double value) {
 	model.setSpecificHeatCapacity(value);
 	}
 
 	@Inject
-	void initPcoeff(@ConfigProperty(name = "preg08.pcoeff", 
+	void initPcoeff(@ConfigProperty(name = "preg8.pcoeff", 
 	defaultValue = "24.10245 .4462006 -1.84912E-3 2.580329E-6") String values) {
 	model.setPcoeff(Util.extractDoubleArray(values));
 	}
 		
 	@Inject
-	void initTemperature(@NumberConfig(name = "preg08.temperature", defaultValue = "300.0") Double value) {
+	void initTemperature(@NumberConfig(name = "preg8.temperature", defaultValue = "300.0") Double value) {
 	model.setTemperature(value);
 	}
 

@@ -1,11 +1,11 @@
 package org.osk.models.astris.parts;
-
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
 import org.osk.config.NumberConfig;
 import org.osk.events.BackIter;
@@ -13,17 +13,20 @@ import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeIteration;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.HPBottleT1;
 import org.osk.ports.FluidPort;
 
+@ApplicationScoped
+@Log
 public class HPBottle00  {
 
-	public final static String NAME = "HPBottle00"; 
+	final static String NAME = "HPBottle00"; 
 	@Inject HPBottleT1 model;
 	
 	// We produce events marked for this element
 	@Inject	@Named(NAME) @Iter     Event<FluidPort> event;
-	@Inject	@Named(NAME) @TimeIter Event<ImmutablePair<Double, FluidPort> > timeEvent;
+	@Inject	@Named(NAME) @TimeIter Event<FluidPort> timeEvent;
 	@Inject	@Named(NAME) @BackIter Event<FluidPort> backIterEvent;
 		
 	
@@ -36,20 +39,24 @@ public class HPBottle00  {
 		event.fire(output);
 	}
 
-	public void timeIteration(@Observes TimeIteration timeIter) {
-		model.timeStep(timeIter.time, timeIter.timeStep);		
-		timeEvent.fire(model.createInputPortIter(timeIter.timeStep));
+	public void timeIteration(@Observes @TimeIter TimeIteration timeIter) {
+		model.timeStep();		
+		timeEvent.fire(model.createInputPortIter());
 	}
 
 
-	public void backIterate(@Observes @Named(Pipe02.NAME) FluidPort outputPort) {
+	public void backIterate(@Observes @Named(Pipe02.NAME) @BackIter FluidPort outputPort) {
 		model.backIterStep(outputPort);
 		iteration(new Iteration());
 	}
 	
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
-	
+    @PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
+    
 	@Inject
 	void initMass(@NumberConfig(name = "hpb0.mass", defaultValue = "28.0") Double value) {
 	model.setMass(value);

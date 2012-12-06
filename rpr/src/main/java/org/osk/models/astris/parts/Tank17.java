@@ -1,5 +1,7 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -17,6 +19,7 @@ import org.osk.events.TimeIter;
 import org.osk.models.rocketpropulsion.TankT1;
 import org.osk.ports.FluidPort;
 
+@Log
 public class Tank17 {
 
 	public final static String NAME = "Tank17";
@@ -108,6 +111,11 @@ public class Tank17 {
 
 	// ---------------------------------------------------------------------------------------
 	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
 
 	@Inject
 	void initVtbr(

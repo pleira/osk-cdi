@@ -16,6 +16,7 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
  * @author T. Pieper
  */
 public class BaseModel implements Serializable {
+	protected String name;
 	protected String type;
 	protected String numSolverType;
 

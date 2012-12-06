@@ -6,6 +6,7 @@
  *  Computation of the polynomial approximation of the gravity acceleration
  *  as function of time. Polynomial coefficients are loaded at program
  *  initialization.
+t this.name = name;  
  *
  *-----------------------------------------------------------------------------
  * Modification History:
@@ -45,6 +46,7 @@ package org.osk.models.rocketpropulsion;
  * Computation of the polynomial approximation of the gravity acceleration
  *  as function of time. Polynomial coefficients are loaded at program
  *  initialization.
+t this.name = name;  
  *
  * @author J. Eickhoff
  * @author A. Brandt

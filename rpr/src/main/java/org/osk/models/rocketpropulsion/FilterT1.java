@@ -3,6 +3,7 @@
  *
  *
  *  Model definition for a gas filter.
+t this.name = name;  
  *
  *                 +-------------------------+
  *    inputPort --+|            :            |+-- outputPort
@@ -76,10 +77,10 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
+import org.osk.interceptors.Log;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
@@ -90,11 +91,13 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas filter.
+t this.name = name;  
  * 
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
  */
+@Log
 public class FilterT1 extends BaseModel {
 	@Inject Logger LOG = LoggerFactory.getLogger(FilterT1.class);
  	@Inject @TimeStep Double tStepSize;
@@ -136,9 +139,10 @@ public class FilterT1 extends BaseModel {
 		super(TYPE, SOLVER);
 	}
 
-	@PostConstruct
-	public void init() {
+	public void init(String name) {
+		this.name = name;
 		/* Computation of derived initialization parameters. */
+ 
 		/* Initializing heat flow. */
 		qHFlow = 0.0;
 

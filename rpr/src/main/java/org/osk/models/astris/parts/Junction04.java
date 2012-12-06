@@ -1,5 +1,8 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -12,7 +15,8 @@ import org.osk.events.TimeIter;
 import org.osk.models.rocketpropulsion.JunctionT1;
 import org.osk.ports.FluidPort;
 
-
+@ApplicationScoped
+@Log
 public class Junction04  {
 		
 	public final static String NAME = "Junction04"; 
@@ -53,7 +57,7 @@ public class Junction04  {
 		}
 	}
 
-	public void backIterate(@Observes @Named(NAME) FluidPort outputPort) {
+	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
 		ImmutablePair<FluidPort, FluidPort> pair = model.backIterStep(outputPort);
 		backEvent02.fire(pair.left);
 		backEvent03.fire(pair.right);
@@ -61,14 +65,22 @@ public class Junction04  {
 
 	private void fireIterationStep() {
 		FluidPort output = model.iterationStep(left, right);
-		event.fire(output);
 		left = right = null; // events processed
+		event.fire(output);
 	}
 
 	private void fireTimeIteration() {
 		FluidPort output = model.createOutputPort(left.getFluid());
-		outputEvent.fire(output);
 		left = right = null; // events processed
+		outputEvent.fire(output);
 	}
+	//---------------------------------------------------------------------------------------
+	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
+	
 	
 }

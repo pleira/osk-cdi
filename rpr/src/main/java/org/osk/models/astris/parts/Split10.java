@@ -1,5 +1,7 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -14,11 +16,11 @@ import org.osk.events.TimeIter;
 import org.osk.models.rocketpropulsion.SplitT1;
 import org.osk.ports.FluidPort;
 
-
-
+@ApplicationScoped
+@Log
 public class Split10 {
 		
-	public final static String NAME = "Split10"; 
+	final static String NAME = "Split10"; 
 	
 	@Inject SplitT1 model;
 	@Inject @Named(NAME) @Right @Iter Event<FluidPort> eventRight;
@@ -59,8 +61,8 @@ public class Split10 {
 
 	private void fireBackIterate() {
 		FluidPort input = model.backIterate(left, right);
-		backEvent.fire(input);
 		left = right = null; // events processed
+		backEvent.fire(input);
 	}
 
 }

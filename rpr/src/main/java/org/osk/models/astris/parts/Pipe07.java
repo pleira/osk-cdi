@@ -1,5 +1,7 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -15,6 +17,7 @@ import org.osk.models.rocketpropulsion.PipeT1;
 import org.osk.ports.FluidPort;
 
 
+@Log
 public class Pipe07 {
 		
 	public final static String NAME = "Pipe07";
@@ -43,6 +46,11 @@ public class Pipe07 {
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
 
 	@Inject
 	void initLength(@NumberConfig(name = "pipe7.length", defaultValue = "1.2") Double value) {

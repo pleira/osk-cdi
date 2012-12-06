@@ -1,6 +1,7 @@
 /*
  *
  *  Model definition for a gas dome pressure regulator.
+t this.name = name;  
  *
  *
  *                           +--+
@@ -66,10 +67,10 @@
  */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
+import org.osk.interceptors.Log;
 import org.osk.materials.HeliumJKC;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
@@ -80,11 +81,13 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas dome pressure regulator.
+t this.name = name;  
  *
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
  */
+@Log
 public class PRegT1 extends BaseModel {
 	@Inject Logger LOG;
 	@Inject @TimeStep Double tStepSize;
@@ -126,8 +129,8 @@ public class PRegT1 extends BaseModel {
         super(TYPE, SOLVER);
     }
 
-    @PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;  
         qHFlow = 0.0;
     }
 

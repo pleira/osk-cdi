@@ -1,5 +1,7 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -15,6 +17,7 @@ import org.osk.models.rocketpropulsion.PRegT1;
 import org.osk.ports.FluidPort;
 
 
+@Log
 public class PReg12  {
 		
 	public final static String NAME = "PReg12";
@@ -42,6 +45,11 @@ public class PReg12  {
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
 
 	@Inject
 	void initLength(@NumberConfig(name = "preg12.length", defaultValue = "0.1") Double value) {

@@ -4,6 +4,7 @@
  * Created on 31. December 2008
  *
  *  Model definition for a fluid flow valve.
+t this.name = name;  
  *
  *                  inputPort  |
  *                  +----------+--------------+
@@ -19,41 +20,15 @@
  *
  *
  *-----------------------------------------------------------------------------
- * Modification History:
- *
- *  2008-12-31
- *      File created  J. Eickhoff:
  *
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by author.
  *
- *
- *
- *  2009-04
- *      Replaced the port array by named ports.
- *      A. Brandt
- *
- *  2009-06-10
- *      Corrections in boundary conditions reading to comply with connection
- *      to rocket engine model.
- *      J. Eickhoff
- *
- *
- *  2009-06-20
- *      Added flow control port (type AnalogPort).
- *      J. Eickhoff
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A. Brandt
- *
 */
 package org.osk.models.rocketpropulsion;
 
-import javax.annotation.PostConstruct;
-
+import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
@@ -64,12 +39,14 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for fluid flow valve.
+t this.name = name;  
  *
  * @author J. Eickhoff
  * @author A. Brandt
  */
 
-public abstract class FluidFlowValve extends BaseModel {
+@Log
+public class FluidFlowValve extends BaseModel {
 
 	private static final Logger LOG
             = LoggerFactory.getLogger(FluidFlowValve.class);
@@ -95,8 +72,8 @@ public abstract class FluidFlowValve extends BaseModel {
         super(TYPE, SOLVER);
 	}
 
-	@PostConstruct
-    public void init() {
+    public void init(String name) {
+    	this.name = name;  
         massflow = 0.0;
         localtime = 0.0;
         //controlValue = 0.0;

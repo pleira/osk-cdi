@@ -1,4 +1,5 @@
 package org.osk.models.astris.parts;
+import org.osk.interceptors.Log;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -18,6 +19,7 @@ import org.osk.events.TimeIter;
 import org.osk.models.rocketpropulsion.Engine;
 import org.osk.ports.FluidPort;
 
+@Log
 public class Engine20  {
 
 	public final static String NAME = "Engine20";
