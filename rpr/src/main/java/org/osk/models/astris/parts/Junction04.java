@@ -1,6 +1,4 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -12,11 +10,12 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.JunctionT1;
 import org.osk.ports.FluidPort;
 
-@ApplicationScoped
 @Log
+@ApplicationScoped
 public class Junction04  {
 		
 	public final static String NAME = "Junction04"; 

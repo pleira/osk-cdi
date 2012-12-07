@@ -78,7 +78,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
-import org.osk.SimHeaders;
 import org.osk.TimeHandler;
 import org.osk.events.BackIter;
 import org.osk.events.Iter;
@@ -136,11 +135,12 @@ public class SeqModSim  {
         time = tinit;
 
 //        while (true) {
-        LOG.info("Time iteration...\n");
+        	LOG.info("Time iteration...\n");
             timeEvent.fire(new TimeIteration(time, timeHandler.getStepSizeAsDouble()));
+            LOG.info("Regul iteration...\n");
+            regulIterEvent.fire(new Iteration());
             LOG.info("Back iteration...\n");
             backIterEvent.fire(new Iteration());
-            regulIterEvent.fire(new Iteration());
             time = time + timeHandler.getStepSizeAsDouble();
 
             LOG.info("Time: {}",

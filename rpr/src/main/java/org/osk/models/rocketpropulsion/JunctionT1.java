@@ -84,7 +84,6 @@ package org.osk.models.rocketpropulsion;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.SimHeaders;
-import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -101,7 +100,7 @@ t this.name = name;
  * @author P. Heinrich
  * @author A. Brandt
  */
-@Log
+
 public class JunctionT1 extends BaseModel {
 	/** Logger instance for the JunctionT1. */
 	private static final Logger LOG = LoggerFactory.getLogger(JunctionT1.class);

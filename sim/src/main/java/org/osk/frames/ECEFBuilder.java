@@ -23,7 +23,7 @@ public class ECEFBuilder {
         // This line converts the Julian Date from UTC to UT1
         // As the required Julian Date is not started at midnight but at noon, half a day from the committed one is substracted
         double JD2000_UT1 = JD2000 + timeDiffFrac/(60*60*24) - 0.5;
-        System.out.println("JD2000_UT1: " + JD2000_UT1);
+//        System.out.println("JD2000_UT1: " + JD2000_UT1);
         
         // This line converts the Julian Date from UTC to TT
         // As the required Julian Date is not started at midnight but at noon, half a day from the committed one is substracted
@@ -38,7 +38,7 @@ public class ECEFBuilder {
         
         // This is the rotation angle between vernal equinox and ECEF x-axis calculated via the Earth rotational rate
         double GMST=GMST2000+om_e*86400*(JD2000_UT1+0.5);
-        System.out.println("GMST: " + GMST);
+//        System.out.println("GMST: " + GMST);
         
         // This is the transformation matrix for ECI to ECEF conversion without nutation and precession effects
         double THETA[][] = {{Math.cos(GMST), Math.sin(GMST), 0},{-Math.sin(GMST), Math.cos(GMST), 0}, {0, 0, 1}};

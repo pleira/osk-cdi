@@ -86,7 +86,6 @@ public class TimeHandler {
         format.setLenient(true);
         time[TIME_SYSTEM] = 0;
         time[TIME_STEPS] = 0;
-        time[TIME_SIMULATION] = 0;
         time[TIME_SIMULATION]
                    = format.parse(simulatedMissionTimeString).getTime();
     }

@@ -56,9 +56,9 @@ package org.osk.materials;
  * @author A. Brandt
  */
 public final class Helium {
-    private static double CP;
+//    private static double CP;
     private static double CV;
-    private static double RALLG;
+//    private static double RALLG;
     private static double RSPEZ;
     private static double XI;
     private static double ROKR;
@@ -74,9 +74,9 @@ public final class Helium {
     }
 
     private static void INIT_HELIUM() {
-        CP    = 5223.5;
+//        CP    = 5223.5;
         CV    = 3146.5;
-        RALLG = 8314.3;
+//        RALLG = 8314.3;
         RSPEZ = 2077;
         XI    = 671741.8271;
         ROKR  = 69.45;

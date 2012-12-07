@@ -18,19 +18,12 @@ import jat.spacetime.Time;
 import java.io.File;
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.osk.TimeHandler;
 import org.osk.events.D4Value;
-import org.osk.events.ECI;
-import org.osk.events.Gravity;
-import org.osk.events.ScPV;
 import org.osk.models.BaseModel;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
@@ -44,8 +37,8 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 
 public class OSKGravityModel extends BaseModel {
-    /** Logger instance for the OSKGravityModel. */
-    private static final Logger LOG = LoggerFactory.getLogger(OSKGravityModel.class);
+	@Inject Logger LOG;
+    @Inject TimeHandler timeHandler;
     /** Order of spherical harmonic. */
      private int order = 8; // hardcoded for now 
     /** Degree of spherical harmonic. */
@@ -65,16 +58,13 @@ public class OSKGravityModel extends BaseModel {
     private Matrix eci2ECEFMatrix;
     /** Gravity vector in ECI as JAT class. */
     private VectorN gravityVector;
-    /** Time handler object. */
-    @Inject
-    private TimeHandler timeHandler;
     /** OSK SRT time in converted format. */
     Time convertedMissionTime;
     
     private static final String TYPE = "OSKGravity1";
     private static final String SOLVER = "none";
     
-    @Inject @Gravity Event<D4Value> event;
+//    @Inject @Gravity Event<D4Value> event;
     
     /*----------------------------------------------------------------------
     Note! The variable(s)
@@ -96,7 +86,6 @@ public class OSKGravityModel extends BaseModel {
         super(TYPE, SOLVER);
     }
 
-    @PostConstruct
     public void init() {
         scPositionVector = new VectorN(3);
         gravityVector = new VectorN(3);
@@ -112,10 +101,10 @@ public class OSKGravityModel extends BaseModel {
         } catch (IOException ex) {
             LOG.error("Exception: ", ex);
         }
-        gravAcceleration[0] = 0;
-        gravAcceleration[1] = 0;
-        gravAcceleration[2] = 0;
-        gravAcceleration[3] = 0;
+//        gravAcceleration[0] = 0;
+//        gravAcceleration[1] = 0;
+//        gravAcceleration[2] = 0;
+//        gravAcceleration[3] = 0;
     }
 
 
@@ -124,9 +113,9 @@ public class OSKGravityModel extends BaseModel {
         double[] scAcceleration = new double[3];
         double scAccelMag;
 
-        LOG.info("scPositionECI[0]:  '{}' ", scPositionECI[0]);
-        LOG.info("scPositionECI[1]:  '{}' ", scPositionECI[1]);
-        LOG.info("scPositionECI[2]:  '{}' ", scPositionECI[2]);
+//        LOG.info("scPositionECI[0]:  '{}' ", scPositionECI[0]);
+//        LOG.info("scPositionECI[1]:  '{}' ", scPositionECI[1]);
+//        LOG.info("scPositionECI[2]:  '{}' ", scPositionECI[2]);
 
         //Skip potential start condition where S/C Position is not yet valid:
         if (scPositionECI[0]==0 & scPositionECI[1]==0 & scPositionECI[2]==0) {
@@ -167,16 +156,8 @@ public class OSKGravityModel extends BaseModel {
         return new D4Value(gravAcceleration);
         
     }
-    
-	public void pvHandler(@Observes @ECI ScPV posVel) {
-		double[] p = posVel.getScPosition();
-		assert p.length == 3;
-		for (int i=0; i<3; i++) {
-			scPositionECI[i] = p[i];
-		}		
-	}
 
-	//----------------------------------------
+    //----------------------------------------
     // Methods added for JMX monitoring	
 
 	@ManagedAttribute

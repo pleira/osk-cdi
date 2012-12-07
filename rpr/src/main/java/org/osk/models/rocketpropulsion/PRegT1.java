@@ -70,7 +70,6 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
-import org.osk.interceptors.Log;
 import org.osk.materials.HeliumJKC;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
@@ -87,7 +86,7 @@ t this.name = name;
  * @author P. Heinrich
  * @author A. Brandt
  */
-@Log
+
 public class PRegT1 extends BaseModel {
 	@Inject Logger LOG;
 	@Inject @TimeStep Double tStepSize;
@@ -147,10 +146,10 @@ public class PRegT1 extends BaseModel {
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
         fluid = inputPort.getFluid();
-
-        LOG.info("pin : {}", pin);
-        LOG.info("tin : {}", tin);
-        LOG.info("mfin/out : {}", mfin);
+//        LOG.info(name);
+//        LOG.info("pin : {}", pin);
+//        LOG.info("tin : {}", tin);
+//        LOG.info("mfin/out : {}", mfin);
 
         //Skip iteration step computation if no flow in pressure regulator
         if (mfin <= 1.E-6) {

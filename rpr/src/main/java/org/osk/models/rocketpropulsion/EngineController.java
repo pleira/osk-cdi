@@ -22,8 +22,7 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.osk.events.TimeStep;
-import org.osk.interceptors.Log;
+import org.osk.TimeHandler;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 
@@ -35,12 +34,13 @@ t this.name = name;
  * Control Function is time dependent and is currently hard coded inside model.
  *
  * @author J. Eickhoff
+ * @author P. Pita 
  */
-@Log
+
 public class EngineController extends BaseModel {
 
 //	@Inject Logger LOG;
-	@Inject @TimeStep Double timeStep;
+	@Inject TimeHandler timeHandler;
 
 	/** Commandeable control value. */
 	private double controlRangeMax;
@@ -50,7 +50,6 @@ public class EngineController extends BaseModel {
 	private double controlValueActual;
 	private double controlValue1;
 	private double controlValue2;
-	private double localtime;
 
 	private static final String TYPE = "EngineController";
 	private static final String SOLVER = "none";
@@ -62,7 +61,6 @@ public class EngineController extends BaseModel {
     public void init(String name) {
     	this.name = name;  
         /* Computation of derived initialization parameters. */
-        localtime = 0.0;
         controlValueActual = controlRangeMax;
         controlValue1 = controlValueActual * controlValue1Nom;
         controlValue2 = controlValueActual * controlValue2Nom;
@@ -76,11 +74,12 @@ public class EngineController extends BaseModel {
          * part. For this simple controller signal reduction is computed keeping
          * relation of signals to each other.
          */
-    	localtime = localtime + timeStep;
-        if (localtime == timeStep) {
+    	
+        if (timeHandler.getSystemTime() == 0) {
             return createNewControlSignal();
         }
-        controlValueActual = controlValueActual - 0.001*timeStep/0.5;
+    	double timeStep = timeHandler.getStepSizeAsDouble();
+        controlValueActual -= 0.001*timeStep/0.5;
         if (controlValueActual < controlRangeMin) {
             controlValueActual = controlRangeMin;
         }
@@ -169,13 +168,4 @@ public class EngineController extends BaseModel {
 		this.controlValue2 = controlValue2;
 	}
 
-	@ManagedAttribute
-	public double getLocaltime() {
-		return localtime;
-	}
-
-	public void setLocaltime(double localtime) {
-		this.localtime = localtime;
-	}
-    
 }

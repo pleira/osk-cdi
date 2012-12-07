@@ -58,7 +58,6 @@ package org.osk.models.rocketpropulsion;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.events.D4Value;
-import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -76,7 +75,7 @@ t this.name = name;
  * @author P. Pita
  * 
  */
-@Log
+
 public class Engine extends BaseModel {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Engine.class);

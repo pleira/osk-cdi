@@ -44,7 +44,6 @@ import javax.inject.Inject;
 
 import org.osk.SimHeaders;
 import org.osk.TimeHandler;
-import org.osk.interceptors.Log;
 import org.osk.materials.HeliumJKC;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
@@ -53,7 +52,7 @@ import org.slf4j.Logger;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
-@Log
+
 public class HPBottleT1 extends BaseModel {
 	@Inject Logger LOG; 
 	@Inject TimeHandler timeHandler;
@@ -144,13 +143,13 @@ public class HPBottleT1 extends BaseModel {
         /* Initializing default value for mass flow. */
         mftotal = 0.01;
 
-        LOG.info("mass : {}", mass);
-        LOG.info("volume : {}", volume);
-        LOG.info("specificHeatCapacity : {}", specificHeatCapacity);
-        LOG.info("ptotal : {}", ptotal);
-        LOG.info("ttotal : {}", ttotal);
-        LOG.info("fluid : {}", fluid);
-        assert fluid.equals("Helium");
+//        LOG.info("mass : {}", mass);
+//        LOG.info("volume : {}", volume);
+//        LOG.info("specificHeatCapacity : {}", specificHeatCapacity);
+//        LOG.info("ptotal : {}", ptotal);
+//        LOG.info("ttotal : {}", ttotal);
+//        LOG.info("fluid : {}", fluid);
+//        assert fluid.equals("Helium");
     }
     
 

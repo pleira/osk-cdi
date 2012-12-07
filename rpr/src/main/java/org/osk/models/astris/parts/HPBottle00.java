@@ -17,11 +17,11 @@ import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.HPBottleT1;
 import org.osk.ports.FluidPort;
 
-@ApplicationScoped
 @Log
+@ApplicationScoped
 public class HPBottle00  {
 
-	final static String NAME = "HPBottle00"; 
+	public final static String NAME = "HPBottle00"; 
 	@Inject HPBottleT1 model;
 	
 	// We produce events marked for this element

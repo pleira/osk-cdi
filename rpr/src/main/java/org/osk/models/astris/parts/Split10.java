@@ -1,6 +1,4 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -13,11 +11,12 @@ import org.osk.events.Iter;
 import org.osk.events.Left;
 import org.osk.events.Right;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.SplitT1;
 import org.osk.ports.FluidPort;
 
-@ApplicationScoped
 @Log
+@ApplicationScoped
 public class Split10 {
 		
 	final static String NAME = "Split10"; 

@@ -80,7 +80,6 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
-import org.osk.interceptors.Log;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
@@ -97,7 +96,7 @@ t this.name = name;
  * @author P. Heinrich
  * @author A. Brandt
  */
-@Log
+
 public class FilterT1 extends BaseModel {
 	@Inject Logger LOG = LoggerFactory.getLogger(FilterT1.class);
  	@Inject @TimeStep Double tStepSize;
@@ -151,19 +150,18 @@ public class FilterT1 extends BaseModel {
 
 		referencePressureLoss = referencePressureLoss * 1.E5;
 
-		LOG.info(" -> len := {}", length);
-		LOG.info(" -> diam := {}", innerDiameter);
-		LOG.info(" -> spmass := {}", specificMass);
-		LOG.info(" -> cfilter := {}", specificHeatCapacity);
-		LOG.info(" -> refPLoss := {}", referencePressureLoss);
-		LOG.info(" -> refMassFlow := {}", referenceMassFlow);
-		LOG.info(" -> tfilter := {}", temperature);
+//		LOG.info(" -> len := {}", length);
+//		LOG.info(" -> diam := {}", innerDiameter);
+//		LOG.info(" -> spmass := {}", specificMass);
+//		LOG.info(" -> cfilter := {}", specificHeatCapacity);
+//		LOG.info(" -> refPLoss := {}", referencePressureLoss);
+//		LOG.info(" -> refMassFlow := {}", referenceMassFlow);
+//		LOG.info(" -> tfilter := {}", temperature);
 	}
 
 	public FluidPort iterationStep(FluidPort inputPort) {
 		double ptotal;
 		double ttotal;
-		double mfout;
 		String fluid;
 		double CP, GESCH, RE, XI, PR, NU, DTF, DP, pfluid;
 
@@ -276,7 +274,6 @@ public class FilterT1 extends BaseModel {
 		/*                                                                    */
 		/**********************************************************************/
 
-		mfout = mfin;
 		pout = ptotal;
 		tout = ttotal;
 
@@ -284,13 +281,11 @@ public class FilterT1 extends BaseModel {
 	}
 
 	public int timeStep(FluidPort inputPort) {
-		String fluid;
 		double CP, Q, DTF, DTB, tstatin;
 
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
-		fluid = inputPort.getFluid();
 
 		/* Skip time step computation if no flow in filter. */
 		if (mfin <= 1.E-6) {

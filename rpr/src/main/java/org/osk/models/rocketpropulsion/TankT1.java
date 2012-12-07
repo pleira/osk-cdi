@@ -132,7 +132,6 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.SimHeaders;
 import org.osk.TimeHandler;
-import org.osk.interceptors.Log;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.numeric.DEQClient;
@@ -152,7 +151,7 @@ t this.name = name;
  * @author A. Brandt
  * @author P. Pita
  */
-@Log
+
 public class TankT1 extends BaseModel implements DEQClient {
 	@Inject Logger LOG;
 	@Inject TimeHandler timeHandler;

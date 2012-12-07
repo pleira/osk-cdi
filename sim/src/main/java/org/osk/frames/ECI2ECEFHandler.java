@@ -17,14 +17,12 @@ import org.osk.events.ScPV;
  * @author P. Pita
  *
  */
+
 @ApplicationScoped
 public class ECI2ECEFHandler {
 
-	@Inject 
-	Event<ECEFpv> event;
-	
-	@Inject
-	TimeHandler timeHandler;
+	@Inject TimeHandler timeHandler;
+	@Inject Event<ECEFpv> event;
 	
 	ECEFBuilder builder = new ECEFBuilder();
 	
@@ -34,7 +32,7 @@ public class ECI2ECEFHandler {
 	 * 
 	 * @param posVel
 	 */
-	public void eci2ecefHandler(@Observes @ECI ScPV posVel) {
+	public void eci2ecefHandler(/*Observes @ECI*/ ScPV posVel) {
         double mjdMissionTime = (timeHandler.getSimulatedMissionTimeAsDouble()-946684800)/86400;
         ECEFpv pv = builder.eci2ecef(mjdMissionTime, 0.0, 15, posVel.getScPosition(), posVel.getScVelocity());        
         event.fire(pv);

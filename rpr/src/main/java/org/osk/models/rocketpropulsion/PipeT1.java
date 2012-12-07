@@ -56,7 +56,6 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
-import org.osk.interceptors.Log;
 import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
@@ -73,7 +72,7 @@ t this.name = name;
  * @author A. Brandt
  * @author P. Pita
  */
-@Log
+
 public class PipeT1 extends BaseModel {
 	@Inject Logger LOG;
 	@Inject @TimeStep Double tStepSize;
@@ -129,7 +128,7 @@ public class PipeT1 extends BaseModel {
 		double zeta;
 		double XI, PR, NU, DTF;
 		int J;
-		LOG.info(name);
+//		LOG.info(name);
 
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
@@ -290,9 +289,9 @@ public class PipeT1 extends BaseModel {
 		/*                                                                    */
 		/**********************************************************************/
 
-		LOG.info(" -> pout := {}", pout);
-		LOG.info(" -> tout := {}", tout);
-		LOG.info(" -> mfin/out := {}", mfin);
+//		LOG.info(" -> pout := {}", pout);
+//		LOG.info(" -> tout := {}", tout);
+//		LOG.info(" -> mfin/out := {}", mfin);
 
 		return createOutputPort(fluid);
 	}

@@ -30,7 +30,6 @@ t this.name = name;
 
  import javax.annotation.PostConstruct;
 
-import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 import org.slf4j.Logger;
@@ -46,7 +45,7 @@ t this.name = name;
  *
  * @author J. Eickhoff
  */
-@Log
+
 public class IntervalController extends BaseModel {
     /** Logger instance for the IntervalController. */
     private static final Logger LOG

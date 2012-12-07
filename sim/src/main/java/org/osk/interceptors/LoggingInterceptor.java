@@ -1,6 +1,7 @@
 package org.osk.interceptors;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -33,7 +34,12 @@ public class LoggingInterceptor {
     }
 
     public Object info(InvocationContext context) throws Exception {
-        logger.info("" + context.getMethod().getName());
+    	Class clazz = context.getTarget().getClass(); //.getDeclaredField("NAME");
+    	String part = "" + clazz.getSimpleName();
+//    	if (field != null) {
+//    		part = part + field.get(null);
+//    	}
+        logger.info("" + part + "." + context.getMethod().getName());
         Annotation[][] parameterAnnotations = context.getMethod().getParameterAnnotations();
         Object[] parameterValues = context.getParameters();
         Class<?>[] parameterTypes = context.getMethod().getParameterTypes();

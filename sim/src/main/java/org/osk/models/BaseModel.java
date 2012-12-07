@@ -16,6 +16,7 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
  * @author T. Pieper
  */
 public class BaseModel implements Serializable {
+	private static final long serialVersionUID = 1006453937538015894L;
 	protected String name;
 	protected String type;
 	protected String numSolverType;
@@ -34,6 +35,11 @@ public class BaseModel implements Serializable {
 	// -----------------------------------------------------------------------------------
 	// Methods added for JMX monitoring and setting initial properties via CDI
 	// Extensions
+
+	@ManagedAttribute
+	public String getName() {
+		return name;
+	}
 
 	@ManagedAttribute
 	public String getType() {

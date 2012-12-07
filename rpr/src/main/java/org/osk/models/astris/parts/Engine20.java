@@ -1,6 +1,6 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -16,10 +16,12 @@ import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.Oxid;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.Engine;
 import org.osk.ports.FluidPort;
 
 @Log
+@ApplicationScoped
 public class Engine20  {
 
 	public final static String NAME = "Engine20";
@@ -91,6 +93,11 @@ public class Engine20  {
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
 	
 	@Inject
 	void initIngnitionFuelFlow(@NumberConfig(name = "engine20.ignitionFuelFlow", defaultValue = "0.0") Double value) {

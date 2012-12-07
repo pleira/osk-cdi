@@ -17,8 +17,8 @@ import org.osk.events.TimeIter;
 import org.osk.models.rocketpropulsion.PipeT1;
 import org.osk.ports.FluidPort;
 
-@ApplicationScoped
 @Log
+@ApplicationScoped
 public class Pipe02 {
 		
 	public final static String NAME = "Pipe02"; 

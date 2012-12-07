@@ -84,7 +84,6 @@ t this.name = name;
 package org.osk.models.rocketpropulsion;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.osk.interceptors.Log;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -101,7 +100,7 @@ t this.name = name;
  * @author P. Heinrich
  * @author A. Brandt
  */
-@Log
+
 public class SplitT1 extends BaseModel {
 	/** Logger instance for the SplitT1. */
 	private static final Logger LOG = LoggerFactory.getLogger(SplitT1.class);
@@ -156,12 +155,12 @@ public class SplitT1 extends BaseModel {
         FluidPort outputPortLeft =  createGasPort(fluid, mfoutLeft);
         FluidPort outputPortRight = createGasPort(fluid, mfoutRight);
         
-        LOG.info("pout : {}", pout);
-        LOG.info("tout : {}", tout);
-        LOG.info("mfoutLeft : {}", mfoutLeft);
-        LOG.info("mfoutRight : {}", mfoutRight);
+//        LOG.info("pout : {}", pout);
+//        LOG.info("tout : {}", tout);
+//        LOG.info("mfoutLeft : {}", mfoutLeft);
+//        LOG.info("mfoutRight : {}", mfoutRight);
 
-        return new ImmutablePair(outputPortLeft, outputPortRight);
+        return new ImmutablePair<FluidPort, FluidPort>(outputPortLeft, outputPortRight);
     }
 
      public FluidPort backIterate(FluidPort outputPortLeft, FluidPort outputPortRight) {
@@ -185,8 +184,8 @@ public class SplitT1 extends BaseModel {
                 + outputPortRight.getBoundaryPressure()) / 2.;
         tUpBackiter = (outputPortLeft.getBoundaryTemperature()
                 + outputPortRight.getBoundaryTemperature()) / 2.;
-        LOG.info("mfboundLeft : {}", mfboundLeft);
-        LOG.info("mfboundRight : {}", mfboundRight);
+//        LOG.info("mfboundLeft : {}", mfboundLeft);
+//        LOG.info("mfboundRight : {}", mfboundRight);
 
 		FluidPort inputPort = BoundaryUtils.createBoundaryPort(
 				outputPortLeft.getBoundaryFluid(), pUpBackiter, tUpBackiter, mfUpBackiter);

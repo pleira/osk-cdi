@@ -92,13 +92,11 @@
 
 package org.osk.models.structure;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.osk.TimeHandler;
 import org.osk.events.D4Value;
-import org.osk.events.Gravity;
 import org.osk.events.ScPV;
 import org.osk.events.Thrust;
 import org.osk.models.BaseModel;
@@ -155,11 +153,6 @@ public class ScStructure extends BaseModel {
 	private static final String TYPE = "ScStructure";
 	private static final String SOLVER = "none";
 
-//	// The ECI annotiation implies that the events are related to ECI coord.
-//	@Inject
-//	@ECI
-//	Event<ScPV> scPVEvent;
-
 	/*----------------------------------------------------------------------
 	Note! The variable(s)
 	    tVec[]
@@ -181,7 +174,7 @@ public class ScStructure extends BaseModel {
 		super(TYPE, SOLVER);
 	}
 
-	@PostConstruct
+
 	public void init(String name) {
 		this.name = name;
 		/* Computation of derived initialization parameters. */
@@ -403,9 +396,11 @@ public class ScStructure extends BaseModel {
 		}
 	}
 
-	public void gravityHandler(@Observes @Gravity D4Value gravity) {
-		// Note that the gravity acceleration first is calculated in
-		// the Environment model (the Earth) and an event is fired there
+	public double[] getGravity() {
+		return gravityAccel;
+	}
+	
+	public void setGravity(D4Value gravity) {
 		double[] g = gravity.getValue();
 		assert g.length == 4;
 		for (int i = 0; i < 4; i++) {

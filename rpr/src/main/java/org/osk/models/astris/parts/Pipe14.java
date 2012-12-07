@@ -1,7 +1,6 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -14,11 +13,12 @@ import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.Right;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.PipeT1;
 import org.osk.ports.FluidPort;
 
-
 @Log
+@ApplicationScoped
 public class Pipe14 {
 		
 	public final static String NAME = "Pipe14";

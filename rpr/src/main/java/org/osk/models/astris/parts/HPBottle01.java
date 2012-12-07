@@ -1,6 +1,4 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -15,14 +13,15 @@ import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeIteration;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.HPBottleT1;
 import org.osk.ports.FluidPort;
 
-@ApplicationScoped
 @Log
+@ApplicationScoped
 public class HPBottle01 {
 
-	final static String NAME = "HPBottle01"; 
+	public final static String NAME = "HPBottle01"; 
 
 	@Inject HPBottleT1 model;
 	@Inject	@Named(NAME) @Iter     Event<FluidPort> event;

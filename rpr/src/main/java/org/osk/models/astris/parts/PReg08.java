@@ -1,7 +1,6 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -13,11 +12,12 @@ import org.osk.config.Util;
 import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.PRegT1;
 import org.osk.ports.FluidPort;
 
-
 @Log
+@ApplicationScoped
 public class PReg08  {
 		
 	public final static String NAME = "PReg08";

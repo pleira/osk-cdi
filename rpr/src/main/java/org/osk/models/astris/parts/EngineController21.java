@@ -1,6 +1,6 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -14,11 +14,13 @@ import org.osk.events.Iter;
 import org.osk.events.Oxid;
 import org.osk.events.RegulIter;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.EngineController;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
 
 @Log
+@ApplicationScoped
 public class EngineController21   {
 	
 	public final static String NAME = "EngineController21";
@@ -55,13 +57,13 @@ public class EngineController21   {
 	public void timeIterationFuel(@Observes @Named(FFV18.NAME) @TimeIter FluidPort inputPort) {
 		ImmutablePair<AnalogPort, AnalogPort> output = model.timeStep();
 		fuelRegulEvent.fire(output.getLeft());
-		oxidRegulEvent.fire(output.getRight());
+//		oxidRegulEvent.fire(output.getRight());
 	}
 
 	public void timeIterationOxid(@Observes @Named(FFV19.NAME) @TimeIter FluidPort inputPort) {
-		// ImmutablePair<AnalogPort, AnalogPort> output = model.timeStep();
+		 ImmutablePair<AnalogPort, AnalogPort> output = model.timeStep();
 //		fuelRegulEvent.fire(output.getLeft());
-//		oxidRegulEvent.fire(output.getRight());
+		oxidRegulEvent.fire(output.getRight());
 	}
 
 	public void regulIterateFuel(@Observes @Named(FFV19.NAME) @Fuel @RegulIter AnalogPort outputPort) {
@@ -94,6 +96,11 @@ public class EngineController21   {
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values
+
+	@PostConstruct
+    void initModel() {
+    	model.init(NAME);
+    }
 		
 	@Inject
 	void controlRangeMax(@NumberConfig(name = "econtroller21.controlRangeMax", defaultValue = "1.0") Double value) {

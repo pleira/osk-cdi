@@ -1,7 +1,6 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -12,26 +11,31 @@ import org.osk.config.NumberConfig;
 import org.osk.config.Util;
 import org.osk.events.BackIter;
 import org.osk.events.D4Value;
+import org.osk.events.ECI;
+import org.osk.events.Gravity;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.Oxid;
 import org.osk.events.ScPV;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.structure.ScStructure;
 
 @Log
+@ApplicationScoped
 public class ScStructure22 {
 
 	public final static String NAME = "ScStructure22";
 	
 	@Inject ScStructure model;
-	@Inject @Named(NAME) @Iter Event<Iteration> event;
-	@Inject @Named(NAME) @TimeIter Event<ScPV> timerEvent;
+	@Inject @Named(NAME) @ECI @Iter Event<ScPV> event;
+	@Inject @Named(NAME) @ECI @TimeIter Event<ScPV> timerEvent;
 	@Inject @Named(Engine20.NAME) @Oxid @BackIter Event<Iteration> backEvent;
 
 	public void iteration(
 			@Observes @Named(Engine20.NAME) @Iter Iteration iter) {
-		event.fire(new Iteration());
+    	// pass the initial position/velocity to interested parties
+    	event.fire(new ScPV(model.getScPositionECI(), model.getScVelocityECI()));
 	}
 
 	public void timeIteration(
@@ -45,9 +49,10 @@ public class ScStructure22 {
 		backEvent.fire(backIter);
 	}
 	
-//	PUBLIC VOID ALTITUDEHANDLER(@OBSERVES ECEFPV PV) {
-//		MODEL.SETALT(PV.GETALTITUDE());
-//	}
+	
+	public void handleGravity(@Observes @Named(Gravity23.NAME) @Gravity D4Value gravity) {
+		model.setGravity(gravity);
+	}
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values

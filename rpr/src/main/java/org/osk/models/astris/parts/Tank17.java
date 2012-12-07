@@ -1,7 +1,6 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -16,10 +15,12 @@ import org.osk.events.Fuel;
 import org.osk.events.Iter;
 import org.osk.events.Oxid;
 import org.osk.events.TimeIter;
+import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.TankT1;
 import org.osk.ports.FluidPort;
 
 @Log
+@ApplicationScoped
 public class Tank17 {
 
 	public final static String NAME = "Tank17";
@@ -88,25 +89,25 @@ public class Tank17 {
 	private void fireIterationStep() {
 		ImmutablePair<FluidPort, FluidPort> output = model.iterationStep(
 				inputFuel, inputOx);
+		inputFuel = inputOx = null; // events processed
 		eventOxid.fire(output.getRight());
 		eventFuel.fire(output.getLeft());
-		inputFuel = inputOx = null; // events processed
 	}
 
 	private void fireTimeIteration() {
 		ImmutablePair<FluidPort, FluidPort> output = model.timeStep(inputFuel,
 				inputOx);
+		inputFuel = inputOx = null; // events processed
 		outputEventOxid.fire(output.getRight());
 		outputEventFuel.fire(output.getLeft());
-		inputFuel = inputOx = null; // events processed
 	}
 
 	private void fireBackIteration() {
 		ImmutablePair<FluidPort, FluidPort> input = model.backIterStep(
 				outputFuel, outputOx);
+		outputFuel = outputOx = null; // events processed
 		backEvent13.fire(input.getLeft());
 		backEvent16.fire(input.getRight());
-		outputFuel = outputOx = null; // events processed
 	}
 
 	// ---------------------------------------------------------------------------------------

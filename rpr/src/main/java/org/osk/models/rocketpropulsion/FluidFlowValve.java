@@ -28,12 +28,13 @@ t this.name = name;
 */
 package org.osk.models.rocketpropulsion;
 
-import org.osk.interceptors.Log;
+import javax.inject.Inject;
+
+import org.osk.TimeHandler;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
@@ -43,13 +44,14 @@ t this.name = name;
  *
  * @author J. Eickhoff
  * @author A. Brandt
+ * @author P. Pita
  */
 
-@Log
+
 public class FluidFlowValve extends BaseModel {
 
-	private static final Logger LOG
-            = LoggerFactory.getLogger(FluidFlowValve.class);
+	@Inject Logger LOG;
+	@Inject TimeHandler timeHandler;
 
 	private double massflow;
 	private double referencePressureLoss;
@@ -61,7 +63,6 @@ public class FluidFlowValve extends BaseModel {
 	private double pout;
 	private double tout;
 	private double mfout;
-	private double localtime;
 	private double controlValue;
 	private double DP;
 
@@ -75,41 +76,39 @@ public class FluidFlowValve extends BaseModel {
     public void init(String name) {
     	this.name = name;  
         massflow = 0.0;
-        localtime = 0.0;
-        //controlValue = 0.0;
-
+ 
         /* Specify a reference pressure loss at nominal massflow rate and
            controValue = 1. */
         referencePressureLoss = referencePressureLoss * 1.E5;
     }
 	   
     public FluidPort iterationStep(FluidPort inputPort, AnalogPort controlPort) {
+//        LOG.info(name);
         controlValue = controlPort.getAnalogValue();
-        LOG.info("Reading controlValue: '{}'", controlValue);
+//        LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-        LOG.info("Corrected controlValue: '{}'", controlValue);
+//        LOG.info("Corrected controlValue: '{}'", controlValue);
 
         fluid = inputPort.getFluid();
         pin   = inputPort.getPressure();
         tin   = inputPort.getTemperature();
         mfin  = inputPort.getMassflow();
 
-        if (localtime == 0.0) {
+        if (timeHandler.getSimulatedMissionTime() == 0) {
             massflow = mfin;
-            LOG.info("Massflow: '{}'", massflow);
         } else {
             massflow = referenceMassFlow * controlValue;
-            LOG.info("Massflow: '{}'", massflow);
         }
+//        LOG.info("Massflow: '{}'", massflow);
 
         //Skip iteration step computation if no flow in valve
         if (mfin <= 1.E-6) {
             pout  = pin;
             tout  = tin;
             mfout = mfin;
-            LOG.info("Massflow: '{}'", mfout);
+//            LOG.info("Massflow: '{}'", mfout);
             return createOutputPort();
         }
 
@@ -132,11 +131,11 @@ public class FluidFlowValve extends BaseModel {
    
     public FluidPort timeStep(FluidPort inputPort, AnalogPort controlPort) {
         controlValue = controlPort.getAnalogValue();
-        LOG.info("Reading controlValue: '{}'", controlValue);
+//        LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-        LOG.info("Corrected controlValue: '{}'", controlValue);
+//        LOG.info("Corrected controlValue: '{}'", controlValue);
 
         fluid = inputPort.getFluid();
         pin   = inputPort.getPressure();
@@ -145,11 +144,11 @@ public class FluidFlowValve extends BaseModel {
 
         /* Skip time step computation if no flow in Valve. */
         if (mfin <= 1.E-6) {
-            localtime = localtime + 0.5;
+//            localtime = localtime + 0.5;
             return new FluidPort();
         }
         /* Currently no complex timestep physics forseen here yet. */
-        if (localtime == 0.0) {
+        if (timeHandler.getSimulatedMissionTime() == 0) {
             massflow = mfin;
         } else {
             massflow = referenceMassFlow * controlValue;
@@ -158,18 +157,18 @@ public class FluidFlowValve extends BaseModel {
         pout = pin - DP;
         tout = tin;
         mfout = massflow;
-        LOG.info("Massflow: '{}'", massflow);
-        localtime = localtime + 0.5;
+//        LOG.info("Massflow: '{}'", massflow);
+//        localtime = localtime + 0.5;
         return createOutputPort();
     }
 
     public FluidPort backIterStep(FluidPort outputPort, AnalogPort controlPort) {
         controlValue = controlPort.getAnalogValue();
-        LOG.info("Reading controlValue: '{}'", controlValue);
+//        LOG.info("Reading controlValue: '{}'", controlValue);
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-        LOG.info("Corrected controlValue: '{}'", controlValue);
+//        LOG.info("Corrected controlValue: '{}'", controlValue);
 
         if (outputPort.getBoundaryPressure() >= 0.0) {
             LOG.error("Error! Pressure request on port 1 cannot be handled!");
@@ -180,13 +179,13 @@ public class FluidFlowValve extends BaseModel {
 
         /* Init massflow:
          * At initialization reading boundary massflow from downstream...... */
-        if (localtime == 0.0) {
+        if (timeHandler.getSimulatedMissionTime() == 0) {
             massflow = outputPort.getBoundaryMassflow();
         }
         /* In normal backiterations reflecting upstream the massflow
          * computed from the controller signal which was elaborated in timestep.
          */
-        LOG.info("Massflow: '{}'", massflow);
+//        LOG.info("Massflow: '{}'", massflow);
 
         return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
     }
@@ -283,15 +282,6 @@ public class FluidFlowValve extends BaseModel {
 
 	public void setMfout(double mfout) {
 		this.mfout = mfout;
-	}
-
-	@ManagedAttribute
-	public double getLocaltime() {
-		return localtime;
-	}
-
-	public void setLocaltime(double localtime) {
-		this.localtime = localtime;
 	}
 
 	@ManagedAttribute
