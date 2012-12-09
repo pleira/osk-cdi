@@ -7,9 +7,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.osk.config.NumberConfig;
+import org.osk.errors.OskException;
 import org.osk.events.BackIter;
-import org.osk.events.D4Value;
 import org.osk.events.ECEFpv;
 import org.osk.events.Fuel;
 import org.osk.events.Iter;
@@ -28,7 +29,7 @@ public class Engine20  {
 	
 	@Inject Engine model;
 	@Inject @Named(NAME) @Iter Event<Iteration> event;
-	@Inject @Named(NAME) @TimeIter Event<D4Value> timerEvent;
+	@Inject @Named(NAME) @TimeIter Event<Vector3D> timerEvent;
 	@Inject @Named(FFV19.NAME) @Oxid @BackIter Event<FluidPort> backOxidEvent;
 	@Inject @Named(FFV18.NAME) @Fuel @BackIter Event<FluidPort> backFuelEvent;
 
@@ -36,7 +37,7 @@ public class Engine20  {
 	FluidPort inputFuel;
 
 	public void iterationFuel(
-			@Observes @Named(FFV18.NAME) @Iter FluidPort inputPort) {
+			@Observes @Named(FFV18.NAME) @Iter FluidPort inputPort) throws OskException {
 		inputFuel = inputPort;
 		if (inputOxid != null) {
 			fireIterationStep();
@@ -44,7 +45,7 @@ public class Engine20  {
 	}
 
 	public void iterationOxid(
-			@Observes @Named(FFV19.NAME) @Iter FluidPort inputPort) {
+			@Observes @Named(FFV19.NAME) @Iter FluidPort inputPort) throws OskException {
 		inputOxid = inputPort;
 		if (inputFuel != null) {
 			fireIterationStep();
@@ -52,7 +53,7 @@ public class Engine20  {
 	}
 
 	public void timeIterationFuel(
-			@Observes @Named(FFV18.NAME) @TimeIter FluidPort inputPort) {
+			@Observes @Named(FFV18.NAME) @TimeIter FluidPort inputPort) throws OskException {
 		inputFuel = inputPort;
 		if (inputOxid != null) {
 			fireTimeIteration();
@@ -60,7 +61,7 @@ public class Engine20  {
 	}
 
 	public void timeIterationOxid(
-			@Observes @Named(FFV19.NAME) @TimeIter FluidPort inputPort) {
+			@Observes @Named(FFV19.NAME) @TimeIter FluidPort inputPort) throws OskException {
 		inputOxid = inputPort;
 		if (inputFuel != null) {
 			fireTimeIteration();
@@ -74,14 +75,14 @@ public class Engine20  {
 		backOxidEvent.fire(input.getRight());
 	}
 
-	private void fireIterationStep() {
+	private void fireIterationStep() throws OskException {
 		model.iterationStep(inputFuel, inputOxid);
 		event.fire(new Iteration());
 		inputFuel = inputOxid = null; // events processed
 	}
 
-	private void fireTimeIteration() {
-		D4Value thrust = model.timeStep(inputFuel, inputOxid);
+	private void fireTimeIteration() throws OskException {
+		Vector3D thrust = model.computeThrust(inputFuel, inputOxid);
 		timerEvent.fire(thrust);
 		inputFuel = inputOxid = null; // events processed
 	}

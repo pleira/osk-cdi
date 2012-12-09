@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.osk.TimeHandler;
 import org.osk.events.ECEFpv;
 import org.osk.events.ECI;
-import org.osk.events.ScPV;
+import org.osk.events.PVCoordinates;
 
 /**
  * The sole purpose of this class is to catch s/c ECI pos/vel and 
@@ -32,9 +32,10 @@ public class ECI2ECEFHandler {
 	 * 
 	 * @param posVel
 	 */
-	public void eci2ecefHandler(/*Observes @ECI*/ ScPV posVel) {
+	public void eci2ecefHandler(/*Observes @ECI*/ PVCoordinates posVel) {
         double mjdMissionTime = (timeHandler.getSimulatedMissionTimeAsDouble()-946684800)/86400;
-        ECEFpv pv = builder.eci2ecef(mjdMissionTime, 0.0, 15, posVel.getScPosition(), posVel.getScVelocity());        
+        ECEFpv pv = builder.eci2ecef(mjdMissionTime, 0.0, 15, 
+        		posVel.getPosition().toArray(), posVel.getVelocity().toArray());        
         event.fire(pv);
 	}
 }

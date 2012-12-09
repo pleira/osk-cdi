@@ -6,17 +6,18 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
 import org.osk.config.NumberConfig;
 import org.osk.config.Util;
+import org.osk.errors.OskException;
 import org.osk.events.BackIter;
-import org.osk.events.D4Value;
 import org.osk.events.ECI;
 import org.osk.events.Gravity;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.Oxid;
-import org.osk.events.ScPV;
+import org.osk.events.PVCoordinates;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
 import org.osk.models.structure.ScStructure;
@@ -28,19 +29,19 @@ public class ScStructure22 {
 	public final static String NAME = "ScStructure22";
 	
 	@Inject ScStructure model;
-	@Inject @Named(NAME) @ECI @Iter Event<ScPV> event;
-	@Inject @Named(NAME) @ECI @TimeIter Event<ScPV> timerEvent;
+	@Inject @Named(NAME) @ECI @Iter Event<PVCoordinates> event;
+	@Inject @Named(NAME) @ECI @TimeIter Event<PVCoordinates> timerEvent;
 	@Inject @Named(Engine20.NAME) @Oxid @BackIter Event<Iteration> backEvent;
 
 	public void iteration(
 			@Observes @Named(Engine20.NAME) @Iter Iteration iter) {
     	// pass the initial position/velocity to interested parties
-    	event.fire(new ScPV(model.getScPositionECI(), model.getScVelocityECI()));
+    	event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
 	}
 
 	public void timeIteration(
-			@Observes @Named(Engine20.NAME) @TimeIter D4Value thrust) {
-		ScPV scPosVel = model.timeStep(thrust);
+			@Observes @Named(Engine20.NAME) @TimeIter Vector3D thrust) throws OskException {
+		PVCoordinates scPosVel = model.timeStep(thrust);
 		timerEvent.fire(scPosVel);
 	}
 
@@ -50,7 +51,7 @@ public class ScStructure22 {
 	}
 	
 	
-	public void handleGravity(@Observes @Named(Gravity23.NAME) @Gravity D4Value gravity) {
+	public void handleGravity(@Observes @Named(Gravity23.NAME) @Gravity Vector3D gravity) {
 		model.setGravity(gravity);
 	}
 
@@ -64,12 +65,12 @@ public class ScStructure22 {
 
 	@Inject
 	void initScPositionECI(@ConfigProperty(name = "sc.scPositionECI", defaultValue = "6978137.0 0.0 0.0") String values) {
-	model.setScPositionECI(Util.extractDoubleArray(values));
+	model.setScPositionECI(new Vector3D(Util.extractDoubleArray(values)));
 	}
 	
 	@Inject
 	void initScVelocityECI(@ConfigProperty(name = "sc.scVelocityECI", defaultValue = "0.0 2700.0 7058.0") String values) {
-	model.setScVelocityECI(Util.extractDoubleArray(values));
+	model.setScVelocityECI(new Vector3D(Util.extractDoubleArray(values)));
 	}
 		
 	@Inject
