@@ -81,6 +81,7 @@ import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -90,7 +91,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas filter.
-t this.name = name;  
  * 
  * @author J. Eickhoff
  * @author P. Heinrich
@@ -165,8 +165,6 @@ public class FilterT1 extends BaseModel {
 		String fluid;
 		double CP, GESCH, RE, XI, PR, NU, DTF, DP, pfluid;
 
-		/* Fluid material properties for heat transfer computations. */
-		MaterialProperties helium = new MaterialProperties();
 
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
@@ -197,8 +195,8 @@ public class FilterT1 extends BaseModel {
 
 		ttotal = tin;
 
-		// TODO: check pk is ok, and how it is used
-		double pk = org.osk.models.materials.HeliumPropertiesBuilder.build(pfluid, tin, helium);
+		/* Fluid material properties for heat transfer computations. */
+		MaterialProperties helium = HeliumPropertiesBuilder.build(pfluid, tin);
 
 		GESCH = mfin * 4
 				/ (innerDiameter * innerDiameter * Math.PI * helium.DENSITY);

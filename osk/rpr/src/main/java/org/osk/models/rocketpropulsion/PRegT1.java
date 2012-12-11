@@ -72,6 +72,7 @@ import javax.inject.Inject;
 import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumJKC;
+import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -80,7 +81,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas dome pressure regulator.
-t this.name = name;  
  *
  * @author J. Eickhoff
  * @author P. Heinrich
@@ -139,17 +139,10 @@ public class PRegT1 extends BaseModel {
         double P1, P2, param = 0, poutNew, JKC;
         double CP, DTEMP, GESCH, RE, XI, PR, NU, DTF;
 
-        // Fluid material properties for heat transfer computations
-        MaterialProperties Helium = new MaterialProperties();
-
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
         fluid = inputPort.getFluid();
-//        LOG.info(name);
-//        LOG.info("pin : {}", pin);
-//        LOG.info("tin : {}", tin);
-//        LOG.info("mfin/out : {}", mfin);
 
         //Skip iteration step computation if no flow in pressure regulator
         if (mfin <= 1.E-6) {
@@ -220,13 +213,12 @@ public class PRegT1 extends BaseModel {
         tout = tout + DTEMP;
         tstatin = tout;
 
-        // FIXME
-        double PK = org.osk.models.materials.HeliumPropertiesBuilder.build(pout, tout, Helium);
+		MaterialProperties helium = HeliumPropertiesBuilder.build(pout, tout);
 
         GESCH = mfin
-                * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DENSITY);
+                * 4 / (innerDiameter * innerDiameter * Math.PI * helium.DENSITY);
 
-        RE = GESCH * innerDiameter / Helium.NUE;
+        RE = GESCH * innerDiameter / helium.NUE;
 
         /**********************************************************************/
         /*                                                                    */
@@ -244,7 +236,6 @@ public class PRegT1 extends BaseModel {
         /**********************************************************************/
         if (RE > 2.E6) {
             LOG.info("Re number exceeding upper limit");
-            LOG.info("Re number exceeding upper limit");
             RE = 2.E6;
         } else if (RE < 2300.) {
             /* Setting RE to 1000 here leads to NU = 0.0 and alfa = 0.0 below
@@ -258,13 +249,13 @@ public class PRegT1 extends BaseModel {
 
         XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-        PR = CP * Helium.ETA / Helium.LAMBDA;
+        PR = CP * helium.ETA / helium.LAMBDA;
 
         NU = (XI / 8) * (RE - 1000) * PR / (1 + 12.7 * (Math.sqrt(XI / 8))
                 * (Math.pow(PR, (2/3))-1))
                 * (1 + Math.pow((innerDiameter / length), (2/3)));
 
-        alfa = NU * Helium.LAMBDA / innerDiameter;
+        alfa = NU * helium.LAMBDA / innerDiameter;
 
         /**********************************************************************/
         /*                                                                    */

@@ -93,7 +93,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe junction. Model for connecting two pure gas
-t this.name = name;  
  * pipes. Computation only coveres adding of mass flow rates.
  *
  * @author J. Eickhoff

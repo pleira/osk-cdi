@@ -1,7 +1,6 @@
 /**
  *
  *  Model definition for a gas pressure vessel.
-t this.name = name;  
  *
  *
  *                            ++++
@@ -45,6 +44,7 @@ import javax.inject.Inject;
 import org.osk.config.SimHeaders;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumJKC;
+import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
@@ -104,7 +104,6 @@ public class HPBottleT1 extends BaseModel {
 
     public void init(String name) {
     	this.name = name;  
-        MaterialProperties helium = new MaterialProperties();
         double radius;
 
         /* Computation of derived design parameters. */
@@ -136,8 +135,7 @@ public class HPBottleT1 extends BaseModel {
         /* Initializing wall temperature old value. */
         twold = twall;
         /* Initializing initial mass in bottle. */
-        /** TODO Look here, is this correct? */
-        ptotal = org.osk.models.materials.HeliumPropertiesBuilder.build(ptotal, ttotal, helium);
+        MaterialProperties helium = HeliumPropertiesBuilder.build(ptotal, ttotal);
         mtotal = helium.DENSITY * volume;
 
         /* Initializing default value for mass flow. */
@@ -293,8 +291,8 @@ public class HPBottleT1 extends BaseModel {
         /*   at current conditions (Temp. THEBEH and press- PHEBEH)           */
         /*                                                                    */
         /**********************************************************************/
-
-        ptotal = org.osk.models.materials.HeliumPropertiesBuilder.build(P, ttotal, helium);
+        helium = HeliumPropertiesBuilder.build(P, ttotal);
+        ptotal = P;
 
         /**********************************************************************/
         /*                                                                    */

@@ -40,7 +40,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for fluid flow valve.
-t this.name = name;  
  *
  * @author J. Eickhoff
  * @author A. Brandt

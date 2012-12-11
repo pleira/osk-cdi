@@ -21,7 +21,7 @@ t this.name = name;
  *    Eickhoff, J.:
  *    Erstellung und Programmierung eines Rechenverfahrens zur
  *    thermodynamischen Erfassung des Druckgas-Foerdersystems der
- *    ARIANE L5-Stufe und Berechnung des noetigen Heliumbedarfs zur
+ *    ARIANE L5-Stufe und Berechnung des noetigen heliumbedarfs zur
  *    Treibstoffoerderung.
  *    Studienarbeit am Institut fuer Thermodynamik der Luft- und Raumfahrt
  *    Universitaet Stuttgart, Pfaffenwaldring 31, 7000 Stuttgart 80, 1988
@@ -57,6 +57,7 @@ import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
@@ -142,11 +143,10 @@ public class PipeT1 extends BaseModel {
 
 		// FIXME
 		/** Fluid material properties for heat transfer computations. */
-		MaterialProperties Helium = new MaterialProperties();
-		double PK = org.osk.models.materials.HeliumPropertiesBuilder.build(pin, tin, Helium);
+		MaterialProperties helium = HeliumPropertiesBuilder.build(pin, tin);
 
 		GESCH = 4. * mfin
-				/ (Helium.DENSITY * 3.1415 * Math.pow(innerDiameter, 2));
+				/ (helium.DENSITY * 3.1415 * Math.pow(innerDiameter, 2));
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -157,7 +157,7 @@ public class PipeT1 extends BaseModel {
 		/* Universitt Stuttgart, Pfaffenwaldring, 7000 Stuttgart 80, 1986 */
 		/*                                                                    */
 		/**********************************************************************/
-		RE = GESCH * innerDiameter / Helium.NUE;
+		RE = GESCH * innerDiameter / helium.NUE;
 
 		if (surfaceRoughness >= 5.E-02) {
 			surfaceRoughness = 5.E-02;
@@ -193,7 +193,7 @@ public class PipeT1 extends BaseModel {
 		/**********************************************************************/
 		zeta = LA * length / innerDiameter;
 
-		pout = pin - (Helium.DENSITY / 2.) * Math.pow(GESCH, 2) * zeta;
+		pout = pin - (helium.DENSITY / 2.) * Math.pow(GESCH, 2) * zeta;
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -236,7 +236,7 @@ public class PipeT1 extends BaseModel {
 
 		XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-		PR = CP * Helium.ETA / Helium.LAMBDA;
+		PR = CP * helium.ETA / helium.LAMBDA;
 
 		NU = (XI / 8)
 				* (RE - 1000.)
@@ -244,7 +244,7 @@ public class PipeT1 extends BaseModel {
 				/ (1 + 12.7 * (Math.sqrt(XI / 8)) * (Math.pow(PR, (2 / 3)) - 1))
 				* (1 + Math.pow((innerDiameter / length), (2 / 3)));
 
-		alfa = NU * Helium.LAMBDA / innerDiameter;
+		alfa = NU * helium.LAMBDA / innerDiameter;
 
 		/**********************************************************************/
 		/*                                                                    */

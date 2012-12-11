@@ -30,7 +30,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a controller component providing 2 analog output ports.
-t this.name = name;  
  * Control Function is time dependent and is currently hard coded inside model.
  *
  * @author J. Eickhoff

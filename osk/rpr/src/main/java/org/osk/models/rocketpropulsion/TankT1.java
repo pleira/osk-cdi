@@ -132,6 +132,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.config.SimHeaders;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.numeric.DEQClient;
 import org.osk.numeric.DEqSys;
@@ -143,7 +144,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a rocket stage fuel/oxidizer tank with
-t this.name = name;  
  * medium energetic fuels.
  *
  * @author J. Eickhoff
@@ -557,8 +557,6 @@ public class TankT1 extends BaseModel implements DEQClient {
 
     public int DEQDeriv(final double X, final double Y[], final int N,
             final double F[]) {
-        MaterialProperties Helium_ox = new MaterialProperties();
-        MaterialProperties Helium_brenn = new MaterialProperties();
         double CPHE,CVHE,RALLG,RSPHE,RSPOXD,MMOLHE,MMOLO,C,D,E,CB,DB;
         double RSPMO,DICHGO,DICHLO,DICHLB,NHEO,NOG,NGES;
 
@@ -901,7 +899,7 @@ public class TankT1 extends BaseModel implements DEQClient {
         ETAOL=7.533E-3-6.167E-5*Y[4]+2.055E-7*Math.pow(Y[4],2);
         ETAOL=ETAOL-3.234E-10*Math.pow(Y[4],3)+1.966E-13*Math.pow(Y[4],4);
 
-        double PK_OX = org.osk.models.materials.HeliumPropertiesBuilder.build(PHEO, Y[1], Helium_ox);
+        MaterialProperties Helium_ox = HeliumPropertiesBuilder.build(PHEO, Y[1]);
 
         ETAGO=Helium_ox.ETA*YHEO*Math.pow(MMOLHE,.5);
         ETAGO=ETAGO+ETAOG*YDO*Math.pow(MMOLO,.5);
@@ -913,7 +911,7 @@ public class TankT1 extends BaseModel implements DEQClient {
 
         /*******     In Fuel Tank    ***************************************/
 
-        double PK_brenn = org.osk.models.materials.HeliumPropertiesBuilder.build(Y[9], Y[11], Helium_brenn);
+        MaterialProperties Helium_brenn = HeliumPropertiesBuilder.build(Y[9], Y[11]);
 
         LAMBL=.14246+9.211E-4*Y[12]-1.9029E-6*Math.pow(Y[12],2);
 
