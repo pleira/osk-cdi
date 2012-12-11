@@ -3,24 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opensimkit</groupId>
   <artifactId>parent</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2</version>
   <packaging>pom</packaging>
-  <!-- 
-  <parent>
-		<artifactId>weld-examples-parent</artifactId>
-		<groupId>org.jboss.weld.examples</groupId>
-		<version>1.1.9.Final</version>
-	</parent>
-	 -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <org.jboss.weld.se.weld-se.version>2.0.0.Beta1</org.jboss.weld.se.weld-se.version>
     <deltaspike.version>0.3-incubating</deltaspike.version>
   </properties>
   <modules>
-    <module>../sim</module>
-<!--     <module>../pkt</module> -->
-    <module>../rpr</module>
+    <module>sim</module>
+    <module>rpr</module>
   </modules>
   <dependencyManagement>
     <dependencies>

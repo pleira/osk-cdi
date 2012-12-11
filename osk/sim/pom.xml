@@ -11,40 +11,10 @@
     <groupId>org.opensimkit</groupId>
     <artifactId>parent</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <relativePath>../parent/</relativePath>
+    <relativePath>..</relativePath>
   </parent>
   <name>Open Sim Kit :: Core </name>
   <dependencies>
-    <!-- 
-<dependency>
-    <groupId>org.apache.deltaspike.cdictrl</groupId>
-    <artifactId>deltaspike-cdictrl-api</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.deltaspike.cdictrl</groupId>
-    <artifactId>deltaspike-cdictrl-weld</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.deltaspike.core</groupId>
-    <artifactId>deltaspike-core-api</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.deltaspike.core</groupId>
-    <artifactId>deltaspike-core-impl</artifactId>
-    <version>${deltaspike.version}</version>
-</dependency>
-	<dependency>
-		<groupId>org.jboss.weld.se</groupId>
-		<artifactId>weld-se-core</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-simple</artifactId>
-	</dependency>
- -->
     <dependency>
       <groupId>jat.vecmath</groupId>
       <artifactId>vecmath</artifactId>
