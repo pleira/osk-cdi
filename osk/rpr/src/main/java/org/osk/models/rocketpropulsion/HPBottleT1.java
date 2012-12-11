@@ -42,12 +42,12 @@ package org.osk.models.rocketpropulsion;
 
 import javax.inject.Inject;
 
-import org.osk.SimHeaders;
-import org.osk.TimeHandler;
-import org.osk.materials.HeliumJKC;
-import org.osk.materials.MaterialProperties;
+import org.osk.config.SimHeaders;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.HeliumJKC;
+import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
@@ -137,8 +137,8 @@ public class HPBottleT1 extends BaseModel {
         twold = twall;
         /* Initializing initial mass in bottle. */
         /** TODO Look here, is this correct? */
-        ptotal = org.osk.materials.Helium.HELIUM(ptotal, ttotal, helium);
-        mtotal = helium.DICHTE * volume;
+        ptotal = org.osk.models.materials.Helium.HELIUM(ptotal, ttotal, helium);
+        mtotal = helium.DENSITY * volume;
 
         /* Initializing default value for mass flow. */
         mftotal = 0.01;
@@ -179,7 +179,7 @@ public class HPBottleT1 extends BaseModel {
         
         double timeStep = timeHandler.getStepSizeAsDouble();
 		DMASSE = mftotal * timeStep ;
-        helium.DICHTE = mtotal / volume;
+        helium.DENSITY = mtotal / volume;
 
         /**********************************************************************/
         /*                                                                    */
@@ -243,7 +243,7 @@ public class HPBottleT1 extends BaseModel {
 
         ttotal=ttotal+DTEMP;
         mtotal=mtotal-DMASSE;
-        helium.DICHTE=mtotal/volume;
+        helium.DENSITY=mtotal/volume;
 
         /**********************************************************************/
         /*                                                                    */
@@ -262,7 +262,7 @@ public class HPBottleT1 extends BaseModel {
         FAKTOR=FAKTOR+1.358845E-8*Math.pow(ttotal,2);
         FAKTOR=FAKTOR-(4.595341E-12*Math.pow(ttotal,3));
 
-        PLANF=.7*helium.DICHTE*RSPEZ*ttotal;
+        PLANF=.7*helium.DENSITY*RSPEZ*ttotal;
         PLEND=pinit*1.1;
         ST=1E6;
         // FIXME: check for maximum 10000 iterations
@@ -270,7 +270,7 @@ public class HPBottleT1 extends BaseModel {
         for(PLAUF=PLANF;PLAUF<PLEND && i<10000;PLAUF+=ST, i++) {
 
             helium.Z=1.0+FAKTOR*PLAUF/1E5;
-            P=helium.Z*helium.DICHTE*RSPEZ*ttotal;
+            P=helium.Z*helium.DENSITY*RSPEZ*ttotal;
             Wert=(PLAUF-P)/PLAUF;
             if(Wert<0) Wert=Wert*-1.;
             if (Wert<=0.01*SimHeaders.epsrel) break;
@@ -294,7 +294,7 @@ public class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        ptotal = org.osk.materials.Helium.HELIUM(P, ttotal, helium);
+        ptotal = org.osk.models.materials.Helium.HELIUM(P, ttotal, helium);
 
         /**********************************************************************/
         /*                                                                    */

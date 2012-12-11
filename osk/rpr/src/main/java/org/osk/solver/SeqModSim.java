@@ -78,13 +78,13 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
-import org.osk.TimeHandler;
 import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.RegulIter;
 import org.osk.events.TimeIteration;
 import org.osk.interceptors.AuditTime;
+import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 /**
@@ -116,7 +116,8 @@ public class SeqModSim  {
 /* -------------------------------------------------------------------------- */
     @AuditTime
     public void initSim(@Observes ContainerInitialized init) throws IOException {
-        // Here, we have initialised all our components
+//    public void initSim(ContainerInitialized init) throws IOException {
+    	          // Here, we have initialised all our components
     	// in debug mode, the initial values of the models should be checked 
     	// before doing the computations
  //       ExecutorService service = Executors.newSingleThreadExecutor();

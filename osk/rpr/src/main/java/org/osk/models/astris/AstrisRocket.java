@@ -1,16 +1,22 @@
 package org.osk.models.astris;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import org.osk.models.Model;
+import org.jboss.weld.environment.se.events.ContainerInitialized;
+import org.osk.events.BackIter;
+import org.osk.events.Iter;
+import org.osk.events.Iteration;
+import org.osk.events.RegulIter;
+import org.osk.events.TimeIter;
+import org.osk.events.TimeIteration;
+import org.osk.interceptors.AuditTime;
 import org.osk.models.astris.parts.Engine20;
 import org.osk.models.astris.parts.EngineController21;
 import org.osk.models.astris.parts.FFV18;
@@ -35,6 +41,9 @@ import org.osk.models.astris.parts.ScStructure22;
 import org.osk.models.astris.parts.Split10;
 import org.osk.models.astris.parts.Tank17;
 import org.osk.models.environment.OSKGravityModel;
+import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
+import org.slf4j.Logger;
 /**
  * This class is instantiated by the CDI container. 
  * Itself, it instantiates the different elements of the rocket model.
@@ -47,26 +56,26 @@ import org.osk.models.environment.OSKGravityModel;
 public class AstrisRocket  {
 
 	// Structural items in the numerical simulation
-	@Inject FFV18 fflow18;
-	@Inject FFV19 fflow19;
+	@Inject HPBottle00 hpbottle00;
+	@Inject HPBottle01 hpbottle01;
 	@Inject Pipe02 pipe02;
 	@Inject Pipe03 pipe03;
+	@Inject Junction04 junction04;
 	@Inject Pipe05 pipe05;
+	@Inject Filter06 filter06;
 	@Inject Pipe07 pipe07;
+	@Inject PReg08 preg08;
 	@Inject Pipe09 pipe09;
+	@Inject Split10 split10;
 	@Inject Pipe11 pipe11;  
 	@Inject Pipe13 pipe13;
 	@Inject Pipe14 pipe14;
 	@Inject Pipe16 pipe16;
-	@Inject Filter06 filter06;
-	@Inject HPBottle00 hpbottle00;
-	@Inject HPBottle01 hpbottle01;
-	@Inject PReg08 preg08;
 	@Inject PReg12 preg12;
 	@Inject PReg15 preg15;
-	@Inject Split10 split10;
-	@Inject Junction04 junction04;
 	@Inject Tank17 tank17;  
+	@Inject FFV18 fflow18;
+	@Inject FFV19 fflow19;
 	@Inject Engine20 engine20;
 	@Inject EngineController21 engineController21;
 	@Inject ScStructure22 scStructure22;
@@ -78,37 +87,81 @@ public class AstrisRocket  {
 //	Mesh mesh1 = new Mesh("mesh_1", "sub");
 //	Mesh mesh2 = new Mesh("mesh_2", "sub");
 
-	final LinkedList<Model> timeStepItems = new LinkedList<Model>();
-
-	final SortedMap<String, Model> regulationItems = new TreeMap<String, Model>();
-
-	final SortedMap<String, Model> iterItems = new TreeMap<String, Model>();
-
-	// This collection is used to iterate the models
-	@Produces @TimeStepItems	
-	public Collection<Model> iterItems() {
-		return timeStepItems;
-	}
-    
-	@Produces @RegulationItems
-	public Collection<Model> regulationItems() {
-		return regulationItems.values();
-	}
-    
-	@Produces @IterItems
-	public Collection<Model> timeStepItems() {
-		return iterItems.values();
-	}
     
 	@PostConstruct
 	void initNumericalSimulation() {
-		initItems();
-		initBoundaryConditions();
+//		initItems();
+//		initBoundaryConditions();
 		// TODO: fire a CDI event to say that the model is ready for starting the
 		// simulation?
 		registerMBeans();
 	}
 
+    @Inject Logger LOG; 
+    @Inject TimeHandler    timeHandler;
+   
+    @Inject @Iter Event<Iteration> iterEvent;
+    @Inject @BackIter Event<Iteration> backIterEvent;
+    @Inject @RegulIter Event<Iteration> regulIterEvent;
+    @Inject Event<TimeIteration> timeEvent;
+   
+    public void printSimSettings() {
+        LOG.info("Simulation: Step size is: {}.",
+                timeHandler.getStepSizeAsDouble());
+    }
+
+
+/* -------------------------------------------------------------------------- */
+/*                                Computation
+/* -------------------------------------------------------------------------- */
+    @AuditTime
+    // Not USED , to think about this concept in this class ...
+//    public void initSim(@Observes ContainerInitialized init) throws IOException {
+    public void initSim(@Observes ContainerInitialized init) throws IOException {
+       // Here, we have initialised all our components
+    	// in debug mode, the initial values of the models should be checked 
+    	// before doing the computations
+ //       ExecutorService service = Executors.newSingleThreadExecutor();
+//		service.submit(this);
+
+        double time  = timeHandler.getSimulatedMissionTimeAsDouble();
+        double tinit = timeHandler.getSimulatedMissionTimeAsDouble();
+
+        LOG.info("Starting simulation...\n");
+        LOG.info("Time: {}", time);
+        
+        LOG.info("Initial system boundary condition iteration...\n");
+        
+         // Iteration-Step t=0
+        iterEvent.fire(new Iteration());
+    }
+
+//	public void iteration(@Observes @Iter Iteration iter) {
+	public void iteration00(@Observes @Named(HPBottle00.NAME) @Iter FluidPort input) {
+//		pipe02Event.fire(input);
+		 pipe02.iteration(input);
+	}
+	public void iteration01(@Observes @Named(HPBottle01.NAME) @Iter FluidPort input) {
+//		pipe03Event.fire(input);
+		 pipe03.iteration(input);
+	}
+	public void iteration02(@Observes @Named(Pipe02.NAME) @Iter FluidPort input) {
+//		junction04Event.fire(input);
+		 junction04.iterationLeft(input);
+	}
+	public void iteration03(@Observes @Named(Pipe03.NAME) @Iter FluidPort input) {
+//		junction04Event.fire(input);
+		 junction04.iterationRight(input);
+	}
+	
+	@Inject	@Named(HPBottle00.NAME) @Iter     Event<FluidPort> hp0Event;
+	@Inject	@Named(HPBottle01.NAME) @Iter     Event<FluidPort> hp1Event;
+	@Inject @Named(HPBottle00.NAME) @BackIter Event<FluidPort> hp0backEvent;
+	@Inject @Named(Pipe02.NAME) @Iter     Event<FluidPort> pipe02Event;
+	@Inject @Named(Pipe02.NAME) @TimeIter Event<FluidPort> pipe02outputEvent;
+	@Inject @Named(Pipe03.NAME) @Iter     Event<FluidPort> pipe03Event;
+	@Inject @Named(Pipe03.NAME) @TimeIter Event<FluidPort> pipe03outputEvent;
+   
 	void initItems() {
 		
 //		timeStepItems.add(hpbottle00);

@@ -70,9 +70,9 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
-import org.osk.materials.HeliumJKC;
-import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.HeliumJKC;
+import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 
@@ -221,10 +221,10 @@ public class PRegT1 extends BaseModel {
         tstatin = tout;
 
         // FIXME
-        double PK = org.osk.materials.Helium.HELIUM(pout, tout, Helium);
+        double PK = org.osk.models.materials.Helium.HELIUM(pout, tout, Helium);
 
         GESCH = mfin
-                * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DICHTE);
+                * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DENSITY);
 
         RE = GESCH * innerDiameter / Helium.NUE;
 

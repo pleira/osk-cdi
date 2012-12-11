@@ -22,9 +22,9 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.osk.TimeHandler;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
+import org.osk.time.TimeHandler;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 

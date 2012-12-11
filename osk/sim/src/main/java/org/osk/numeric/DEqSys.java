@@ -49,7 +49,7 @@
 
 package org.osk.numeric;
 
-import org.osk.SimHeaders;
+import org.osk.config.SimHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

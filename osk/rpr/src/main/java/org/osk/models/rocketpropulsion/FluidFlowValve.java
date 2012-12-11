@@ -30,10 +30,10 @@ package org.osk.models.rocketpropulsion;
 
 import javax.inject.Inject;
 
-import org.osk.TimeHandler;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;

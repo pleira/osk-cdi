@@ -80,8 +80,8 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
-import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,10 +198,10 @@ public class FilterT1 extends BaseModel {
 		ttotal = tin;
 
 		// TODO: check pk is ok, and how it is used
-		double pk = org.osk.materials.Helium.HELIUM(pfluid, tin, helium);
+		double pk = org.osk.models.materials.Helium.HELIUM(pfluid, tin, helium);
 
 		GESCH = mfin * 4
-				/ (innerDiameter * innerDiameter * Math.PI * helium.DICHTE);
+				/ (innerDiameter * innerDiameter * Math.PI * helium.DENSITY);
 
 		RE = GESCH * innerDiameter / helium.NUE;
 

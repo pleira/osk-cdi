@@ -16,6 +16,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.osk.errors.OskException;
 import org.osk.models.BaseModel;
 import org.osk.models.environment.Atmosphere;
+import org.osk.numeric.NumericalUtils;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 

@@ -36,7 +36,16 @@ public class FluidPort  {
         this.temperature = temperature;
         this.pressure = pressure;
     }
-
+    
+	public FluidPort clone() {
+		FluidPort outputPort = new FluidPort();
+		outputPort.setFluid(fluid);
+		outputPort.setPressure(pressure);
+		outputPort.setTemperature(temperature);
+		outputPort.setMassflow(massflow);
+		return outputPort;
+	}
+	
     public void setFluid(final String fluid) {
         this.fluid = fluid;
     }

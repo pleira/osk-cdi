@@ -22,9 +22,9 @@ import javax.inject.Inject;
 
 import org.apache.commons.math3.exception.util.DummyLocalizable;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.osk.TimeHandler;
 import org.osk.errors.OskException;
 import org.osk.models.BaseModel;
+import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;

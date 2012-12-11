@@ -5,10 +5,10 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.osk.TimeHandler;
 import org.osk.events.ECEFpv;
 import org.osk.events.ECI;
 import org.osk.events.PVCoordinates;
+import org.osk.time.TimeHandler;
 
 /**
  * The sole purpose of this class is to catch s/c ECI pos/vel and 

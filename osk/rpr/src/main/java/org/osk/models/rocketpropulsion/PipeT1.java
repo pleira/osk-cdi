@@ -56,8 +56,8 @@ package org.osk.models.rocketpropulsion;
 import javax.inject.Inject;
 
 import org.osk.events.TimeStep;
-import org.osk.materials.MaterialProperties;
 import org.osk.models.BaseModel;
+import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 
@@ -65,7 +65,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe.
-t this.name = name;  
  * 
  * @author J. Eickhoff
  * @author P. Heinrich
@@ -77,6 +76,7 @@ public class PipeT1 extends BaseModel {
 	@Inject Logger LOG;
 	@Inject @TimeStep Double tStepSize;
 	
+	private static final int PARTS = 10;
 	/** Diameter of pipe. */
 	private double innerDiameter;
 	/** Length of pipe. */
@@ -88,9 +88,9 @@ public class PipeT1 extends BaseModel {
 	/** Roughness of pipe inner surface. */
 	private double surfaceRoughness;
 	/** Array of temperature of pipe elements. */
-	private double temperatures[] = new double[10];
+	private double temperatures[] = new double[PARTS];
 	/** Array of heat flow from wall to fluid for pipe elements. */
-	private double qHFlow[] = new double[10];
+	private double qHFlow[] = new double[PARTS];
 	/** Heat transfer coefficient between pipe wall and fluid. */
 	private double alfa;
 	/** Mass of one pipe element (pipe consists of 10 elements). */
@@ -99,14 +99,9 @@ public class PipeT1 extends BaseModel {
 	private double tstatin;
 
 	/** Parameters of in- and outflowing fluid. */
-	private double pin;
-	private double tin;
 	private double mfin;
 	private double pout;
 	private double tout;
-	private double pUpBackiter;
-	private double tUpBackiter;
-	private double mfUpBackiter;
 
 	private static final String TYPE = "PipeT1";
 	private static final String SOLVER = "Euler";
@@ -118,11 +113,11 @@ public class PipeT1 extends BaseModel {
 	public void init(String name) {
 		this.name = name;
 		/* Mass of one pipe element. */
-		massPElem = specificMass * length / 10;
+		massPElem = specificMass * length / PARTS;
 	}
 	
 	public FluidPort iterationStep(FluidPort inputPort) {
-		String fluid;
+		
 		double RSPEZ, CP;
 		double GESCH, RE, REbound, LA;
 		double zeta;
@@ -130,16 +125,16 @@ public class PipeT1 extends BaseModel {
 		int J;
 //		LOG.info(name);
 
-		pin = inputPort.getPressure();
-		tin = inputPort.getTemperature();
+		double pin = inputPort.getPressure();
+		double tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
-		fluid = inputPort.getFluid();
+		String fluid = inputPort.getFluid();
 
 		/* Skip iteration step computation if no flow in pipe. */
 		if (mfin <= 1.E-6) {
 			pout = pin;
 			tout = tin;
-			return createOutputPort(fluid);
+			return inputPort.clone();
 		}
 
 		RSPEZ = 2077;
@@ -148,10 +143,10 @@ public class PipeT1 extends BaseModel {
 		// FIXME
 		/** Fluid material properties for heat transfer computations. */
 		MaterialProperties Helium = new MaterialProperties();
-		double PK = org.osk.materials.Helium.HELIUM(pin, tin, Helium);
+		double PK = org.osk.models.materials.Helium.HELIUM(pin, tin, Helium);
 
 		GESCH = 4. * mfin
-				/ (Helium.DICHTE * 3.1415 * Math.pow(innerDiameter, 2));
+				/ (Helium.DENSITY * 3.1415 * Math.pow(innerDiameter, 2));
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -192,13 +187,13 @@ public class PipeT1 extends BaseModel {
 
 		/**********************************************************************/
 		/*                                                                    */
-		/* Computation of ressure loss in pipe. */
+		/* Computation of pressure loss in pipe. */
 		/* See manuscript "Industrielle Aerodynamik" p.11 */
 		/*                                                                    */
 		/**********************************************************************/
 		zeta = LA * length / innerDiameter;
 
-		pout = pin - (Helium.DICHTE / 2.) * Math.pow(GESCH, 2) * zeta;
+		pout = pin - (Helium.DENSITY / 2.) * Math.pow(GESCH, 2) * zeta;
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -261,9 +256,9 @@ public class PipeT1 extends BaseModel {
 		/* Static pipe inlet temperature. Required for timestep computation. */
 		tstatin = tin;
 
-		for (J = 0; J < 10; J++) {
+		for (J = 0; J < PARTS; J++) {
 			qHFlow[J] = alfa * Math.PI * innerDiameter * length
-					* (temperatures[J] - tstatin) / 10;
+					* (temperatures[J] - tstatin) / PARTS;
 
 			/**********************************************************************/
 			/*                                                                    */
@@ -301,8 +296,6 @@ public class PipeT1 extends BaseModel {
 		double CP, Q, DTF, DTB;
 		int J;
 
-		pin = inputPort.getPressure();
-		tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
 		fluid = inputPort.getFluid();
 
@@ -338,9 +331,9 @@ public class PipeT1 extends BaseModel {
 		/* for each pipe of the 10 pipe elements. */
 		/*                                                                    */
 		/**********************************************************************/
-		for (J = 0; J < 10; J++) {
+		for (J = 0; J < PARTS; J++) {
 			qHFlow[J] = alfa * 3.1415 * innerDiameter * length
-					* (temperatures[J] - tstatin) / 10;
+					* (temperatures[J] - tstatin) / PARTS;
 			Q = qHFlow[J] * tStepSize;
 
 			/******************************************************************/
@@ -371,10 +364,6 @@ public class PipeT1 extends BaseModel {
 		if (outputPort.getBoundaryTemperature() >= 0.0) {
 			LOG.error("Temp. request on output port cannot be handled!");
 		}
-
-		mfUpBackiter = outputPort.getBoundaryMassflow();
-		pUpBackiter = outputPort.getBoundaryPressure();
-		tUpBackiter = outputPort.getBoundaryTemperature();
 		return BoundaryUtils.createBoundaryPort(outputPort);
 	}
 
@@ -387,6 +376,8 @@ public class PipeT1 extends BaseModel {
 		outputPort.setMassflow(mfin);
 		return outputPort;
 	}
+	
+
 	
 	// -----------------------------------------------------------------------------------
 	// Methods added for JMX monitoring and setting initial properties via CDI
@@ -483,24 +474,6 @@ public class PipeT1 extends BaseModel {
 	}
 
 	@ManagedAttribute
-	public double getPin() {
-		return pin;
-	}
-
-	public void setPin(double pin) {
-		this.pin = pin;
-	}
-
-	@ManagedAttribute
-	public double getTin() {
-		return tin;
-	}
-
-	public void setTin(double tin) {
-		this.tin = tin;
-	}
-
-	@ManagedAttribute
 	public double getMfin() {
 		return mfin;
 	}
@@ -527,31 +500,5 @@ public class PipeT1 extends BaseModel {
 		this.tout = tout;
 	}
 
-	@ManagedAttribute
-	public double getpUpBackiter() {
-		return pUpBackiter;
-	}
-
-	public void setpUpBackiter(double pUpBackiter) {
-		this.pUpBackiter = pUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double gettUpBackiter() {
-		return tUpBackiter;
-	}
-
-	public void settUpBackiter(double tUpBackiter) {
-		this.tUpBackiter = tUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double getMfUpBackiter() {
-		return mfUpBackiter;
-	}
-
-	public void setMfUpBackiter(double mfUpBackiter) {
-		this.mfUpBackiter = mfUpBackiter;
-	}
 
 }

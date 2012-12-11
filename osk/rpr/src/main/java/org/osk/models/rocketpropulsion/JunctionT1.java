@@ -83,7 +83,7 @@ t this.name = name;
 package org.osk.models.rocketpropulsion;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.osk.SimHeaders;
+import org.osk.config.SimHeaders;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
