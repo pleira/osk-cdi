@@ -143,7 +143,7 @@ public class PipeT1 extends BaseModel {
 		// FIXME
 		/** Fluid material properties for heat transfer computations. */
 		MaterialProperties Helium = new MaterialProperties();
-		double PK = org.osk.models.materials.Helium.HELIUM(pin, tin, Helium);
+		double PK = org.osk.models.materials.HeliumPropertiesBuilder.build(pin, tin, Helium);
 
 		GESCH = 4. * mfin
 				/ (Helium.DENSITY * 3.1415 * Math.pow(innerDiameter, 2));

@@ -198,7 +198,7 @@ public class FilterT1 extends BaseModel {
 		ttotal = tin;
 
 		// TODO: check pk is ok, and how it is used
-		double pk = org.osk.models.materials.Helium.HELIUM(pfluid, tin, helium);
+		double pk = org.osk.models.materials.HeliumPropertiesBuilder.build(pfluid, tin, helium);
 
 		GESCH = mfin * 4
 				/ (innerDiameter * innerDiameter * Math.PI * helium.DENSITY);

@@ -901,7 +901,7 @@ public class TankT1 extends BaseModel implements DEQClient {
         ETAOL=7.533E-3-6.167E-5*Y[4]+2.055E-7*Math.pow(Y[4],2);
         ETAOL=ETAOL-3.234E-10*Math.pow(Y[4],3)+1.966E-13*Math.pow(Y[4],4);
 
-        double PK_OX = org.osk.models.materials.Helium.HELIUM(PHEO, Y[1], Helium_ox);
+        double PK_OX = org.osk.models.materials.HeliumPropertiesBuilder.build(PHEO, Y[1], Helium_ox);
 
         ETAGO=Helium_ox.ETA*YHEO*Math.pow(MMOLHE,.5);
         ETAGO=ETAGO+ETAOG*YDO*Math.pow(MMOLO,.5);
@@ -913,7 +913,7 @@ public class TankT1 extends BaseModel implements DEQClient {
 
         /*******     In Fuel Tank    ***************************************/
 
-        double PK_brenn = org.osk.models.materials.Helium.HELIUM(Y[9], Y[11], Helium_brenn);
+        double PK_brenn = org.osk.models.materials.HeliumPropertiesBuilder.build(Y[9], Y[11], Helium_brenn);
 
         LAMBL=.14246+9.211E-4*Y[12]-1.9029E-6*Math.pow(Y[12],2);
 

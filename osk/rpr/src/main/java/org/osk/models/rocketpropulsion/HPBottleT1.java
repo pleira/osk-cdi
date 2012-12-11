@@ -137,7 +137,7 @@ public class HPBottleT1 extends BaseModel {
         twold = twall;
         /* Initializing initial mass in bottle. */
         /** TODO Look here, is this correct? */
-        ptotal = org.osk.models.materials.Helium.HELIUM(ptotal, ttotal, helium);
+        ptotal = org.osk.models.materials.HeliumPropertiesBuilder.build(ptotal, ttotal, helium);
         mtotal = helium.DENSITY * volume;
 
         /* Initializing default value for mass flow. */
@@ -294,7 +294,7 @@ public class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        ptotal = org.osk.models.materials.Helium.HELIUM(P, ttotal, helium);
+        ptotal = org.osk.models.materials.HeliumPropertiesBuilder.build(P, ttotal, helium);
 
         /**********************************************************************/
         /*                                                                    */

@@ -221,7 +221,7 @@ public class PRegT1 extends BaseModel {
         tstatin = tout;
 
         // FIXME
-        double PK = org.osk.models.materials.Helium.HELIUM(pout, tout, Helium);
+        double PK = org.osk.models.materials.HeliumPropertiesBuilder.build(pout, tout, Helium);
 
         GESCH = mfin
                 * 4 / (innerDiameter * innerDiameter * Math.PI * Helium.DENSITY);
