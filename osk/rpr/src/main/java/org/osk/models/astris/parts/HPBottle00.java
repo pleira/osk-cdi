@@ -58,6 +58,10 @@ public class HPBottle00  {
     }
     
 	@Inject
+	void initMassFlow(@NumberConfig(name = "hpb0.massFlow", defaultValue = "0.01") Double value) {
+	model.setMftotal(value);
+	}
+	@Inject
 	void initMass(@NumberConfig(name = "hpb0.mass", defaultValue = "28.0") Double value) {
 	model.setMass(value);
 	}

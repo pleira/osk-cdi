@@ -72,18 +72,6 @@ public class HPBottleT1 extends BaseModel {
 	private double ttotal;
 	/** Vessel wall temperature. */
 	private double twall;
-	/** Value of pressure of gas in vessel from previous timestep. */
-	private double pold;
-	/** Value of temperature of gas in vessel from previous timestep. */
-	private double told;
-	/** Value of vessel wall temperature from previous timestep. */
-	private double twold;
-	/** Gradient of pressure of gas in vessel. */
-	private double pgrad;
-	/** Gradient of temperature of gas in vessel. */
-	private double tgrad;
-	/** Gradient of vessel wall temperature. */
-	private double twgrad;
 	/** Mass of gas in vessel. */
 	private double mtotal;
 	/** Mass flow of gas into pipe. */
@@ -104,50 +92,22 @@ public class HPBottleT1 extends BaseModel {
 
     public void init(String name) {
     	this.name = name;  
-        double radius;
 
         /* Computation of derived design parameters. */
-
         ptotal = ptotal * 1.E5;
 
-        /* Initializing diameter. */
-        radius = Math.pow((volume * 3 / (4 * 3.14159)), .33333);
+        double radius = Math.pow((volume * 3 / (4 * Math.PI)), .33333);
         diam = radius * 2;
-
-        /* Initializing surface. */
-        surface = 4 * 3.14159 * Math.pow(radius, 2);
-        /* Initializing heat flow. */
+        surface = 4 * Math.PI * Math.pow(radius, 2);
         qHFlow = 0.0;
         /* Initializing start pressure (to be saved). */
         pinit = ptotal; 
         /* Initializing initial bottle wall temperature. */
         twall = ttotal;
-        /* Initializing pressure gradient. */
-        pgrad = 0.;
-        /* Initializing temperature gradient. */
-        tgrad = 0.;
-        /* Initializing wall temperature gradient. */
-        twgrad = 0.;
-        /* Initializing pressure old value. */
-        pold = ptotal;
-        /* Initializing temperature old value. */
-        told = ttotal;
-        /* Initializing wall temperature old value. */
-        twold = twall;
         /* Initializing initial mass in bottle. */
         MaterialProperties helium = HeliumPropertiesBuilder.build(ptotal, ttotal);
         mtotal = helium.DENSITY * volume;
 
-        /* Initializing default value for mass flow. */
-        mftotal = 0.01;
-
-//        LOG.info("mass : {}", mass);
-//        LOG.info("volume : {}", volume);
-//        LOG.info("specificHeatCapacity : {}", specificHeatCapacity);
-//        LOG.info("ptotal : {}", ptotal);
-//        LOG.info("ttotal : {}", ttotal);
-//        LOG.info("fluid : {}", fluid);
-//        assert fluid.equals("Helium");
     }
     
 
@@ -156,66 +116,91 @@ public class HPBottleT1 extends BaseModel {
     }
 
     public void timeStep() {
-        MaterialProperties helium = new MaterialProperties();
-        double RALLG, RSPEZ, CP, CV;
-        double PBEZ, DMASSE;
-        double P1, P2, param = 0, JKC;
-        int    I, L;
-        double DTEMP, TBEZ, H;
-        double FAKTOR, ST, PLANF, PLEND, PLAUF, P = 0, Wert;
-        double gload, PRAN, GRAS, NU, ALFA, QLEIST, q;
 
         logState("% HPBottleT1 Start Conditions...");
-
-        RALLG = 8314.3;
-        RSPEZ = 2077;
-
-        CP = 5223.2;
-        CV = 3146.5;
-
-        PBEZ = 5.0;
-        
-        double timeStep = timeHandler.getStepSizeAsDouble();
-		DMASSE = mftotal * timeStep ;
-        helium.DENSITY = mtotal / volume;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /* Computation of specific enthalpy of gas in vessel by               */
-        /* spline interpolations - please refer to [1] section 3.3.2.         */
-        /*                                                                    */
-        /**********************************************************************/
-
         ptotal = ptotal / 1E5;
+        final double timeStep = timeHandler.getStepSizeAsDouble();
+        final double DTEMP = computeTempDifference(timeStep);
+		final double dmass = mftotal * timeStep ;
 
-        I = (int) (ptotal / 40. + 1.);
+        ttotal += DTEMP;
+        mtotal -= dmass;
+        ptotal = computePressure(ttotal, mtotal/volume);
+        qHFlow = computeWallHeatTransferFlow(ptotal, ttotal, twall);
+        final double q=qHFlow*timeStep;
+        twall -= q /(mass*specificHeatCapacity);
+        logState("% End Conditions...");
 
-        P1 = 0;
-        P2 = 0;
+    }
 
-        if (I <= 8) {
-            for (L = 0; L < 5; L++) {
-                param = HeliumJKC.JKCParams(L, I-1);
-                P1 = P1+ param * Math.pow(ttotal, L);
-                param = HeliumJKC.JKCParams(L, I);
-                P2 = P2 + param * Math.pow(ttotal, L);
-            }
-        } else {
-            for(L = 0; L < 5; L++) {
-                param = HeliumJKC.JKCParams(L,7);
-                P1=P1+ param * Math.pow(ttotal ,L);
-                param = HeliumJKC.JKCParams(L,8);
-                P2=P2+ param * Math.pow(ttotal ,L);
-            }
-        }
-        JKC=P1+(P2-P1)*(ptotal-(I-1)*40)/40;
-        JKC= JKC*-1.0;
+	private double computeWallHeatTransferFlow(double ptotal, double ttotal, double twall) {
 
-        DTEMP=-JKC*(ptotal-PBEZ);
-        TBEZ=ttotal+DTEMP;
-        H = -19846.5 + 5732.967 * TBEZ - 2.42982 * Math.pow(TBEZ, 2)
-                + 3.332099E-3 * Math.pow(TBEZ, 3);
+        /**********************************************************************/
+        /*                                                                    */
+        /*   Computation of heat transfer in vessel from wall to fluid.       */
+        /*   Computation of Prandtl-, Nusselt, Grashof-numbers,               */
+        /*   computation of heat transfer coeff. Alfa,                        */
+        /*   and transferred heat using flow rate from previous timestep      */
+        /*   (Euler method since press. & temps. all hav negat. gradients     */
+        /*                                                                    */
+        /**********************************************************************/
+        MaterialProperties helium = HeliumPropertiesBuilder.build(ptotal, ttotal);
+        final double CP = 5223.2;
+        final double PRAN=CP*helium.ETA/helium.LAMBDA;
+        // FIXME the gload value returned is gravity at sea level
+        final double gload=GLoad.load();
+        final double GRAS=Math.abs(gload*Math.pow(diam,3)*(twall-ttotal))
+                                /(Math.pow(helium.NUE,2)*((twall+ttotal)/2));
+        final double NU=.098*Math.pow((GRAS*PRAN),.345);
+        final double ALFA=NU*helium.LAMBDA/diam;
+        final double QLEIST=ALFA*surface*(twall-ttotal);
+        return QLEIST;
+	}
 
+	private double computePressure(double ttotal, double density) {
+        /**********************************************************************/
+        /*                                                                    */
+        /*   Computation of pressure after expansion considering non-ideal    */
+        /*   gas effects:                                                     */
+        /*   - assumption of a pressure value                                 */
+        /*   - therewith computation of the compressibility factor Z          */
+        /*   - comparison of assumed pressure with                            */
+        /*     Z-factor derived one: p=Z*DENSITY*RSPEZ.*TEMP                   */
+        /*   - correction of assumed pressure value and reiteration until     */
+        /*     deviation < 5e-4                                               */
+        /*                                                                    */
+        /**********************************************************************/
+       final double FAKTOR = 1.913688E-3 - 8.520942E-6 * ttotal
+                + 1.358845E-8*Math.pow(ttotal,2) - 4.595341E-12*Math.pow(ttotal,3);
+
+          final double RSPEZ = 2077;
+          double PLANF=.7*density*RSPEZ*ttotal;
+          double PLEND=pinit*1.1;
+          double ST=1E6;
+          double heliumZ=1.0+FAKTOR*PLANF/1E5;
+          // FIXME: check for maximum 1000 iterations
+          int i = 0;
+          double P = heliumZ*density*RSPEZ*ttotal;;
+          for(double PLAUF=PLANF; PLAUF<PLEND && i<1000; PLAUF+=ST, i++) {
+              heliumZ = 1.0 + FAKTOR*PLAUF/1E5;
+              P = heliumZ*density*RSPEZ*ttotal;
+              final double Wert= Math.abs((PLAUF-P)/PLAUF);
+              if (Wert<=0.01*SimHeaders.epsrel) break;
+              if (PLAUF>=P)
+                  if (PLAUF>P) {
+                  PLANF=PLAUF-ST;
+                  PLEND=PLAUF;
+                  ST=ST/10;
+                  PLAUF=PLANF;
+                  }
+          }
+          if (i>=1000) {
+          	LOG.warn("!!! Problem iterating the Pressure in HPTankT1");
+          }
+          return P;
+	}
+
+	private double computeTempDifference(final double timeStep) {
         /**********************************************************************/
         /*                                                                    */
         /*   Computation of resulting temp. difference in time interval dT    */
@@ -228,111 +213,50 @@ public class HPBottleT1 extends BaseModel {
         /*                                                                    */
         /**********************************************************************/
 
-        DTEMP = qHFlow * timeStep /(mtotal * CV)
-            + mftotal * ttotal * timeStep /mtotal
-            - H * mftotal * timeStep/(mtotal * CV);
+        final double CV = 3146.5;
+		final double H = computeEntalphy(ptotal, ttotal);
+        final double DTEMP = (qHFlow /CV + mftotal * (ttotal - H/CV))
+        		 * timeStep / mtotal;
+		return DTEMP;
+	}
 
+	private double computeEntalphy(double pressure, double temp) {
         /**********************************************************************/
         /*                                                                    */
-        /*  Computation of new temperature and fluid mass in vessel           */
-        /*  and computation of new fluid density after time interval dT       */
+        /* Computation of specific enthalpy of gas in vessel by               */
+        /* spline interpolations - please refer to [1] section 3.3.2.         */
         /*                                                                    */
         /**********************************************************************/
+		int I = (int) (pressure / 40. + 1.);
 
-        ttotal=ttotal+DTEMP;
-        mtotal=mtotal-DMASSE;
-        helium.DENSITY=mtotal/volume;
+        double P1, P2, param = 0;
+        P1 = 0;
+        P2 = 0;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*   Computation of pressure after expansion considering non-ideal    */
-        /*   gas effects:                                                     */
-        /*   - assumption of a pressure value                                 */
-        /*   - therewith computation of the compressibility factor Z          */
-        /*   - comparison of assumed pressure with                            */
-        /*     Z-factor derived one: p=Z*DICHTE*RSPEZ.*TEMP                   */
-        /*   - correction of assumed pressure value and reiteration until     */
-        /*     deviation < 5e-4                                               */
-        /*                                                                    */
-        /**********************************************************************/
-
-        FAKTOR=(1.913688E-3)-(8.520942E-6)*ttotal;
-        FAKTOR=FAKTOR+1.358845E-8*Math.pow(ttotal,2);
-        FAKTOR=FAKTOR-(4.595341E-12*Math.pow(ttotal,3));
-
-        PLANF=.7*helium.DENSITY*RSPEZ*ttotal;
-        PLEND=pinit*1.1;
-        ST=1E6;
-        // FIXME: check for maximum 10000 iterations
-        int i = 0;
-        for(PLAUF=PLANF;PLAUF<PLEND && i<10000;PLAUF+=ST, i++) {
-
-            helium.Z=1.0+FAKTOR*PLAUF/1E5;
-            P=helium.Z*helium.DENSITY*RSPEZ*ttotal;
-            Wert=(PLAUF-P)/PLAUF;
-            if(Wert<0) Wert=Wert*-1.;
-            if (Wert<=0.01*SimHeaders.epsrel) break;
-            if (PLAUF>=P)
-                if (PLAUF>P) {
-                PLANF=PLAUF-ST;
-                PLEND=PLAUF;
-                ST=ST/10;
-                PLAUF=PLANF;
-                }
+        if (I <= 8) {
+            for (int L = 0; L < 5; L++) {
+                param = HeliumJKC.JKCParams(L, I-1);
+                P1 += param * Math.pow(temp, L);
+                param = HeliumJKC.JKCParams(L, I);
+                P2 += param * Math.pow(temp, L);
+            }
+        } else {
+            for(int L = 0; L < 5; L++) {
+                param = HeliumJKC.JKCParams(L,7);
+                P1 += param * Math.pow(temp ,L);
+                param = HeliumJKC.JKCParams(L,8);
+                P2 += param * Math.pow(temp ,L);
+            }
         }
-        if (i>=10000) {
-        	LOG.warn("!!! Problem iterating the Pressure in HPTankT1");
-        }
-        //ptotal=P;
+        final double JKC = -(P1+(P2-P1)*(pressure-(I-1)*40)/40);
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*   Computation of fluid properties (Viskosity etc.)                 */
-        /*   at current conditions (Temp. THEBEH and press- PHEBEH)           */
-        /*                                                                    */
-        /**********************************************************************/
-        helium = HeliumPropertiesBuilder.build(P, ttotal);
-        ptotal = P;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*   Computation of heat transfer in vessel from wall to fluid.       */
-        /*   Computation of Prandtl-, Nusselt, Grashof-numbers,               */
-        /*   computation of heat transfer coeff. Alfa,                        */
-        /*   and transferred heat using flow rate from previous timestep      */
-        /*   (Euler method since press. & temps. all hav negat. gradients     */
-        /*                                                                    */
-        /**********************************************************************/
-
-        PRAN=CP*helium.ETA/helium.LAMBDA;
-        gload=GLoad.load();
-        GRAS=Math.abs(gload*Math.pow(diam,3)*(twall-ttotal))
-        /(Math.pow(helium.NUE,2)*((twall+ttotal)/2));
-        NU=.098*Math.pow((GRAS*PRAN),.345);
-        ALFA=NU*helium.LAMBDA/diam;
-        QLEIST=ALFA*surface*(twall-ttotal);
-        q=qHFlow*timeStep;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*   Computation of vessel wall temp. change and storage of heat-     */
-        /*   flow rate for next timestep computation.                         */
-        /*                                                                    */
-        /**********************************************************************/
-
-        twall=twall-(q/(mass*specificHeatCapacity));
-        qHFlow = QLEIST;
-
-        pgrad = (ptotal - pold) / timeStep;
-        tgrad = (ttotal - told) / timeStep;
-        twgrad = (twall - twold) / timeStep;
-
-        pold = ptotal;
-        told = ttotal;
-        twold = twall;
-        logState("% End Conditions...");
-         
-    }
+        final double PBEZ = 5.0;
+        final double DHTEMP = -JKC*(pressure-PBEZ);
+        final double TBEZ=temp+DHTEMP;
+        final double H = -19846.5 + 5732.967 * TBEZ - 2.42982 * Math.pow(TBEZ, 2)
+                + 3.332099E-3 * Math.pow(TBEZ, 3);
+		return H;
+	}
 
     public void backIterStep(FluidPort outputPort) {
 
@@ -343,7 +267,6 @@ public class HPBottleT1 extends BaseModel {
         if (outputPort.getBoundaryTemperature() >= 0.0) {
             LOG.error("Temp. request on port 0 cannot be handled!");
         }
-        // TBC Do we need this: getBackIterEvent().fire(outputPort);
     }
 
 	private void logState(String header) {
@@ -355,16 +278,11 @@ public class HPBottleT1 extends BaseModel {
 	}
 
 	public FluidPort createInputPortIter() {
-		return newOutputPort();
+		return new FluidPort(name, fluid, ptotal, ttotal, mftotal);
 	}
 
-	private FluidPort newOutputPort() {
-		FluidPort outputPort = new FluidPort();
-        outputPort.setFluid(fluid);
-        outputPort.setPressure(ptotal);
-        outputPort.setTemperature(ttotal);
-        outputPort.setMassflow(mftotal);
-		return outputPort;
+	FluidPort newOutputPort() {
+		return new FluidPort(name, fluid, ptotal, ttotal, mftotal);
 	}
 
     //-----------------------------------------------------------------------------------
@@ -432,48 +350,6 @@ public class HPBottleT1 extends BaseModel {
 	}
 	public void setTwall(double twall) {
 		this.twall = twall;
-	}
-	@ManagedAttribute
-	public double getPold() {
-		return pold;
-	}
-	public void setPold(double pold) {
-		this.pold = pold;
-	}
-	@ManagedAttribute
-	public double getTold() {
-		return told;
-	}
-	public void setTold(double told) {
-		this.told = told;
-	}
-	@ManagedAttribute
-	public double getTwold() {
-		return twold;
-	}
-	public void setTwold(double twold) {
-		this.twold = twold;
-	}
-	@ManagedAttribute
-	public double getPgrad() {
-		return pgrad;
-	}
-	public void setPgrad(double pgrad) {
-		this.pgrad = pgrad;
-	}
-	@ManagedAttribute
-	public double getTgrad() {
-		return tgrad;
-	}
-	public void setTgrad(double tgrad) {
-		this.tgrad = tgrad;
-	}
-	@ManagedAttribute
-	public double getTwgrad() {
-		return twgrad;
-	}
-	public void setTwgrad(double twgrad) {
-		this.twgrad = twgrad;
 	}
 	@ManagedAttribute
 	public double getMtotal() {
