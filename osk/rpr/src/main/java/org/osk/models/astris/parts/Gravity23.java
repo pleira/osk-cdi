@@ -24,7 +24,6 @@ public class Gravity23 {
 
 	@Inject OSKGravityModel model;
 	@Inject @Named(NAME) @Gravity Event<Vector3D> outputEvent;
-
     
 	public void iteration(@Observes @Named(ScStructure22.NAME) @ECI @Iter PVCoordinates posVel) {
 		model.setScPositionECI(posVel.getPosition());
@@ -39,6 +38,5 @@ public class Gravity23 {
     void initModel() throws OskException {
     	model.init();
     }
-
-
+	
 }

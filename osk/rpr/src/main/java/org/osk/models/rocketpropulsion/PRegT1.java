@@ -103,8 +103,6 @@ public class PRegT1 extends BaseModel {
 	private double[] pcoeff = new double[4];
 	/** Temperature of pressure regul. elements. */
 	private double temperature;
-	/** Heat flow from wall to fluid for pressure regul. elements. */
-	private double qHFlow;
 	/** Heat transfer coefficient between pressure regul. housing and fluid. */
 	private double alfa;
 	/** Temperature of fluid expanded in pressure reg. in timestep. */
@@ -122,6 +120,7 @@ public class PRegT1 extends BaseModel {
 
 	private static final String TYPE = "PRegT1";
 	private static final String SOLVER = "Euler";
+    final double CP = 5223.2;
 
 	
     public PRegT1() {
@@ -130,19 +129,13 @@ public class PRegT1 extends BaseModel {
 
     public void init(String name) {
     	this.name = name;  
-        qHFlow = 0.0;
     }
 
     public FluidPort iterationStep(FluidPort inputPort) {
-        String     fluid;
-        int I, L;
-        double P1, P2, param = 0, poutNew, JKC;
-        double CP, DTEMP, GESCH, RE, XI, PR, NU, DTF;
-
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
+        String fluid = inputPort.getFluid();
 
         //Skip iteration step computation if no flow in pressure regulator
         if (mfin <= 1.E-6) {
@@ -151,74 +144,40 @@ public class PRegT1 extends BaseModel {
             return createOutputPort(fluid);
         }
 
-        CP = 5223.2;
 
         pout = pin / 1E5;
         tout = tin;
+        final double poutNew = pressureDropFuntion(pout);
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of the Joule-Kelvin-Coeff. of fluid, similar to     */
-        /*    pressure vessel considering specific enthalpy of fluid.         */
-        /*                                                                    */
-        /**********************************************************************/
+        final double DTEMP = heliumTemperatureChangeByThrottling(poutNew, pout, tout);
 
-        I = (int) (pout / 40. + 1.);
-
-        P1 = 0;
-        P2 = 0;
-        if (I <= 8) {
-            for (L = 0; L < 5; L++) {
-                param = HeliumJKC.JKCParams(L, I-1);
-                P1 = P1 + param * Math.pow(tout, L);
-                param = HeliumJKC.JKCParams(L, I);
-                P2 = P2 + param * Math.pow(tout, L);
-            }
-        } else {
-            for (L = 0; L < 5; L++) {
-                param = HeliumJKC.JKCParams(L, 7);
-                P1 = P1 + param * Math.pow(tout, L);
-                param = HeliumJKC.JKCParams(L, 8);
-                P2 = P2 + param * Math.pow(tout, L);
-            }
-        }
-        JKC = P1 + (P2 - P1) * (pout - (I - 1) * 40) / 40;
-        JKC = JKC * -1.0;
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of pressure drop in regulator as polynomial         */
-        /*    interpolation. Polynomial coefficients loaded from              */
-        /*    inputfile.                                                      */
-        /*                                                                    */
-        /**********************************************************************/
-        poutNew = pcoeff[0] + pcoeff[1] * pout
-                + pcoeff[2] * Math.pow(pout, 2)
-                + pcoeff[3] * Math.pow(pout, 3);
-
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of temp. change of fluid through throttling.        */
-        /*                                                                    */
-        /**********************************************************************/
-        DTEMP = -JKC * (pout - poutNew);
-
-        /**********************************************************************/
-        /*                                                                    */
         /*    Computation of outlet pressure an outlet temp not yet           */
         /*    heat exchange effects btw. regulator & fluid.                   */
-        /*                                                                    */
-        /**********************************************************************/
         pout = poutNew * 1E5;
         tout = tout + DTEMP;
         tstatin = tout;
 
+		final double qHFlow = heliumHeatFlow(pout, tout, temperature);
+
+        /*    Computation of fluid temperature change and new fluid temp.     */
+        final double DTF = qHFlow / (mfin * CP);
+        tout = tout + DTF;
+
+        if (DTF > 10.0) {
+            LOG.warn("Temp. change > 10 deg. in press. regulator");
+        }
+
+        /*   Massflow at outlet                                               */
+        return createOutputPort(fluid);
+    }
+
+	private double heliumHeatFlow(final double pressure, final double tout, final double temperature) {
 		MaterialProperties helium = HeliumPropertiesBuilder.build(pout, tout);
 
-        GESCH = mfin
+        final double GESCH = mfin
                 * 4 / (innerDiameter * innerDiameter * Math.PI * helium.DENSITY);
 
-        RE = GESCH * innerDiameter / helium.NUE;
+        double RE = GESCH * innerDiameter / helium.NUE;
 
         /**********************************************************************/
         /*                                                                    */
@@ -247,89 +206,89 @@ public class PRegT1 extends BaseModel {
             RE = 1000.;
         }
 
-        XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
+        final double XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-        PR = CP * helium.ETA / helium.LAMBDA;
+        final double PR = CP * helium.ETA / helium.LAMBDA;
 
-        NU = (XI / 8) * (RE - 1000) * PR / (1 + 12.7 * (Math.sqrt(XI / 8))
+        final double NU = (XI / 8) * (RE - 1000) * PR / (1 + 12.7 * (Math.sqrt(XI / 8))
                 * (Math.pow(PR, (2/3))-1))
                 * (1 + Math.pow((innerDiameter / length), (2/3)));
 
         alfa = NU * helium.LAMBDA / innerDiameter;
 
-        /**********************************************************************/
-        /*                                                                    */
         /*     Computation of heat flow from pressure regulator to fluid      */
-        /*                                                                    */
-        /**********************************************************************/
-        qHFlow=alfa*3.1415*innerDiameter*length*(temperature-tout)/10;
+        final double qHFlow=alfa*Math.PI*innerDiameter*length*(temperature-tout);
+		return qHFlow;
+	}
 
+	private double heliumTemperatureChangeByThrottling(final double newPressure, final double pressure, final double temperature) {
+		/**********************************************************************/
+        /*    Computation of the Joule-Kelvin-Coeff. of fluid, similar to     */
+        /*    pressure vessel considering specific enthalpy of fluid.         */
         /**********************************************************************/
-        /*                                                                    */
-        /*    Computation of fluid temperature change and new fluid temp.     */
-        /*                                                                    */
-        /**********************************************************************/
-        DTF = qHFlow / (mfin * CP);
-        tout = tout + DTF;
-
-        if (DTF > 10.0) {
-            LOG.info("Temp. change > 10 deg. in press. regulator");
+        int I = (int) (pressure / 40. + 1.);
+        double P1 = 0;
+        double P2 = 0;
+        if (I <= 8) {
+            for (int L = 0; L < 5; L++) {
+                P1 += HeliumJKC.JKCParams(L, I-1) * Math.pow(temperature, L);
+                P2 += HeliumJKC.JKCParams(L, I) * Math.pow(temperature, L);
+            }
+        } else {
+            for (int L = 0; L < 5; L++) {
+                P1 += HeliumJKC.JKCParams(L, 7) * Math.pow(temperature, L);
+                P2 += HeliumJKC.JKCParams(L, 8) * Math.pow(temperature, L);
+            }
         }
 
-        /*   Massflow at outlet                                               */
-        return createOutputPort(fluid);
-    }
+        /*    Computation of temp. change of fluid through throttling.        */
+        final double JKC = - P1 - (P2 - P1) * (pressure - (I - 1) * 40) / 40;
+        final double DTEMP = -JKC * (pressure - newPressure);
+		return DTEMP;
+	}
+
+	private double pressureDropFuntion(final double pressure) {
+
+        /**********************************************************************/
+        /*    Computation of pressure drop in regulator as polynomial         */
+        /*    interpolation. Polynomial coefficients loaded from              */
+        /*    inputfile.                                                      */
+        /**********************************************************************/
+		return pcoeff[0] + pcoeff[1] * pressure
+                + pcoeff[2] * Math.pow(pressure, 2)
+                + pcoeff[3] * Math.pow(pressure, 3);
+	}
 
     public int timeStep(FluidPort inputPort) {
-        String     fluid;
-        double     CP;
-        double     Q;
-        double     DTF;
-        double     DTB;
-
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
+        String fluid = inputPort.getFluid();
 
         //Skip time step computation if no flow in pressure regulator
         if (mfin <= 1.E-6) {
             return 0;
         }
 
-        CP = 5223.2;
+        final double CP = 5223.2;
 
         /**********************************************************************/
-        /*                                                                    */
         /*    Section for computation of temp. change of filter itself        */
-        /*                                                                    */
-        /*    Gas properties of gas fluid are assumed to be contant over,     */
+        /*    Gas properties of gas fluid are assumed to be constant over,    */
         /*    entire length of filter. Same applies for the Nusselt-Number,   */
         /*    and thus for heat transfer coefficient Alfa.                    */
-        /*                                                                    */
-        /*                                                                    */
         /**********************************************************************/
-        /*                                                                    */
-        /*     Computation of heatflow from regulator housing to fluid        */
-        /*                                                                    */
-        /**********************************************************************/
-        qHFlow = alfa * 3.1415 * innerDiameter*length*(temperature-tstatin)/10;
-        Q = qHFlow * tStepSize;
 
-        /**********************************************************************/
-        /*                                                                    */
+        /*     Computation of heatflow from regulator housing to fluid        */
+        final double qHFlow = alfa * Math.PI * innerDiameter*length*(temperature-tstatin);
+        final double Q = qHFlow * tStepSize;
+
         /*    Computation of delta T for fluid and new fluid temperature      */
-        /*                                                                    */
-        /**********************************************************************/
-        DTF = qHFlow / (mfin * CP);
+        final double DTF = qHFlow / (mfin * CP);
         tstatin = tstatin + DTF;
 
-        /**********************************************************************/
-        /*                                                                    */
         /*    Computation of delta T of regulator itself and new reg. temp.   */
-        /*                                                                    */
-        /**********************************************************************/
-        DTB = Q / (mass * specificHeatCapacity);
+        final double DTB = Q / (mass * specificHeatCapacity);
         temperature = temperature - DTB;
 
         return 0;
@@ -415,14 +374,6 @@ public class PRegT1 extends BaseModel {
 		this.temperature = temperature;
 	}
 
-	@ManagedAttribute
-	public double getqHFlow() {
-		return qHFlow;
-	}
-
-	public void setqHFlow(double qHFlow) {
-		this.qHFlow = qHFlow;
-	}
 
 	@ManagedAttribute
 	public double getAlfa() {

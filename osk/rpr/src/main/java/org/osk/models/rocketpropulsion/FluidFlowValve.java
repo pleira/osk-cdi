@@ -167,14 +167,6 @@ public class FluidFlowValve extends BaseModel {
         if (controlValue < 0.0) {
             controlValue = 0.0;
         }
-//        LOG.info("Corrected controlValue: '{}'", controlValue);
-
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.error("Error! Pressure request on port 1 cannot be handled!");
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Error! Temp. request on port 1 cannot be handled!");
-        }
 
         /* Init massflow:
          * At initialization reading boundary massflow from downstream...... */

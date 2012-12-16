@@ -31,25 +31,23 @@ public class ScStructure22 {
 	@Inject ScStructure model;
 	@Inject @Named(NAME) @ECI @Iter Event<PVCoordinates> event;
 	@Inject @Named(NAME) @ECI @TimeIter Event<PVCoordinates> timerEvent;
-	@Inject @Named(Engine20.NAME) @Oxid @BackIter Event<Iteration> backEvent;
+	@Inject @Named(Engine20.NAME) @Oxid @BackIter Event<PVCoordinates> backEvent;
 
-	public void iteration(
-			@Observes @Named(Engine20.NAME) @Iter Iteration iter) {
-    	// pass the initial position/velocity to interested parties
-    	event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
-	}
+//	public void iteration(@Observes @Iter Iteration iter) {
+//    	event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
+//	}
 
 	public void timeIteration(
 			@Observes @Named(Engine20.NAME) @TimeIter Vector3D thrust) throws OskException {
-		PVCoordinates scPosVel = model.timeStep(thrust);
+		PVCoordinates scPosVel = model.calculateECICoordinates(thrust);
 		timerEvent.fire(scPosVel);
 	}
 
 	public void backIterate(
 			@Observes @Named(NAME) @BackIter Iteration backIter) {
-		backEvent.fire(backIter);
+    	// pass the initial position/velocity to interested parties
+		backEvent.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
 	}
-	
 	
 	public void handleGravity(@Observes @Named(Gravity23.NAME) @Gravity Vector3D gravity) {
 		model.setGravity(gravity);

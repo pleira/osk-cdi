@@ -40,16 +40,12 @@ public class Engine extends BaseModel {
 	@Inject Logger LOG;
 	@Inject Atmosphere atmosphere;
 	
-	/** Reference force. */
-	// private double referenceForce = 0;
 	/** Fuel flow at ingnition [kg/s]. */
-	private double ignitionFuelFlow = 0;
+	private double ignitionFuelFlow;
 	/** Ox flow at ingnition [kg/s]. */
-	private double ignitionOxidizerFlow = 0;
+	private double ignitionOxidizerFlow;
 	/** Altitude above ground [ m ] */
-	private double alt; // = 1600000;
-	/** Specific impulse [s] */
-	private double ISP;
+	private double altitude; 
 	/** Fuel inflow pressure [Pa] */
 	private double pin0;
 	/** Fuel inflow temperature [K] */
@@ -66,15 +62,6 @@ public class Engine extends BaseModel {
 	private double requestedFuelFlow;
 	/** Requested ox flow [kg/s] */
 	private double requestedOxFlow;
-	/** Nozzle area ratio(assumed) */
-	private double areaRatio = 100.0;
-	/** Combustion efficiency */
-	private double etaCstar = 0.94;
-	/** Thrust factor efficiency */
-	private double etaCf = 0.99;
-
-	/** Local time */
-	double localtime;
 
 	private static final String TYPE = "Engine";
 	private static final String SOLVER = "none";
@@ -85,7 +72,8 @@ public class Engine extends BaseModel {
 
     public void init(String name) {
     	this.name = name;  
-        localtime = 0.0;
+        requestedFuelFlow = ignitionFuelFlow;
+        requestedOxFlow = ignitionOxidizerFlow;
     }
 
 
@@ -103,7 +91,7 @@ public class Engine extends BaseModel {
          * (Equality of set and received mass flow). */
         if ((Math.abs(mfin0 - requestedFuelFlow) < 0.005)
                 && (Math.abs(mfin1 - requestedOxFlow) < 0.005)) {
-            /* Iteration of upward propulsion system successful. */
+            LOG.info(" Iteration of upward propulsion system successful.");
         } else {
             /* Otherwise reinitiate another propulsion system iteration... */
             requestedFuelFlow = mfin0;
@@ -111,110 +99,99 @@ public class Engine extends BaseModel {
         }
     }
 	
+	/* Computes Engine thrust [ N ] */
     public Vector3D computeThrust(FluidPort inputPortFuel, FluidPort inputPortOxidizer) throws OskException {
-        localtime = localtime + 0.5;
-
-        /* Fuel: */
         mfin0 = inputPortFuel.getMassflow();
-        /* Oxidizer: */
         mfin1 = inputPortOxidizer.getMassflow();
 
-        /* Remember inflows for next backiteration step.... */
         requestedFuelFlow = mfin0;
         requestedOxFlow = mfin1;
 
-        //System.out.println("alt: " + alt);
-    	/** Engine thrust [ N ] */
-    	final double thrust;
-
         /* Skip time step computation if no oxidizer or fuel inflow is zero: */
         if (mfin0 == 0.0 || mfin1 == 0.0) {
-            thrust = 100.0; // FIXME
+        	final double thrust = 100.0; // FIXME
             return new Vector3D(thrust, 0, 0);
-
         }   
-    	final double pc;
-    	final double pe;
-    	final double k;
-    	/* Mixture ratio Oxidizer to fuel */
-    	final double OF;
-    	/* Temperature in [ °C ] */
-    	final double Ta;
-    	/* Temperature in [ Pa ] */
-    	final double pa;
-    	/* Temperature in [ g/m^3 ] */
-    	final double rhoa;
-    	/* Characteristic vel. [ m/s ] */
-    	final double cstar;
-    	/* Thrust factor [ - ] */
-    	final double cf;
-
-    	/******************************************************************/
-    	/*                                                                */
+ 
     	/*    Computing thrust as function of propellant mass flow,       */
     	/*    characteristic velocity and thrust factor                   */
-    	/*                                                                */
-    	/******************************************************************/
-    	/** Mixture ratio Oxidizer to fuel */
-    	OF = mfin1 / mfin0;
+
+    	/* Mixture ratio Oxidizer to fuel */
+    	final double OF = mfin1 / mfin0;
 
     	/*get chamber pressure, just average value of inflow pressures */
     	/*Note: Real chamber pressure depends mainly on combustion efficiency */
     	pin0 = inputPortFuel.getPressure();
     	pin1 = inputPortOxidizer.getPressure();
-    	pc = 0.5*( pin0 + pin1 );
-
-    	/******************************************************************/
-    	/*                                                                */
-    	/*    characteristic velocity of ox and fuel mixture              */
-    	/*    function of mixture ratio                                   */
-    	/*    Polynom for cstar calculated with CEA Gordon McBride        */
-    	/*    ( http://www.grc.nasa.gov/WWW/CEAWeb/ )                     */
-    	/*    Polynom valid for chamber pressures of approx. 20bar        */
-    	/*                                                                */
-    	/******************************************************************/
-    	cstar = - 0.1481*Math.pow(OF,6) + 4.3126*Math.pow(OF,5)
-    			- 50.87*Math.pow(OF,4)  + 309.5*Math.pow(OF,3)
-    			- 1011.1*Math.pow(OF,2) + 1549.9*OF + 880.12;
-
-    	/*Isentropic exponent of combustion gas [-], function of OF*/
-    	k = - 7E-07*Math.pow(OF,6) - 0.0001*Math.pow(OF,5)
-    			+ 0.0034*Math.pow(OF,4) - 0.0324*Math.pow(OF,3)
-    			+ 0.1493*Math.pow(OF,2) - 0.3251*OF + 1.5081;
-
-    	/*Nozzle exit pressure pe*/
-    	pe = NumericalUtils.newton( k, areaRatio, pc);
-    	if (pe == 0.0) {
-    		throw new OskException(new DummyLocalizable("% Engine: Iteration for nozzle exit " +
-    				"pressure, no solution found"));
-    	}
-    	/*Check for flow separation in nozzle flow: Summerfield pe<0.4*pa */
-    	pa = atmosphere.getAirPressure(alt);
-    	if ( pe < 0.4*pa ) {
-    		throw new OskException(new DummyLocalizable("% Engine: Flow separation in nozzle. " +
-    				"Thrust value is not realistic"));
-    		/* Thrust factor cf */
-    		/* Source: Space Propulsion Analysis and Design p.112 3.129 */
-    		// cf = 1.0; /*No thrust from nozzle due to flow separation*/
-    	} 
-    	cf = Math.pow((((2*k*k)/(k-1))*Math.pow((2/(k+1)),((k+1)/(k-1)))*
-    			(1-Math.pow((pe/pc),((k-1)/k)))),0.5)+(pe-pa)*areaRatio/pc;
-
-    	thrust = (mfin0 + mfin1) * cstar * etaCstar * cf * etaCf;
-    	ISP = cstar * etaCstar * cf * etaCf / 9.81;
+    	final double thrust = calculateThrust(OF);
+    	// ISP = cstar * etaCstar * cf * etaCf / 9.81; // FIXME: Why does the model use g at sea level?
 
     	return new Vector3D(thrust, 0, 0);
 
     }
 
+	private double calculateThrust(final double OF) throws OskException {
+		final double pc = 0.5*( pin0 + pin1 );
 
-    public ImmutablePair<FluidPort,  FluidPort> backIterStep() {
+    	final double cstar = mixtureCharacteristicVelocity(OF);
 
-        if (localtime == 0.0) {
-            requestedFuelFlow = ignitionFuelFlow;
-            requestedOxFlow = ignitionOxidizerFlow;
-        }
+    	/*Isentropic exponent of combustion gas [-], function of OF*/
+    	final double k = isentropicExponentOfCombustionGas(OF);
 
+    	/** Nozzle area ratio(assumed) */
+    	final double areaRatio = 100.0;
+    	/** Combustion efficiency */
+    	final double etaCstar = 0.94;
+    	/** Thrust factor efficiency */
+    	final double etaCf = 0.99;
+
+    	/*Nozzle exit pressure pe*/
+    	final double pe = NumericalUtils.newton( k, areaRatio, pc);
+    	if (pe == 0.0) {
+    		throw new OskException(new DummyLocalizable("% Engine: Iteration for nozzle exit " +
+    				"pressure, no solution found"));
+    	}
+    	/*Check for flow separation in nozzle flow: Summerfield pe<0.4*pa */
+    	final double pa = atmosphere.getAirPressure(altitude);
+    	if ( pe < 0.4*pa ) {
+    		throw new OskException(new DummyLocalizable("% Engine: Flow separation in nozzle. " +
+    				"Thrust value is not realistic"));
+    	} 
+    	final double cf = thrustFactor(pc, pe, k, pa, areaRatio);
+
+    	final double thrust = (mfin0 + mfin1) * cstar * etaCstar * cf * etaCf;
+		return thrust;
+	}
+
+	private double isentropicExponentOfCombustionGas(final double OF) {
+		return - 7E-07*Math.pow(OF,6) - 0.0001*Math.pow(OF,5)
+    			+ 0.0034*Math.pow(OF,4) - 0.0324*Math.pow(OF,3)
+    			+ 0.1493*Math.pow(OF,2) - 0.3251*OF + 1.5081;
+	}
+
+	private double thrustFactor(final double pc, final double pe,
+			final double k, final double pa, final double areaRatio) {
+		/* Source: Space Propulsion Analysis and Design p.112 3.129 */
+		return Math.pow((((2*k*k)/(k-1))*Math.pow((2/(k+1)),((k+1)/(k-1)))*
+    			(1-Math.pow((pe/pc),((k-1)/k)))),0.5)+(pe-pa)*areaRatio/pc;
+	}
+
+	private double mixtureCharacteristicVelocity(final double OF) {
+    	/******************************************************************/
+    	/*    characteristic velocity of ox and fuel mixture              */
+    	/*    function of mixture ratio                                   */
+    	/*    Polynom for cstar calculated with CEA Gordon McBride        */
+    	/*    ( http://www.grc.nasa.gov/WWW/CEAWeb/ )                     */
+    	/*    Polynom valid for chamber pressures of approx. 20bar        */
+    	/******************************************************************/
+    	/* Characteristic vel. [ m/s ] */
+		return - 0.1481*Math.pow(OF,6) + 4.3126*Math.pow(OF,5)
+    			- 50.87*Math.pow(OF,4)  + 309.5*Math.pow(OF,3)
+    			- 1011.1*Math.pow(OF,2) + 1549.9*OF + 880.12;
+	}
+
+	// Here the engine says how much fuel/oxidizer needs
+    public ImmutablePair<FluidPort, FluidPort> backIterStep() {
         FluidPort inputPortFuel = createBoundaryPort("Fuel", requestedFuelFlow);
         FluidPort inputPortOxidizer = createBoundaryPort("Oxidizer", requestedOxFlow);
         return new ImmutablePair<FluidPort,  FluidPort>(inputPortFuel, inputPortOxidizer);
@@ -250,21 +227,13 @@ public class Engine extends BaseModel {
 	}
 
 	@ManagedAttribute
-	public double getAlt() {
-		return alt;
+	public double getAltitude() {
+		return altitude;
 	}
-	public void setAlt(double alt) {
-		this.alt = alt;
-	}
-
-	@ManagedAttribute
-	public double getISP() {
-		return ISP;
+	public void setAltitude(double alt) {
+		this.altitude = alt;
 	}
 
-	public void setISP(double iSP) {
-		ISP = iSP;
-	}
 	@ManagedAttribute
 	public double getPin0() {
 		return pin0;
@@ -328,30 +297,6 @@ public class Engine extends BaseModel {
 
 	public void setRequestedOxFlow(double requestedOxFlow) {
 		this.requestedOxFlow = requestedOxFlow;
-	}
-	@ManagedAttribute
-	public double getAreaRatio() {
-		return areaRatio;
-	}
-
-	public void setAreaRatio(double areaRatio) {
-		this.areaRatio = areaRatio;
-	}
-	@ManagedAttribute
-	public double getEtaCstar() {
-		return etaCstar;
-	}
-
-	public void setEtaCstar(double etaCstar) {
-		this.etaCstar = etaCstar;
-	}
-	@ManagedAttribute
-	public double getEtaCf() {
-		return etaCf;
-	}
-
-	public void setEtaCf(double etaCf) {
-		this.etaCf = etaCf;
 	}
 	
 }

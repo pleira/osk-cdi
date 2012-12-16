@@ -129,10 +129,16 @@ public class SeqModSim  {
         LOG.info("Starting simulation...\n");
         LOG.info("Time: {}", time);
         
-        LOG.info("Initial system boundary condition iteration...\n");
         
-         // Iteration-Step t=0
-        iterEvent.fire(new Iteration());
+        // We set up the boundary conditions, 
+        // the event will start a chain of events starting from the spacecraft body, 
+        // which delivers initial altitude information to the environment model
+        // and then, the engine will set boundary conditions on the amount of 
+        // fuel and oxidizer requested, setting initial mass flows of the 
+        // components up to the helium tanks. For this order, this overall process 
+        // is called backIteration
+        LOG.info("Initial system boundary condition iteration...\n");
+        backIterEvent.fire(new Iteration());
         time = tinit;
 
 //        while (true) {

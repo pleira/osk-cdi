@@ -12,10 +12,12 @@ import org.osk.config.NumberConfig;
 import org.osk.errors.OskException;
 import org.osk.events.BackIter;
 import org.osk.events.ECEFpv;
+import org.osk.events.ECI;
 import org.osk.events.Fuel;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.Oxid;
+import org.osk.events.PVCoordinates;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.Engine;
@@ -26,6 +28,8 @@ import org.osk.ports.FluidPort;
 public class Engine20  {
 
 	public final static String NAME = "Engine20";
+
+	private static final double EARTH_RADIUS = 6370000;
 	
 	@Inject Engine model;
 	@Inject @Named(NAME) @Iter Event<Iteration> event;
@@ -87,9 +91,13 @@ public class Engine20  {
 		inputFuel = inputOxid = null; // events processed
 	}
 
+	public void altitudeHandler(@Observes @Named(ScStructure22.NAME) @ECI @Iter PVCoordinates posVel) {
+		final double altitude = posVel.getPosition().getNorm() - EARTH_RADIUS;
+		model.setAltitude(altitude);
+	}
 	
 	public void altitudeHandler(@Observes ECEFpv pv) {
-		model.setAlt(pv.getAltitude());
+		model.setAltitude(pv.getAltitude());
 	}
 
 	//---------------------------------------------------------------------------------------
@@ -104,13 +112,15 @@ public class Engine20  {
 	void initIngnitionFuelFlow(@NumberConfig(name = "engine20.ignitionFuelFlow", defaultValue = "0.0") Double value) {
 		model.setIgnitionFuelFlow(value);
 	}
+
 	@Inject
 	void initIngnitionOxidizerFlow(@NumberConfig(name = "engine20.ignitionOxidizerFlow", defaultValue = "0.0") Double value) {
 		model.setIgnitionOxidizerFlow(value);
 	}
-	@Inject
-	void initAlt(@NumberConfig(name = "engine20.alt", defaultValue = "600000") Double value) {
-		model.setAlt(value);
-	}
+
+//	@Inject
+//	void initAlt(@NumberConfig(name = "engine20.alt", defaultValue = "600000") Double value) {
+//		model.setAlt(value);
+//	}
 
 }

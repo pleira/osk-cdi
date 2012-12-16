@@ -119,13 +119,6 @@ public class PipeT1 extends BaseModel {
 	
 	public FluidPort iterationStep(FluidPort inputPort) {
 		
-		double RSPEZ, CP;
-		double GESCH, RE, REbound, LA;
-		double zeta;
-		double XI, PR, NU, DTF;
-		int J;
-//		LOG.info(name);
-
 		double pin = inputPort.getPressure();
 		double tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
@@ -138,15 +131,14 @@ public class PipeT1 extends BaseModel {
 			return inputPort.clone();
 		}
 
-		RSPEZ = 2077;
-		CP = 5223.2;
+		final double RSPEZ = 2077;
+		final double CP = 5223.2;
 
-		// FIXME
 		/** Fluid material properties for heat transfer computations. */
 		MaterialProperties helium = HeliumPropertiesBuilder.build(pin, tin);
 
-		GESCH = 4. * mfin
-				/ (helium.DENSITY * 3.1415 * Math.pow(innerDiameter, 2));
+		final double GESCH = 4. * mfin
+				/ (helium.DENSITY * Math.PI * Math.pow(innerDiameter, 2));
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -157,17 +149,18 @@ public class PipeT1 extends BaseModel {
 		/* Universitt Stuttgart, Pfaffenwaldring, 7000 Stuttgart 80, 1986 */
 		/*                                                                    */
 		/**********************************************************************/
-		RE = GESCH * innerDiameter / helium.NUE;
+		double RE = GESCH * innerDiameter / helium.NUE;
 
 		if (surfaceRoughness >= 5.E-02) {
 			surfaceRoughness = 5.E-02;
 		}
 
+		double LA, REbound;
 		if (RE < 1.) {
 			LA = 0.;
 		} else {
 			REbound = 1000.;
-			for (J = 0; J < 6; J++) {
+			for (int J = 0; J < 6; J++) {
 				REbound = Math.pow(
 						(16. * (Math.log10(2.51 * 0.125 / Math.sqrt(REbound)
 								+ surfaceRoughness / 3.71))), 2.);
@@ -177,7 +170,7 @@ public class PipeT1 extends BaseModel {
 				LA = 64. / RE;
 			} else { // turbulent flow
 				LA = 0.0515;
-				for (J = 0; J < 6; J++) {
+				for (int J = 0; J < 6; J++) {
 					LA = 0.25 / Math.pow(
 							(Math.log10(2.51 / RE / Math.sqrt(LA)
 									+ surfaceRoughness / 3.71)), 2.);
@@ -191,7 +184,7 @@ public class PipeT1 extends BaseModel {
 		/* See manuscript "Industrielle Aerodynamik" p.11 */
 		/*                                                                    */
 		/**********************************************************************/
-		zeta = LA * length / innerDiameter;
+		final double zeta = LA * length / innerDiameter;
 
 		pout = pin - (helium.DENSITY / 2.) * Math.pow(GESCH, 2) * zeta;
 
@@ -234,11 +227,11 @@ public class PipeT1 extends BaseModel {
 			RE = 1000.;
 		}
 
-		XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
+		final double XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-		PR = CP * helium.ETA / helium.LAMBDA;
+		final double PR = CP * helium.ETA / helium.LAMBDA;
 
-		NU = (XI / 8)
+		final double NU = (XI / 8)
 				* (RE - 1000.)
 				* PR
 				/ (1 + 12.7 * (Math.sqrt(XI / 8)) * (Math.pow(PR, (2 / 3)) - 1))
@@ -256,16 +249,12 @@ public class PipeT1 extends BaseModel {
 		/* Static pipe inlet temperature. Required for timestep computation. */
 		tstatin = tin;
 
-		for (J = 0; J < PARTS; J++) {
+		for (int J = 0; J < PARTS; J++) {
 			qHFlow[J] = alfa * Math.PI * innerDiameter * length
 					* (temperatures[J] - tstatin) / PARTS;
 
-			/**********************************************************************/
-			/*                                                                    */
 			/* Computation of fluid temperature change and new fluid temp. */
-			/*                                                                    */
-			/**********************************************************************/
-			DTF = qHFlow[J] / (mfin * CP);
+			final double DTF = qHFlow[J] / (mfin * CP);
 			tstatin = tstatin + DTF;
 		}
 		/*
@@ -278,23 +267,12 @@ public class PipeT1 extends BaseModel {
 			LOG.info("Temp. change > 10 deg. in pipe");
 		}
 
-		/**********************************************************************/
-		/*                                                                    */
 		/* Massflow at outlet */
-		/*                                                                    */
-		/**********************************************************************/
-
-//		LOG.info(" -> pout := {}", pout);
-//		LOG.info(" -> tout := {}", tout);
-//		LOG.info(" -> mfin/out := {}", mfin);
-
 		return createOutputPort(fluid);
 	}
 
 	public int timeStep(final FluidPort inputPort) {
 		String fluid;
-		double CP, Q, DTF, DTB;
-		int J;
 
 		mfin = inputPort.getMassflow();
 		fluid = inputPort.getFluid();
@@ -304,7 +282,7 @@ public class PipeT1 extends BaseModel {
 			return 0;
 		}
 
-		CP = 5223.2;
+		final double CP = 5223.2;
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -331,10 +309,10 @@ public class PipeT1 extends BaseModel {
 		/* for each pipe of the 10 pipe elements. */
 		/*                                                                    */
 		/**********************************************************************/
-		for (J = 0; J < PARTS; J++) {
-			qHFlow[J] = alfa * 3.1415 * innerDiameter * length
+		for (int J = 0; J < PARTS; J++) {
+			qHFlow[J] = alfa * Math.PI * innerDiameter * length
 					* (temperatures[J] - tstatin) / PARTS;
-			Q = qHFlow[J] * tStepSize;
+			final double Q = qHFlow[J] * tStepSize;
 
 			/******************************************************************/
 			/*                                                                */
@@ -342,7 +320,7 @@ public class PipeT1 extends BaseModel {
 			/* for each pipe element */
 			/*                                                                */
 			/******************************************************************/
-			DTF = qHFlow[J] / (mfin * CP);
+			final double DTF = qHFlow[J] / (mfin * CP);
 			tstatin = tstatin + DTF;
 
 			/******************************************************************/
@@ -351,7 +329,7 @@ public class PipeT1 extends BaseModel {
 			/* and computation of new pipe temp. for each section */
 			/*                                                                */
 			/******************************************************************/
-			DTB = Q / (massPElem * specificHeatCapacity);
+			final double DTB = Q / (massPElem * specificHeatCapacity);
 			temperatures[J] = temperatures[J] - DTB;
 		}
 		return 0;

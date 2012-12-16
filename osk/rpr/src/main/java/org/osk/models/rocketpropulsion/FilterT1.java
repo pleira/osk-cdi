@@ -79,6 +79,8 @@ package org.osk.models.rocketpropulsion;
 
 import javax.inject.Inject;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumPropertiesBuilder;
@@ -86,8 +88,6 @@ import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas filter.
@@ -110,7 +110,7 @@ public class FilterT1 extends BaseModel {
 	/** Specific. heat capacity. */
 	private double specificHeatCapacity;
 	/** Temperature of filter elements. */
-	private double temperature;
+	private double filterTemperature;
 	/** Reference pressure loss. */
 	private double referencePressureLoss;
 	/** Corresponding mass flow for ref. pressure loss. */
@@ -121,10 +121,7 @@ public class FilterT1 extends BaseModel {
 	private double mfin;
 	private double pout;
 	private double tout;
-	/** Heat flow from wall to fluid for filter elements. */
-	private double qHFlow;
-	/** Heat transfer coefficient between filter housing and fluid. */
-	private double alfa;
+
 	/** Mass of filter. */
 	private double mass;
 	private double pUpBackiter;
@@ -134,6 +131,10 @@ public class FilterT1 extends BaseModel {
 	private static final String TYPE = "FilterT1";
 	private static final String SOLVER = "none";
 
+	final double CP = 5223.2;
+	MaterialProperties helium;
+	private double NU;
+	
 	public FilterT1() {
 		super(TYPE, SOLVER);
 	}
@@ -141,35 +142,16 @@ public class FilterT1 extends BaseModel {
 	public void init(String name) {
 		this.name = name;
 		/* Computation of derived initialization parameters. */
- 
-		/* Initializing heat flow. */
-		qHFlow = 0.0;
-
 		/* Mass of filter. */
 		mass = specificMass * length;
-
 		referencePressureLoss = referencePressureLoss * 1.E5;
-
-//		LOG.info(" -> len := {}", length);
-//		LOG.info(" -> diam := {}", innerDiameter);
-//		LOG.info(" -> spmass := {}", specificMass);
-//		LOG.info(" -> cfilter := {}", specificHeatCapacity);
-//		LOG.info(" -> refPLoss := {}", referencePressureLoss);
-//		LOG.info(" -> refMassFlow := {}", referenceMassFlow);
-//		LOG.info(" -> tfilter := {}", temperature);
 	}
 
 	public FluidPort iterationStep(FluidPort inputPort) {
-		double ptotal;
-		double ttotal;
-		String fluid;
-		double CP, GESCH, RE, XI, PR, NU, DTF, DP, pfluid;
-
-
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
-		fluid = inputPort.getFluid();
+		String fluid = inputPort.getFluid();
 
 		// Skip iteration step computation if no flow in pipe
 		if (mfin <= 1.E-6) {
@@ -178,33 +160,79 @@ public class FilterT1 extends BaseModel {
             return createOutputPort(fluid);
 		}
 
-		CP = 5223.2;
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Pressure loss in gas filter as linear dependency of */
-		/* fluid flow. */
+		/* Pressure loss in gas filter as linear dependency of fluid flow. */
 		/* Reference pressure loss & reference mass flow */
 		/* are design variables read from inputfile. */
+
+		final double DP = referencePressureLoss * mfin / referenceMassFlow;
+		final double pfluid = pin - DP / 2.;
+		pout = pin - DP;
+
+		final double qHFlow = heliumHeatFlow(CP, filterTemperature, pfluid);
+
+		/* Computation of fluid temperature change and new fluid temp. */
+		final double DTF = qHFlow / (mfin * CP);
+		tout = tin + DTF;
+
+		if (DTF > 10.0) {
+			LOG.warn("Temp. change > 10 deg. in filter '");
+		}
+
+		/* Massflow at outlet */
+		return createOutputPort(fluid);
+	}
+
+	public int timeStep(FluidPort inputPort) {
+		pin = inputPort.getPressure();
+		tin = inputPort.getTemperature();
+		mfin = inputPort.getMassflow();
+
+		/* Skip time step computation if no flow in filter. */
+		if (mfin <= 1.E-6) {
+			return 0;
+		}
+
+
+		/**********************************************************************/
+		/*                                                                    */
+		/* Section for computation of temp. change of filter itself */
+		/*                                                                    */
+		/* Gas properties of gas fluid are assumed to be contant over, */
+		/* entire length of filter. Same applies for the Nusselt-Number, */
+		/* and thus for heat transfer coefficient Alfa */
+		/*                                                                    */
 		/*                                                                    */
 		/**********************************************************************/
 
-		DP = referencePressureLoss * mfin / referenceMassFlow;
-		pfluid = pin - DP / 2.;
-		ptotal = pin - DP;
+		/* Computation of heatflow from filter housing to fluid */
+		final double qHFlow = NU * helium.LAMBDA * Math.PI * length 
+				* (filterTemperature - tin);
+		final double Q = qHFlow * tStepSize;
 
-		ttotal = tin;
+		/* Computation of delta T for fluid and new fluid temperature */
+		final double DTF = qHFlow / (mfin * CP);
+		// FIXME: why do not use tin here? The state is lost
+		//tstatin = tstatin + DTF;
+		tin = tin + DTF;
 
+		/* Computation of delta T of filter itself and new filter temp. */
+		final double DTB = Q / (mass * specificHeatCapacity);
+		filterTemperature = filterTemperature - DTB;
+
+		return 0;
+	}
+	
+
+	private double heliumHeatFlow(final double fluidT, final double wallT, final double pfluid) {
 		/* Fluid material properties for heat transfer computations. */
-		MaterialProperties helium = HeliumPropertiesBuilder.build(pfluid, tin);
+		helium = HeliumPropertiesBuilder.build(pfluid, fluidT);
 
-		GESCH = mfin * 4
+		final double GESCH = mfin * 4
 				/ (innerDiameter * innerDiameter * Math.PI * helium.DENSITY);
 
-		RE = GESCH * innerDiameter / helium.NUE;
+		double RE = GESCH * innerDiameter / helium.NUE;
 
 		/**********************************************************************/
-		/*                                                                    */
 		/* Temperature change of flow */
 		/*                                                                    */
 		/* Section for computation of temperature change of fluid */
@@ -219,8 +247,7 @@ public class FilterT1 extends BaseModel {
 		/**********************************************************************/
 
 		if (RE > 2.E6) {
-			LOG.info("Re number exceeding upper limit");
-			LOG.info("Re number exceeding upper limit");
+			LOG.warn("Re number exceeding upper limit");
 			RE = 2.E6;
 		} else if (RE < 2300.) {
 			/*
@@ -233,9 +260,9 @@ public class FilterT1 extends BaseModel {
 			RE = 1000.;
 		}
 
-		XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
+		final double XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
 
-		PR = CP * helium.ETA / helium.LAMBDA;
+		final double PR = CP * helium.ETA / helium.LAMBDA;
 
 		NU = (XI / 8)
 				* (RE - 1000)
@@ -243,96 +270,10 @@ public class FilterT1 extends BaseModel {
 				/ (1 + 12.7 * (Math.sqrt(XI / 8)) * (Math.pow(PR, (2 / 3)) - 1))
 				* (1 + Math.pow((innerDiameter / length), (2 / 3)));
 
-		alfa = NU * helium.LAMBDA / innerDiameter;
-
-		/**********************************************************************/
-		/*                                                                    */
 		/* Computation of heat flow from filter to fluid */
-		/*                                                                    */
-		/**********************************************************************/
-
-		qHFlow = alfa * Math.PI * innerDiameter * length * (temperature - tin);
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Computation of fluid temperature change and new fluid temp. */
-		/*                                                                    */
-		/**********************************************************************/
-
-		DTF = qHFlow / (mfin * CP);
-		ttotal = ttotal + DTF;
-
-		if (DTF > 10.0) {
-			LOG.warn("Temp. change > 10 deg. in filter '");
-		}
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Massflow at outlet */
-		/*                                                                    */
-		/**********************************************************************/
-
-		pout = ptotal;
-		tout = ttotal;
-
-		return createOutputPort(fluid);
+		final double qHFlow = NU * helium.LAMBDA * Math.PI * length * (wallT - fluidT);
+		return qHFlow;
 	}
-
-	public int timeStep(FluidPort inputPort) {
-		double CP, Q, DTF, DTB, tstatin;
-
-		pin = inputPort.getPressure();
-		tin = inputPort.getTemperature();
-		mfin = inputPort.getMassflow();
-
-		/* Skip time step computation if no flow in filter. */
-		if (mfin <= 1.E-6) {
-			return 0;
-		}
-
-		CP = 5223.2;
-		tstatin = tin;
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Section for computation of temp. change of filter itself */
-		/*                                                                    */
-		/* Gas properties of gas fluid are assumed to be contant over, */
-		/* entire length of filter. Same applies for the Nusselt-Number, */
-		/* and thus for heat transfer coefficient Alfa */
-		/*                                                                    */
-		/*                                                                    */
-		/**********************************************************************/
-		/*                                                                    */
-		/* Computation of heatflow from filter housing to fluid */
-		/*                                                                    */
-		/**********************************************************************/
-
-		qHFlow = alfa * Math.PI * innerDiameter * length
-				* (temperature - tstatin) / 10;
-		Q = qHFlow * tStepSize;
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Computation of delta T for fluid and new fluid temperature */
-		/*                                                                    */
-		/**********************************************************************/
-
-		DTF = qHFlow / (mfin * CP);
-		tstatin = tstatin + DTF;
-
-		/**********************************************************************/
-		/*                                                                    */
-		/* Computation of delta T of filter itself and new filter temp. */
-		/*                                                                    */
-		/**********************************************************************/
-
-		DTB = Q / (mass * specificHeatCapacity);
-		temperature = temperature - DTB;
-
-		return 0;
-	}
-	
 	
 	public FluidPort backIterStep(FluidPort outputPort) {
 		if (outputPort.getBoundaryPressure() >= 0.0) {
@@ -399,11 +340,11 @@ public class FilterT1 extends BaseModel {
 
 	@ManagedAttribute
 	public double getTemperature() {
-		return temperature;
+		return filterTemperature;
 	}
 
 	public void setTemperature(double temperature) {
-		this.temperature = temperature;
+		this.filterTemperature = temperature;
 	}
 
 	@ManagedAttribute
@@ -470,24 +411,6 @@ public class FilterT1 extends BaseModel {
 	}
 
 	@ManagedAttribute
-	public double getqHFlow() {
-		return qHFlow;
-	}
-
-	public void setqHFlow(double qHFlow) {
-		this.qHFlow = qHFlow;
-	}
-
-	@ManagedAttribute
-	public double getAlfa() {
-		return alfa;
-	}
-
-	public void setAlfa(double alfa) {
-		this.alfa = alfa;
-	}
-
-	@ManagedAttribute
 	public double getMass() {
 		return mass;
 	}
@@ -522,6 +445,5 @@ public class FilterT1 extends BaseModel {
 	public void setMfUpBackiter(double mfUpBackiter) {
 		this.mfUpBackiter = mfUpBackiter;
 	}
-
 
 }

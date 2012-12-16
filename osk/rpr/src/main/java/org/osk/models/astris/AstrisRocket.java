@@ -49,10 +49,12 @@ import org.slf4j.Logger;
  * Itself, it instantiates the different elements of the rocket model.
  * The !wiring! of the rocket model is done therefore by the CDI container.
  * 
+ * NOT USED 
+ * 
  * @author P. Pita
  * 
  */
-@ApplicationScoped
+// @ApplicationScoped
 public class AstrisRocket  {
 
 	// Structural items in the numerical simulation
