@@ -221,12 +221,6 @@ public class JunctionT1 extends BaseModel {
     }
 
     public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPort) {
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on port 2 cannot be handled!");
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on port 2 cannot be handled!");
-        }
         FluidPort inputPortLeft = BoundaryUtils.createBoundaryPort(outputPort.getBoundaryFluid(), splitfactor * outputPort.getBoundaryMassflow());
         FluidPort inputPortRight = BoundaryUtils.createBoundaryPort(outputPort.getBoundaryFluid(), (1 - splitfactor) * outputPort.getBoundaryMassflow());
         return new ImmutablePair<FluidPort, FluidPort>(inputPortLeft, inputPortRight);

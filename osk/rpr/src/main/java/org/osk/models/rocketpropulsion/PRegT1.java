@@ -114,8 +114,6 @@ public class PRegT1 extends BaseModel {
 	private double mfin;
 	private double pout;
 	private double tout;
-	private double pUpBackiter;
-	private double tUpBackiter;
 	private double mfUpBackiter;
 
 	private static final String TYPE = "PRegT1";
@@ -296,16 +294,9 @@ public class PRegT1 extends BaseModel {
 
 
     public FluidPort backIterStep(FluidPort outputPort) {
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on port 1 cannot be handled!");
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on port 1 cannot be handled!");
-        }
-        mfUpBackiter  = outputPort.getBoundaryMassflow();
-        pUpBackiter = outputPort.getBoundaryPressure();
-        tUpBackiter = outputPort.getBoundaryTemperature();
-		return BoundaryUtils.createBoundaryPort(outputPort);
+		// Regulators just have to regulate the amount asked from the tank, pipes, etc, 
+		// no modification is done
+		return outputPort;
     }
 
 	public FluidPort createOutputPort(String fluid) {
@@ -436,24 +427,6 @@ public class PRegT1 extends BaseModel {
 
 	public void setTout(double tout) {
 		this.tout = tout;
-	}
-
-	@ManagedAttribute
-	public double getpUpBackiter() {
-		return pUpBackiter;
-	}
-
-	public void setpUpBackiter(double pUpBackiter) {
-		this.pUpBackiter = pUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double gettUpBackiter() {
-		return tUpBackiter;
-	}
-
-	public void settUpBackiter(double tUpBackiter) {
-		this.tUpBackiter = tUpBackiter;
 	}
 
 	@ManagedAttribute

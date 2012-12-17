@@ -161,6 +161,30 @@ public class FluidFlowValve extends BaseModel {
         return createOutputPort();
     }
 
+    public FluidPort backIterStep(FluidPort outputPort) {
+        /* Init massflow:
+         * At initialization reading boundary massflow from downstream...... */
+        if (timeHandler.getSimulatedMissionTime() == 0) {
+            massflow = outputPort.getBoundaryMassflow();
+        }
+        // FIXME: seems that the boundary condition variable coming from the
+        // engine is no longer taken into account after t > 0 
+        
+        /* In normal backiterations reflecting upstream the massflow
+         * computed from the controller signal which was elaborated in timestep.
+         */
+//        LOG.info("Massflow: '{}'", massflow);
+
+        return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
+    }
+    
+    public FluidPort backIterStep0(FluidPort outputPort) {
+        /* Init massflow:
+         * At initialization reading boundary massflow from downstream...... */
+        massflow = outputPort.getBoundaryMassflow();
+        return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
+    }
+
     public FluidPort backIterStep(FluidPort outputPort, AnalogPort controlPort) {
         controlValue = controlPort.getAnalogValue();
 //        LOG.info("Reading controlValue: '{}'", controlValue);

@@ -108,17 +108,8 @@ public class SplitT1 extends BaseModel {
 	/** Required outflow on port 2 (through backiter step). */
 	private double mfboundRight;
 
-	/** Fluid parameters of in- and outflow(s). */
-	private double pin;
-	private double tin;
-	private double mfin;
-	private double pout;
-	private double tout;
 	private double mfoutLeft;
 	private double mfoutRight;
-	private double pUpBackiter;
-	private double tUpBackiter;
-	private double mfUpBackiter;
 
 	private static final String TYPE = "SplitT1";
 	private static final String SOLVER = "none";
@@ -128,18 +119,16 @@ public class SplitT1 extends BaseModel {
     }
 
     public ImmutablePair<FluidPort, FluidPort> iterationStep(FluidPort inputPort) {
-        String fluid;
+        final double pin   = inputPort.getPressure();
+        final double tin   = inputPort.getTemperature();
+        final double mfin  = inputPort.getMassflow();
+        final String fluid = inputPort.getFluid();
 
-        pin   = inputPort.getPressure();
-        tin   = inputPort.getTemperature();
-        mfin  = inputPort.getMassflow();
-        fluid = inputPort.getFluid();
-
-        pout = pin;
-        tout = tin;
+        final double pout = pin;
+        final double tout = tin;
         if (mfin > 0.0) {
         	if (mfboundLeft == 0.0 && mfboundRight == 0.0) {
-        		LOG.warn("Not initialized mfboundLeft and mfboundRight. Using 0.5.");
+        		LOG.warn("Not initialized mfboundLeft and . Using 0.5.");
         		mfboundLeft = mfboundRight = 0.5;
         	}
             mfoutLeft  = mfin
@@ -151,49 +140,21 @@ public class SplitT1 extends BaseModel {
             mfoutRight = 0.0;
         }
 
-        FluidPort outputPortLeft =  createGasPort(fluid, mfoutLeft);
-        FluidPort outputPortRight = createGasPort(fluid, mfoutRight);
+        FluidPort outputPortLeft =  createGasPort(fluid, pout, tout, mfoutLeft);
+        FluidPort outputPortRight = createGasPort(fluid, pout, tout, mfoutRight);
         
-//        LOG.info("pout : {}", pout);
-//        LOG.info("tout : {}", tout);
-//        LOG.info("mfoutLeft : {}", mfoutLeft);
-//        LOG.info("mfoutRight : {}", mfoutRight);
-
         return new ImmutablePair<FluidPort, FluidPort>(outputPortLeft, outputPortRight);
     }
 
      public FluidPort backIterate(FluidPort outputPortLeft, FluidPort outputPortRight) {
-        if (outputPortLeft.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on left port cannot be handled!");
-        }
-        if (outputPortLeft.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on left port cannot be handled!");
-        }
-        if (outputPortRight.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on right port cannot be handled!");
-        }
-        if (outputPortRight.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on right port cannot be handled!");
-        }
-
         mfboundLeft  = outputPortLeft.getBoundaryMassflow();
         mfboundRight = outputPortRight.getBoundaryMassflow();
-        mfUpBackiter = mfboundLeft + mfboundRight;
-        pUpBackiter = (outputPortLeft.getBoundaryPressure()
-                + outputPortRight.getBoundaryPressure()) / 2.;
-        tUpBackiter = (outputPortLeft.getBoundaryTemperature()
-                + outputPortRight.getBoundaryTemperature()) / 2.;
-//        LOG.info("mfboundLeft : {}", mfboundLeft);
-//        LOG.info("mfboundRight : {}", mfboundRight);
-
-		FluidPort inputPort = BoundaryUtils.createBoundaryPort(
-				outputPortLeft.getBoundaryFluid(), pUpBackiter, tUpBackiter, mfUpBackiter);
-
-        return inputPort;
+		return BoundaryUtils.createBoundaryPort(
+				outputPortLeft.getFluid(), mfboundLeft + mfboundRight);
     }
 
 
- 	public FluidPort createGasPort(String fluid, double mflow) {
+ 	public FluidPort createGasPort(String fluid, double pout, double tout, double mflow) {
 		FluidPort outputPort = new FluidPort();
         outputPort.setFluid(fluid);
         outputPort.setPressure(pout);
@@ -225,51 +186,6 @@ public class SplitT1 extends BaseModel {
 	}
 
 	@ManagedAttribute
-	public double getPin() {
-		return pin;
-	}
-
-	public void setPin(double pin) {
-		this.pin = pin;
-	}
-
-	@ManagedAttribute
-	public double getTin() {
-		return tin;
-	}
-
-	public void setTin(double tin) {
-		this.tin = tin;
-	}
-
-	@ManagedAttribute
-	public double getMfin() {
-		return mfin;
-	}
-
-	public void setMfin(double mfin) {
-		this.mfin = mfin;
-	}
-
-	@ManagedAttribute
-	public double getPout() {
-		return pout;
-	}
-
-	public void setPout(double pout) {
-		this.pout = pout;
-	}
-
-	@ManagedAttribute
-	public double getTout() {
-		return tout;
-	}
-
-	public void setTout(double tout) {
-		this.tout = tout;
-	}
-
-	@ManagedAttribute
 	public double getMfoutLeft() {
 		return mfoutLeft;
 	}
@@ -285,33 +201,6 @@ public class SplitT1 extends BaseModel {
 
 	public void setMfoutRight(double mfoutRight) {
 		this.mfoutRight = mfoutRight;
-	}
-
-	@ManagedAttribute
-	public double getpUpBackiter() {
-		return pUpBackiter;
-	}
-
-	public void setpUpBackiter(double pUpBackiter) {
-		this.pUpBackiter = pUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double gettUpBackiter() {
-		return tUpBackiter;
-	}
-
-	public void settUpBackiter(double tUpBackiter) {
-		this.tUpBackiter = tUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double getMfUpBackiter() {
-		return mfUpBackiter;
-	}
-
-	public void setMfUpBackiter(double mfUpBackiter) {
-		this.mfUpBackiter = mfUpBackiter;
 	}
 
 }

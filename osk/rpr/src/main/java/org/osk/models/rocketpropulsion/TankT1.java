@@ -1266,20 +1266,11 @@ public class TankT1 extends BaseModel implements DEQClient {
 
 
     public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPortFuel, FluidPort outputPortOxidizer) {
-        if (outputPortFuel.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on output port fuel cannot be handled!");
-        }
-        if (outputPortFuel.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on output port fuel cannot be handled!");
-        }
-        if (outputPortOxidizer.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on output port ox cannot be handled!");
-        }
-        if (outputPortOxidizer.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on output port ox cannot be handled!");
-        }
+    	// The requested mass flow from the valves is used as boundary condition for next iteration
         mfBoundFuel = outputPortFuel.getBoundaryMassflow();
         mfBoundOx   = outputPortOxidizer.getBoundaryMassflow();
+        // for the supplier pipe elements, the boundaries are related to the pressure of helium needed to 
+        // dispatch the mass flow of fuel/ox
 		FluidPort inputPortFuelPressureGas = BoundaryUtils.createBoundaryPort(fuPressGas, mfBoundFuelPress);
 		FluidPort inputPortOxidizerPressureGas = BoundaryUtils.createBoundaryPort(oxPressGas, mfBoundOxPress);
         return new ImmutablePair<FluidPort, FluidPort>(inputPortFuelPressureGas, inputPortOxidizerPressureGas);

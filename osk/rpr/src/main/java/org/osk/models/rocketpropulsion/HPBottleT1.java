@@ -259,14 +259,9 @@ public class HPBottleT1 extends BaseModel {
 	}
 
     public void backIterStep(FluidPort outputPort) {
-
+    	// The requested helium mass flow coming from the tank through the different 
+    	// elements
         mftotal = outputPort.getBoundaryMassflow();
-        if (outputPort.getBoundaryPressure() >= 0.0) {
-            LOG.error("Pressure request on port 0 cannot be handled!");
-        }
-        if (outputPort.getBoundaryTemperature() >= 0.0) {
-            LOG.error("Temp. request on port 0 cannot be handled!");
-        }
     }
 
 	private void logState(String header) {

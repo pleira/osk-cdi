@@ -44,7 +44,7 @@ public class ScStructure22 {
 	}
 
 	public void backIterate(
-			@Observes @Named(NAME) @BackIter Iteration backIter) {
+			@Observes @BackIter Iteration backIter) {
     	// pass the initial position/velocity to interested parties
 		backEvent.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
 	}

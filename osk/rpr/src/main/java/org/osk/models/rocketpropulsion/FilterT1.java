@@ -124,9 +124,6 @@ public class FilterT1 extends BaseModel {
 
 	/** Mass of filter. */
 	private double mass;
-	private double pUpBackiter;
-	private double tUpBackiter;
-	private double mfUpBackiter;
 	
 	private static final String TYPE = "FilterT1";
 	private static final String SOLVER = "none";
@@ -276,18 +273,9 @@ public class FilterT1 extends BaseModel {
 	}
 	
 	public FluidPort backIterStep(FluidPort outputPort) {
-		if (outputPort.getBoundaryPressure() >= 0.0) {
-			LOG.error("Error! Comp. '" 
-					+ "': Pressure request on port 1 cannot be handled!");
-		}
-		if (outputPort.getBoundaryTemperature() >= 0.0) {
-			LOG.error("Error! Comp. '" 
-					+ "': Temp. request on port 1 cannot be handled!");
-		}
-		mfUpBackiter = outputPort.getBoundaryMassflow();
-		pUpBackiter = outputPort.getBoundaryPressure();
-		tUpBackiter = outputPort.getBoundaryTemperature();
-		return BoundaryUtils.createBoundaryPort(outputPort);
+		// Filters just have to transfer the amount asked from the pipes, etc, 
+		// no modification is done
+		return outputPort;
 	}
 
 	public FluidPort createOutputPort(String fluid) {
@@ -417,33 +405,6 @@ public class FilterT1 extends BaseModel {
 
 	public void setMass(double mass) {
 		this.mass = mass;
-	}
-
-	@ManagedAttribute
-	public double getpUpBackiter() {
-		return pUpBackiter;
-	}
-
-	public void setpUpBackiter(double pUpBackiter) {
-		this.pUpBackiter = pUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double gettUpBackiter() {
-		return tUpBackiter;
-	}
-
-	public void settUpBackiter(double tUpBackiter) {
-		this.tUpBackiter = tUpBackiter;
-	}
-
-	@ManagedAttribute
-	public double getMfUpBackiter() {
-		return mfUpBackiter;
-	}
-
-	public void setMfUpBackiter(double mfUpBackiter) {
-		this.mfUpBackiter = mfUpBackiter;
 	}
 
 }

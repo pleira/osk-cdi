@@ -182,20 +182,19 @@ public class Engine extends BaseModel {
     	/*    function of mixture ratio                                   */
     	/*    Polynom for cstar calculated with CEA Gordon McBride        */
     	/*    ( http://www.grc.nasa.gov/WWW/CEAWeb/ )                     */
-    	/*    Polynom valid for chamber pressures of approx. 20bar        */
+    	/*    Polynom valid for chamber pressures of approx. 20 bar       */
     	/******************************************************************/
-    	/* Characteristic vel. [ m/s ] */
-		return - 0.1481*Math.pow(OF,6) + 4.3126*Math.pow(OF,5)
-    			- 50.87*Math.pow(OF,4)  + 309.5*Math.pow(OF,3)
-    			- 1011.1*Math.pow(OF,2) + 1549.9*OF + 880.12;
+    	/* Characteristic velociity [ m/s ] */
+		return  - 0.1481 * Math.pow(OF,6) + 4.3126 * Math.pow(OF,5)
+    			- 50.87  * Math.pow(OF,4) + 309.5  * Math.pow(OF,3)
+    			- 1011.1 * Math.pow(OF,2) + 1549.9 * OF + 880.12;
 	}
 
 	// Here the engine says how much fuel/oxidizer needs
     public ImmutablePair<FluidPort, FluidPort> backIterStep() {
         FluidPort inputPortFuel = createBoundaryPort("Fuel", requestedFuelFlow);
         FluidPort inputPortOxidizer = createBoundaryPort("Oxidizer", requestedOxFlow);
-        return new ImmutablePair<FluidPort,  FluidPort>(inputPortFuel, inputPortOxidizer);
-
+        return new ImmutablePair<FluidPort, FluidPort>(inputPortFuel, inputPortOxidizer);
     }
 
 	public FluidPort createBoundaryPort(String fluid, double requestedFlow) {

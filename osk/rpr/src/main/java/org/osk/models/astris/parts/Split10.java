@@ -30,18 +30,18 @@ public class Split10 {
 	
 	FluidPort left;
 	FluidPort right;
-
+	ImmutablePair<FluidPort, FluidPort> output;
+	
 	public void iteration(@Observes @Named(Pipe09.NAME) @Iter FluidPort inputPort) {
-		ImmutablePair<FluidPort, FluidPort> output = model.iterationStep(inputPort);
+		output = model.iterationStep(inputPort);
 		eventRight.fire(output.getRight());
 		eventLeft.fire(output.getLeft());
 	}
 
 	public void timeIteration(@Observes @Named(Pipe09.NAME) @TimeIter FluidPort inputPort) {
-		FluidPort left = model.createGasPort(inputPort.getFluid(), model.getMfboundLeft());
-		FluidPort right = model.createGasPort(inputPort.getFluid(), model.getMfboundRight());
-		outputEventRight.fire(right);
-		outputEventLeft.fire(left);
+		if (output == null) output = model.iterationStep(inputPort);		
+		outputEventRight.fire(output.getRight());
+		outputEventLeft.fire(output.getLeft());
 	}
 
 	public void backIterateLeft(@Observes @Named(NAME) @Left @BackIter FluidPort outputPort) {

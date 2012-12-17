@@ -27,7 +27,7 @@ public class FFV18  {
 	@Inject @Named(NAME) @Iter Event<FluidPort> event;
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(NAME) @RegulIter Event<AnalogPort> controlEvent;
-	@Inject @Named(Tank17.NAME) @BackIter Event<FluidPort> backEvent;
+	@Inject @Named(Tank17.NAME) @Fuel @BackIter Event<FluidPort> backEvent;
 
 	FluidPort inputPort;
 	AnalogPort controlPort;
@@ -61,7 +61,7 @@ public class FFV18  {
 //	}
 
 	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
-		FluidPort input = model.backIterStep(outputPort, controlPort);
+		FluidPort input = model.backIterStep0(outputPort);
 		backEvent.fire(input);
 	}
 

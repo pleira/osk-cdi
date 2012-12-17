@@ -336,13 +336,9 @@ public class PipeT1 extends BaseModel {
 	}
 
 	public FluidPort backIterStep(FluidPort outputPort) {
-		if (outputPort.getBoundaryPressure() >= 0.0) {
-			LOG.error("Pressure request on output port cannot be handled!");
-		}
-		if (outputPort.getBoundaryTemperature() >= 0.0) {
-			LOG.error("Temp. request on output port cannot be handled!");
-		}
-		return BoundaryUtils.createBoundaryPort(outputPort);
+		// Pipes just have to transfer the amount asked from the tank, etc, 
+		// no modification is done
+		return outputPort;
 	}
 
 

@@ -61,12 +61,17 @@ public class FFV19 {
 //	}
 
 	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
-		if (controlPort == null) {
-			controlPort = new AnalogPort();
-		}
-		FluidPort input = model.backIterStep(outputPort, controlPort);
+		FluidPort input = model.backIterStep0(outputPort);
 		backEvent.fire(input);
 	}
+
+//	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
+//		if (controlPort == null) {
+//			controlPort = new AnalogPort();
+//		}
+//		FluidPort input = model.backIterStep(outputPort, controlPort);
+//		backEvent.fire(input);
+//	}
 
 	private void fireIteration() {
 		if (controlPort == null) {
