@@ -12,6 +12,7 @@ import org.osk.config.Util;
 import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.TimeIter;
+import org.osk.events.TimeStep;
 import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.PRegT1;
 import org.osk.ports.FluidPort;
@@ -27,21 +28,23 @@ public class PReg12  {
 	@Inject @Named(NAME) @Iter Event<FluidPort> event;
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(Pipe11.NAME) @BackIter Event<FluidPort> backEvent;
+	@Inject @TimeStep Double tStepSize;
 	
 	public void iteration(@Observes @Named(Pipe11.NAME) @Iter FluidPort inputPort) {
-		FluidPort output = model.iterationStep(inputPort);
+		FluidPort output = model.calculateOutletMassFlow(inputPort);
 		event.fire(output);
 	}
 
 	public void timeIteration(@Observes @Named(Pipe11.NAME) @TimeIter FluidPort inputPort) {
-		model.timeStep(inputPort);
+		model.propagate(tStepSize, inputPort);
 		FluidPort output = model.createOutputPort(inputPort.getFluid());
 		outputEvent.fire(output);
 	}
 
 	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
-		FluidPort input = model.backIterStep(outputPort);
-		backEvent.fire(input);
+		// Regulators just have to regulate the amount asked from the tank, pipes, etc, 
+		// no modification is done to the requested value
+		backEvent.fire(outputPort);
 	}
 
 	//---------------------------------------------------------------------------------------

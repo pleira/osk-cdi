@@ -55,7 +55,6 @@ package org.osk.models.rocketpropulsion;
 
 import javax.inject.Inject;
 
-import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
@@ -75,7 +74,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 public class PipeT1 extends BaseModel {
 	@Inject Logger LOG;
-	@Inject @TimeStep Double tStepSize;
 	
 	private static final int PARTS = 10;
 	/** Diameter of pipe. */
@@ -117,7 +115,7 @@ public class PipeT1 extends BaseModel {
 		massPElem = specificMass * length / PARTS;
 	}
 	
-	public FluidPort iterationStep(FluidPort inputPort) {
+	public FluidPort calculateOutletMassFlow(FluidPort inputPort) {
 		
 		double pin = inputPort.getPressure();
 		double tin = inputPort.getTemperature();
@@ -271,15 +269,14 @@ public class PipeT1 extends BaseModel {
 		return createOutputPort(fluid);
 	}
 
-	public int timeStep(final FluidPort inputPort) {
-		String fluid;
+	public void propagate(final double tStepSize, final FluidPort inputPort) {
 
 		mfin = inputPort.getMassflow();
-		fluid = inputPort.getFluid();
+//		String fluid = inputPort.getFluid();
 
 		/* Skip time step computation if no flow in pipe. */
 		if (mfin <= 1.E-6) {
-			return 0;
+			return;
 		}
 
 		final double CP = 5223.2;
@@ -332,13 +329,6 @@ public class PipeT1 extends BaseModel {
 			final double DTB = Q / (massPElem * specificHeatCapacity);
 			temperatures[J] = temperatures[J] - DTB;
 		}
-		return 0;
-	}
-
-	public FluidPort backIterStep(FluidPort outputPort) {
-		// Pipes just have to transfer the amount asked from the tank, etc, 
-		// no modification is done
-		return outputPort;
 	}
 
 
@@ -351,7 +341,6 @@ public class PipeT1 extends BaseModel {
 		return outputPort;
 	}
 	
-
 	
 	// -----------------------------------------------------------------------------------
 	// Methods added for JMX monitoring and setting initial properties via CDI

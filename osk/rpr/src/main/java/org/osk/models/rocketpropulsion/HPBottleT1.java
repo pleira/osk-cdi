@@ -41,6 +41,8 @@ package org.osk.models.rocketpropulsion;
 
 import javax.inject.Inject;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.osk.config.SimHeaders;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumJKC;
@@ -50,7 +52,6 @@ import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 
 public class HPBottleT1 extends BaseModel {
@@ -110,11 +111,6 @@ public class HPBottleT1 extends BaseModel {
 
     }
     
-
-    public FluidPort iterationStep() {
-        return newOutputPort();
-    }
-
     public void timeStep() {
 
         logState("% HPBottleT1 Start Conditions...");
@@ -258,12 +254,6 @@ public class HPBottleT1 extends BaseModel {
 		return H;
 	}
 
-    public void backIterStep(FluidPort outputPort) {
-    	// The requested helium mass flow coming from the tank through the different 
-    	// elements
-        mftotal = outputPort.getBoundaryMassflow();
-    }
-
 	private void logState(String header) {
 		LOG.info(header);
         LOG.info("ptotal : {}", ptotal);
@@ -276,7 +266,7 @@ public class HPBottleT1 extends BaseModel {
 		return new FluidPort(name, fluid, ptotal, ttotal, mftotal);
 	}
 
-	FluidPort newOutputPort() {
+	public FluidPort getOutputPortStatus() {
 		return new FluidPort(name, fluid, ptotal, ttotal, mftotal);
 	}
 

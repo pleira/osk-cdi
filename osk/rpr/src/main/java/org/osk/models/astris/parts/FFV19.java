@@ -16,6 +16,7 @@ import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.FluidFlowValve;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
 
 @Log
 @ApplicationScoped
@@ -28,6 +29,7 @@ public class FFV19 {
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(NAME) @RegulIter Event<AnalogPort> controlEvent;
 	@Inject @Named(Tank17.NAME) @BackIter Event<FluidPort> backEvent;
+	@Inject TimeHandler timeHandler;
 
 	FluidPort inputPort;
 	AnalogPort controlPort;
@@ -47,9 +49,10 @@ public class FFV19 {
 //	}
 
 	public void timeIteration(@Observes @Named(Tank17.NAME) @Oxid @TimeIter FluidPort input) {
-		inputPort = input;
+		outputEvent.fire(input);
+//		inputPort = input;
 //		if (controlPort != null) {
-			fireTimeIteration();
+//			fireTimeIteration();
 //		}
 	}
 
@@ -61,8 +64,8 @@ public class FFV19 {
 //	}
 
 	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
-		FluidPort input = model.backIterStep0(outputPort);
-		backEvent.fire(input);
+		// at this stage, do not change boundary conditions requested
+		backEvent.fire(outputPort);
 	}
 
 //	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
@@ -77,7 +80,7 @@ public class FFV19 {
 		if (controlPort == null) {
 			controlPort = new AnalogPort();
 		}
-		FluidPort output = model.iterationStep(inputPort, controlPort);
+		FluidPort output = model.calculateMassFlow(timeHandler.getSimulatedMissionTime(), inputPort, controlPort);
 		event.fire(output);
 		inputPort = null;
 		controlPort = null;
@@ -87,8 +90,8 @@ public class FFV19 {
 		if (controlPort == null) {
 			controlPort = new AnalogPort();
 		}
-		FluidPort output = model.timeStep(inputPort, controlPort);
-		outputEvent.fire(output);
+//		FluidPort output = model.timeStep(inputPort, controlPort);
+//		outputEvent.fire(output);
 		inputPort = null;
 		controlPort = null;
 	}

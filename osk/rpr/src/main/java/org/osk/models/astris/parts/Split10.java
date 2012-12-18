@@ -33,13 +33,14 @@ public class Split10 {
 	ImmutablePair<FluidPort, FluidPort> output;
 	
 	public void iteration(@Observes @Named(Pipe09.NAME) @Iter FluidPort inputPort) {
-		output = model.iterationStep(inputPort);
+		output = model.calculateOutletsMassFlow(inputPort);
 		eventRight.fire(output.getRight());
 		eventLeft.fire(output.getLeft());
 	}
 
 	public void timeIteration(@Observes @Named(Pipe09.NAME) @TimeIter FluidPort inputPort) {
-		if (output == null) output = model.iterationStep(inputPort);		
+		if (output == null) output = model.calculateOutletsMassFlow(inputPort);
+		// we are assuming that the fluid does not suffer more state changes in the Split
 		outputEventRight.fire(output.getRight());
 		outputEventLeft.fire(output.getLeft());
 	}
@@ -59,7 +60,7 @@ public class Split10 {
 	}
 
 	private void fireBackIterate() {
-		FluidPort input = model.backIterate(left, right);
+		FluidPort input = model.getBoundedInputMassFlow(left, right);
 		left = right = null; // events processed
 		backEvent.fire(input);
 	}

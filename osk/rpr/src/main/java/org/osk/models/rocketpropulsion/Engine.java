@@ -46,18 +46,6 @@ public class Engine extends BaseModel {
 	private double ignitionOxidizerFlow;
 	/** Altitude above ground [ m ] */
 	private double altitude; 
-	/** Fuel inflow pressure [Pa] */
-	private double pin0;
-	/** Fuel inflow temperature [K] */
-	private double tin0;
-	/** Ox inflow pressure [Pa] */
-	private double pin1;
-	/** Ox inflow temperature [K] */
-	private double tin1;
-	/** Fuel flow [kg/s] */
-	private double mfin0;
-	/** Ox flow [kg/s] */
-	private double mfin1;
 	/** Requested fuel flow [kg/s] */
 	private double requestedFuelFlow;
 	/** Requested ox flow [kg/s] */
@@ -77,32 +65,10 @@ public class Engine extends BaseModel {
     }
 
 
-    public void iterationStep(FluidPort inputPortFuel, FluidPort inputPortOxidizer) throws OskException {
-        /* Fuel: */
-        pin0  = inputPortFuel.getPressure();
-        tin0  = inputPortFuel.getTemperature();
-        mfin0 = inputPortFuel.getMassflow();
-        /* Oxidizer: */
-        pin1  = inputPortOxidizer.getPressure();
-        tin1  = inputPortOxidizer.getTemperature();
-        mfin1 = inputPortOxidizer.getMassflow();
-
-        /* Check whether boundary condition is fulfilled.....
-         * (Equality of set and received mass flow). */
-        if ((Math.abs(mfin0 - requestedFuelFlow) < 0.005)
-                && (Math.abs(mfin1 - requestedOxFlow) < 0.005)) {
-            LOG.info(" Iteration of upward propulsion system successful.");
-        } else {
-            /* Otherwise reinitiate another propulsion system iteration... */
-            requestedFuelFlow = mfin0;
-            requestedOxFlow = mfin1;
-        }
-    }
-	
 	/* Computes Engine thrust [ N ] */
     public Vector3D computeThrust(FluidPort inputPortFuel, FluidPort inputPortOxidizer) throws OskException {
-        mfin0 = inputPortFuel.getMassflow();
-        mfin1 = inputPortOxidizer.getMassflow();
+        final double mfin0 = inputPortFuel.getMassflow();
+        final double mfin1 = inputPortOxidizer.getMassflow();
 
         requestedFuelFlow = mfin0;
         requestedOxFlow = mfin1;
@@ -121,18 +87,18 @@ public class Engine extends BaseModel {
 
     	/*get chamber pressure, just average value of inflow pressures */
     	/*Note: Real chamber pressure depends mainly on combustion efficiency */
-    	pin0 = inputPortFuel.getPressure();
-    	pin1 = inputPortOxidizer.getPressure();
-    	final double thrust = calculateThrust(OF);
+    	final double pin0 = inputPortFuel.getPressure();
+    	final double pin1 = inputPortOxidizer.getPressure();
+    	final double pc = 0.5*( pin0 + pin1 );
+    	final double thrust = calculateThrust(OF, mfin0 + mfin1, pc);
     	// ISP = cstar * etaCstar * cf * etaCf / 9.81; // FIXME: Why does the model use g at sea level?
 
     	return new Vector3D(thrust, 0, 0);
 
     }
 
-	private double calculateThrust(final double OF) throws OskException {
-		final double pc = 0.5*( pin0 + pin1 );
-
+	private double calculateThrust(final double OF, final double mass, final double chamberPressure) throws OskException {
+		
     	final double cstar = mixtureCharacteristicVelocity(OF);
 
     	/*Isentropic exponent of combustion gas [-], function of OF*/
@@ -146,7 +112,7 @@ public class Engine extends BaseModel {
     	final double etaCf = 0.99;
 
     	/*Nozzle exit pressure pe*/
-    	final double pe = NumericalUtils.newton( k, areaRatio, pc);
+    	final double pe = NumericalUtils.newton( k, areaRatio, chamberPressure);
     	if (pe == 0.0) {
     		throw new OskException(new DummyLocalizable("% Engine: Iteration for nozzle exit " +
     				"pressure, no solution found"));
@@ -157,9 +123,9 @@ public class Engine extends BaseModel {
     		throw new OskException(new DummyLocalizable("% Engine: Flow separation in nozzle. " +
     				"Thrust value is not realistic"));
     	} 
-    	final double cf = thrustFactor(pc, pe, k, pa, areaRatio);
+    	final double cf = thrustFactor(chamberPressure, pe, k, pa, areaRatio);
 
-    	final double thrust = (mfin0 + mfin1) * cstar * etaCstar * cf * etaCf;
+    	final double thrust = mass * cstar * etaCstar * cf * etaCf;
 		return thrust;
 	}
 
@@ -190,21 +156,6 @@ public class Engine extends BaseModel {
     			- 1011.1 * Math.pow(OF,2) + 1549.9 * OF + 880.12;
 	}
 
-	// Here the engine says how much fuel/oxidizer needs
-    public ImmutablePair<FluidPort, FluidPort> backIterStep() {
-        FluidPort inputPortFuel = createBoundaryPort("Fuel", requestedFuelFlow);
-        FluidPort inputPortOxidizer = createBoundaryPort("Oxidizer", requestedOxFlow);
-        return new ImmutablePair<FluidPort, FluidPort>(inputPortFuel, inputPortOxidizer);
-    }
-
-	public FluidPort createBoundaryPort(String fluid, double requestedFlow) {
-		FluidPort inputPort = new FluidPort();
-        inputPort.setBoundaryFluid(fluid);
-        inputPort.setBoundaryPressure(-999999.99);
-        inputPort.setBoundaryTemperature(-999999.99);
-        inputPort.setBoundaryMassflow(requestedFlow);
-		return inputPort;
-	}
    	
 	//----------------------------------------
     // Methods added for JMX monitoring	
@@ -231,55 +182,6 @@ public class Engine extends BaseModel {
 	}
 	public void setAltitude(double alt) {
 		this.altitude = alt;
-	}
-
-	@ManagedAttribute
-	public double getPin0() {
-		return pin0;
-	}
-
-	public void setPin0(double pin0) {
-		this.pin0 = pin0;
-	}
-	@ManagedAttribute
-	public double getTin0() {
-		return tin0;
-	}
-
-	public void setTin0(double tin0) {
-		this.tin0 = tin0;
-	}
-	@ManagedAttribute
-	public double getPin1() {
-		return pin1;
-	}
-
-	public void setPin1(double pin1) {
-		this.pin1 = pin1;
-	}
-	@ManagedAttribute
-	public double getTin1() {
-		return tin1;
-	}
-
-	public void setTin1(double tin1) {
-		this.tin1 = tin1;
-	}
-	@ManagedAttribute
-	public double getMfin0() {
-		return mfin0;
-	}
-
-	public void setMfin0(double mfin0) {
-		this.mfin0 = mfin0;
-	}
-	@ManagedAttribute
-	public double getMfin1() {
-		return mfin1;
-	}
-
-	public void setMfin1(double mfin1) {
-		this.mfin1 = mfin1;
 	}
 	@ManagedAttribute
 	public double getRequestedFuelFlow() {

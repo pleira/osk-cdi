@@ -18,6 +18,7 @@ import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
 import org.osk.models.rocketpropulsion.TankT1;
 import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
 
 @Log
 @ApplicationScoped
@@ -32,6 +33,7 @@ public class Tank17 {
 	@Inject @Named(NAME) @Fuel @TimeIter Event<FluidPort> outputEventFuel;
 	@Inject @Named(Pipe13.NAME) @BackIter Event<FluidPort> backEvent13;
 	@Inject @Named(Pipe16.NAME) @BackIter Event<FluidPort> backEvent16;
+	@Inject TimeHandler timeHandler;
 
 	FluidPort inputFuel;
 	FluidPort inputOx;
@@ -87,7 +89,7 @@ public class Tank17 {
 	}
 
 	private void fireIterationStep() {
-		ImmutablePair<FluidPort, FluidPort> output = model.iterationStep(
+		ImmutablePair<FluidPort, FluidPort> output = model.calculateOutletsMassFlow(
 				inputFuel, inputOx);
 		inputFuel = inputOx = null; // events processed
 		eventOxid.fire(output.getRight());
@@ -95,7 +97,10 @@ public class Tank17 {
 	}
 
 	private void fireTimeIteration() {
-		ImmutablePair<FluidPort, FluidPort> output = model.timeStep(inputFuel,
+		ImmutablePair<FluidPort, FluidPort> output = model.propagate(
+				timeHandler.getSimulatedMissionTimeAsDouble(),
+				timeHandler.getStepSizeAsDouble(),
+				inputFuel,
 				inputOx);
 		inputFuel = inputOx = null; // events processed
 		outputEventOxid.fire(output.getRight());
@@ -103,11 +108,11 @@ public class Tank17 {
 	}
 
 	private void fireBackIteration() {
-		ImmutablePair<FluidPort, FluidPort> input = model.backIterStep(
-				outputFuel, outputOx);
+		// the tank just request a mass flow as asked from the valves 
+		// no modification is done to the requested value
+		backEvent13.fire(outputFuel);
+		backEvent16.fire(outputOx);
 		outputFuel = outputOx = null; // events processed
-		backEvent13.fire(input.getLeft());
-		backEvent16.fire(input.getRight());
 	}
 
 	// ---------------------------------------------------------------------------------------

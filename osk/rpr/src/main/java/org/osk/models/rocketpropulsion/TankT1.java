@@ -137,7 +137,6 @@ import org.osk.models.materials.MaterialProperties;
 import org.osk.numeric.DEQClient;
 import org.osk.numeric.DEqSys;
 import org.osk.ports.FluidPort;
-import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
@@ -154,7 +153,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 public class TankT1 extends BaseModel implements DEQClient {
 	@Inject Logger LOG;
-	@Inject TimeHandler timeHandler;
 	
 	/** Fuel type. */
 	private String fuel;
@@ -498,7 +496,7 @@ public class TankT1 extends BaseModel implements DEQClient {
         ZEITA=-.5;
     }
 
-    public ImmutablePair<FluidPort,  FluidPort> iterationStep(FluidPort inputPortFuelPressureGas, FluidPort inputPortOxidizerPressureGas) {
+    public ImmutablePair<FluidPort,  FluidPort> calculateOutletsMassFlow(FluidPort inputPortFuelPressureGas, FluidPort inputPortOxidizerPressureGas) {
         String fluid;
         double errval;
         int    result;
@@ -1222,8 +1220,8 @@ public class TankT1 extends BaseModel implements DEQClient {
     }
 
 
-    public ImmutablePair<FluidPort,  FluidPort> timeStep(
-    		 final FluidPort inputPortOxidizerPressureGas, FluidPort inputPortFuelPressureGas) {
+    public ImmutablePair<FluidPort,  FluidPort> propagate(final double time, final double tStepSize, 
+    		 final FluidPort inputPortOxidizerPressureGas, final FluidPort inputPortFuelPressureGas) {
 
         MPKTLB = mfBoundFuel;
         MPKTLO = mfBoundOx;
@@ -1233,8 +1231,6 @@ public class TankT1 extends BaseModel implements DEQClient {
         THEINB = inputPortFuelPressureGas.getTemperature();
         THEINO = inputPortOxidizerPressureGas.getTemperature();
 
-        double time = timeHandler.getSimulatedMissionTimeAsDouble();
-        double tStepSize = timeHandler.getStepSizeAsDouble();
         int result = DEqSys.DEqSys(time, tStepSize, YK, 20, (time+tStepSize),
                 SimHeaders.epsabs, SimHeaders.epsrel, IFMAX, IFANZ, IFEHL,
                 this);
@@ -1262,18 +1258,6 @@ public class TankT1 extends BaseModel implements DEQClient {
         FluidPort fuelPort = new FluidPort();
         FluidPort oxPort = new FluidPort();
         return new ImmutablePair<FluidPort,  FluidPort>(fuelPort, oxPort);
-    }
-
-
-    public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPortFuel, FluidPort outputPortOxidizer) {
-    	// The requested mass flow from the valves is used as boundary condition for next iteration
-        mfBoundFuel = outputPortFuel.getBoundaryMassflow();
-        mfBoundOx   = outputPortOxidizer.getBoundaryMassflow();
-        // for the supplier pipe elements, the boundaries are related to the pressure of helium needed to 
-        // dispatch the mass flow of fuel/ox
-		FluidPort inputPortFuelPressureGas = BoundaryUtils.createBoundaryPort(fuPressGas, mfBoundFuelPress);
-		FluidPort inputPortOxidizerPressureGas = BoundaryUtils.createBoundaryPort(oxPressGas, mfBoundOxPress);
-        return new ImmutablePair<FluidPort, FluidPort>(inputPortFuelPressureGas, inputPortOxidizerPressureGas);
     }
 
     

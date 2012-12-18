@@ -81,7 +81,7 @@ public class FluidFlowValve extends BaseModel {
         referencePressureLoss = referencePressureLoss * 1.E5;
     }
 	   
-    public FluidPort iterationStep(FluidPort inputPort, AnalogPort controlPort) {
+    public FluidPort calculateMassFlow(final long simTime, FluidPort inputPort, AnalogPort controlPort) {
 //        LOG.info(name);
         controlValue = controlPort.getAnalogValue();
 //        LOG.info("Reading controlValue: '{}'", controlValue);
@@ -95,7 +95,7 @@ public class FluidFlowValve extends BaseModel {
         tin   = inputPort.getTemperature();
         mfin  = inputPort.getMassflow();
 
-        if (timeHandler.getSimulatedMissionTime() == 0) {
+        if (simTime == 0) {
             massflow = mfin;
         } else {
             massflow = referenceMassFlow * controlValue;
@@ -128,93 +128,6 @@ public class FluidFlowValve extends BaseModel {
         return createOutputPort();        
     }
    
-    public FluidPort timeStep(FluidPort inputPort, AnalogPort controlPort) {
-        controlValue = controlPort.getAnalogValue();
-//        LOG.info("Reading controlValue: '{}'", controlValue);
-        if (controlValue < 0.0) {
-            controlValue = 0.0;
-        }
-//        LOG.info("Corrected controlValue: '{}'", controlValue);
-
-        fluid = inputPort.getFluid();
-        pin   = inputPort.getPressure();
-        tin   = inputPort.getTemperature();
-        mfin  = inputPort.getMassflow();
-
-        /* Skip time step computation if no flow in Valve. */
-        if (mfin <= 1.E-6) {
-//            localtime = localtime + 0.5;
-            return new FluidPort();
-        }
-        /* Currently no complex timestep physics forseen here yet. */
-        if (timeHandler.getSimulatedMissionTime() == 0) {
-            massflow = mfin;
-        } else {
-            massflow = referenceMassFlow * controlValue;
-        }
-        DP = referencePressureLoss * massflow / 5.0;
-        pout = pin - DP;
-        tout = tin;
-        mfout = massflow;
-//        LOG.info("Massflow: '{}'", massflow);
-//        localtime = localtime + 0.5;
-        return createOutputPort();
-    }
-
-    public FluidPort backIterStep(FluidPort outputPort) {
-        /* Init massflow:
-         * At initialization reading boundary massflow from downstream...... */
-        if (timeHandler.getSimulatedMissionTime() == 0) {
-            massflow = outputPort.getBoundaryMassflow();
-        }
-        // FIXME: seems that the boundary condition variable coming from the
-        // engine is no longer taken into account after t > 0 
-        
-        /* In normal backiterations reflecting upstream the massflow
-         * computed from the controller signal which was elaborated in timestep.
-         */
-//        LOG.info("Massflow: '{}'", massflow);
-
-        return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
-    }
-    
-    public FluidPort backIterStep0(FluidPort outputPort) {
-        /* Init massflow:
-         * At initialization reading boundary massflow from downstream...... */
-        massflow = outputPort.getBoundaryMassflow();
-        return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
-    }
-
-    public FluidPort backIterStep(FluidPort outputPort, AnalogPort controlPort) {
-        controlValue = controlPort.getAnalogValue();
-//        LOG.info("Reading controlValue: '{}'", controlValue);
-        if (controlValue < 0.0) {
-            controlValue = 0.0;
-        }
-
-        /* Init massflow:
-         * At initialization reading boundary massflow from downstream...... */
-        if (timeHandler.getSimulatedMissionTime() == 0) {
-            massflow = outputPort.getBoundaryMassflow();
-        }
-        /* In normal backiterations reflecting upstream the massflow
-         * computed from the controller signal which was elaborated in timestep.
-         */
-//        LOG.info("Massflow: '{}'", massflow);
-
-        return createBoundaryPort(outputPort.getBoundaryFluid(), massflow);
-    }
-
-	public FluidPort createBoundaryPort(String fluid, double mflow) {
-		FluidPort inputPort = new FluidPort();
-        inputPort.setBoundaryFluid(fluid);
-        inputPort.setBoundaryPressure(-999999.99);
-        inputPort.setBoundaryTemperature(-999999.99);
-        inputPort.setBoundaryMassflow(mflow);
-		return inputPort;
-	}	
-
-    
    	public FluidPort createOutputPort() {
    		FluidPort outputPort = new FluidPort();
    		outputPort.setFluid(fluid);

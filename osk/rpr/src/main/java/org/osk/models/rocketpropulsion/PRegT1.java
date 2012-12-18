@@ -69,7 +69,6 @@ package org.osk.models.rocketpropulsion;
 
 import javax.inject.Inject;
 
-import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumJKC;
 import org.osk.models.materials.HeliumPropertiesBuilder;
@@ -89,7 +88,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 public class PRegT1 extends BaseModel {
 	@Inject Logger LOG;
-	@Inject @TimeStep Double tStepSize;
 	
 	/** Diameter of pressure regul. */
 	private double innerDiameter;
@@ -129,7 +127,7 @@ public class PRegT1 extends BaseModel {
     	this.name = name;  
     }
 
-    public FluidPort iterationStep(FluidPort inputPort) {
+    public FluidPort calculateOutletMassFlow(FluidPort inputPort) {
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
@@ -257,7 +255,7 @@ public class PRegT1 extends BaseModel {
                 + pcoeff[3] * Math.pow(pressure, 3);
 	}
 
-    public int timeStep(FluidPort inputPort) {
+    public int propagate(final double tStepSize, FluidPort inputPort) {
         pin  = inputPort.getPressure();
         tin  = inputPort.getTemperature();
         mfin = inputPort.getMassflow();
@@ -290,13 +288,6 @@ public class PRegT1 extends BaseModel {
         temperature = temperature - DTB;
 
         return 0;
-    }
-
-
-    public FluidPort backIterStep(FluidPort outputPort) {
-		// Regulators just have to regulate the amount asked from the tank, pipes, etc, 
-		// no modification is done
-		return outputPort;
     }
 
 	public FluidPort createOutputPort(String fluid) {

@@ -118,7 +118,7 @@ public class SplitT1 extends BaseModel {
         super(TYPE, SOLVER);
     }
 
-    public ImmutablePair<FluidPort, FluidPort> iterationStep(FluidPort inputPort) {
+    public ImmutablePair<FluidPort, FluidPort> calculateOutletsMassFlow(FluidPort inputPort) {
         final double pin   = inputPort.getPressure();
         final double tin   = inputPort.getTemperature();
         final double mfin  = inputPort.getMassflow();
@@ -146,7 +146,7 @@ public class SplitT1 extends BaseModel {
         return new ImmutablePair<FluidPort, FluidPort>(outputPortLeft, outputPortRight);
     }
 
-     public FluidPort backIterate(FluidPort outputPortLeft, FluidPort outputPortRight) {
+     public FluidPort getBoundedInputMassFlow(FluidPort outputPortLeft, FluidPort outputPortRight) {
         mfboundLeft  = outputPortLeft.getBoundaryMassflow();
         mfboundRight = outputPortRight.getBoundaryMassflow();
 		return BoundaryUtils.createBoundaryPort(

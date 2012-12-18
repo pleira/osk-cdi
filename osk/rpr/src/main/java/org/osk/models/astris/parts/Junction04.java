@@ -63,13 +63,13 @@ public class Junction04  {
 	}
 
 	private void fireIterationStep() {
-		FluidPort output = model.iterationStep(left, right);
+		FluidPort output = model.calculateOutletMassFlow(left, right);
 		left = right = null; // events processed
 		event.fire(output);
 	}
 
 	private void fireTimeIteration() {
-		FluidPort output = model.createOutputPort(left.getFluid());
+		FluidPort output = model.getOutputPortStatus(left.getFluid());
 		left = right = null; // events processed
 		outputEvent.fire(output);
 	}

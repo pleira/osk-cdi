@@ -144,7 +144,7 @@ public class JunctionT1 extends BaseModel {
         startflag = 0;
     }
 
-    public FluidPort  iterationStep(FluidPort inputPortLeft, FluidPort inputPortRight) {
+    public FluidPort  calculateOutletMassFlow(FluidPort inputPortLeft, FluidPort inputPortRight) {
         String fluid;
         int    result;
         double newSplitfactor;
@@ -163,19 +163,19 @@ public class JunctionT1 extends BaseModel {
             mfout = 0.0;
             pout  = (pinLeft + pinRight) / 2.;
             tout  = (tinLeft + tinRight) / 2.;
-            return createOutputPort(fluid);
+            return getOutputPortStatus(fluid);
         } else if (mfinLeft == 0.0) {
             fluid = inputPortRight.getFluid();
             mfout = mfinRight;
             pout  = pinRight;
             tout  = tinRight;
-            return createOutputPort(fluid);
+            return getOutputPortStatus(fluid);
         } else if (mfinRight == 0.0) {
             fluid = inputPortLeft.getFluid();
             mfout = mfinLeft;
             pout  = pinLeft;
             tout  = tinLeft;
-            return createOutputPort(fluid);
+            return getOutputPortStatus(fluid);
         }
 
         //Readjust mass flow requests for backward iteration,
@@ -217,7 +217,7 @@ public class JunctionT1 extends BaseModel {
 
         // FIXME Is this comment now right?
         // Return value indicates to mesh whether hydraulic cond. is fulfilled.
-        return createOutputPort(fluid);
+        return getOutputPortStatus(fluid);
     }
 
     public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPort) {
@@ -226,7 +226,7 @@ public class JunctionT1 extends BaseModel {
         return new ImmutablePair<FluidPort, FluidPort>(inputPortLeft, inputPortRight);
     }
 
-	public FluidPort createOutputPort(String fluid) {
+	public FluidPort getOutputPortStatus(String fluid) {
 		FluidPort outputPort = new FluidPort();
 		outputPort.setFluid(fluid);
 		outputPort.setPressure(pout);

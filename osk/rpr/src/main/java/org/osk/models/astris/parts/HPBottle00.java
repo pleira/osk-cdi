@@ -29,13 +29,10 @@ public class HPBottle00  {
 	@Inject	@Named(NAME) @TimeIter Event<FluidPort> timeEvent;
 	@Inject	@Named(NAME) @BackIter Event<FluidPort> backIterEvent;
 		
-	
     // The Helium Bottles are the start of the event chains
-    // concerning the simulation. Therefore, this observer method
-    // does not depend on any structural element and it is located
-    // here
+    // concerning the Iter and TimeIter calculations in the simulation. 
 	public void iteration(@Observes @Iter Iteration iter) {
-		FluidPort output = model.iterationStep();
+		FluidPort output = model.getOutputPortStatus();
 		event.fire(output);
 	}
 
@@ -45,8 +42,10 @@ public class HPBottle00  {
 	}
 
 	public void backIterate(@Observes @Named(Pipe02.NAME) @BackIter FluidPort outputPort) {
-		model.backIterStep(outputPort);
-		iteration(new Iteration());
+    	// Set the requested helium mass flow coming from the tank through the different 
+    	// elements
+		model.setMftotal(outputPort.getBoundaryMassflow());
+		// iteration(new Iteration()); // nobody should listen for more, or we can start the forward iteration
 	}
 	
 	//---------------------------------------------------------------------------------------

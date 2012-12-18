@@ -1,9 +1,5 @@
 /*
- * FilterT1.java
- *
- *
  *  Model definition for a gas filter.
-t this.name = name;  
  *
  *                 +-------------------------+
  *    inputPort --+|            :            |+-- outputPort
@@ -26,54 +22,11 @@ t this.name = name;
  *    Universitaet Stuttgart, Pfaffenwaldring 31, 7000 Stuttgart 80, 1988
  *
  *-----------------------------------------------------------------------------
- * Modification History:
- *
- *  2004-12-05
- *      C++ code version created  J. Eickhoff:
- *
- *      Class architecture is a derivative from ObjectSim 2.0.3.,
- *      a simulation program published in:
- *
- *        Eickhoff, J.:
- *        Modulare Programmarchitektur fuer ein wissensbasiertes
- *        Simulationssystem mit erweiterter Anwendbarkeit in der
- *        Entwicklung und Betriebsberwachung verfahrenstechnischer
- *        Anlagen.
- *        PhD thesis in Department Process Engineering of
- *        TU Hamburg-Harburg, 1996.
- *
- *      See also file history cited there and see historic relation of
- *      this OpenSimKit class to a.m. ObjectSim explained in
- *      OpenSimKit Documentation.
  *
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by author.
  *
- *
- *
- *  2005-09
- *      OpenSimKit V 2.2
- *      Modifications enterd for XML input file parsing by
- *      Peter Heinrich  peterhe@student.ethz.ch
- *
- *  2008-05
- *      OpenSimKit V 2.4
- *      Ported from C++ to Java
- *      A. Brandt  alexander.brandt@gmail.com
- *
- *  2009-01
- *      Diverse minor cleanups and entire textual translation to english.
- *      J. Eickhoff
- *
- *  2009-04
- *      Replaced the port array by named ports.
- *      A. Brandt
- *
- *  2009-07
- *      OpenSimKit V 2.8
- *      Upgraded for handling of new port classes.
- *      A. Brandt
  */
 package org.osk.models.rocketpropulsion;
 
@@ -81,13 +34,11 @@ import javax.inject.Inject;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
-import org.osk.events.TimeStep;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Model definition for a gas filter.
@@ -95,12 +46,12 @@ import org.slf4j.LoggerFactory;
  * @author J. Eickhoff
  * @author P. Heinrich
  * @author A. Brandt
+ * @author P. Pita
  */
 
 public class FilterT1 extends BaseModel {
-	@Inject Logger LOG = LoggerFactory.getLogger(FilterT1.class);
- 	@Inject @TimeStep Double tStepSize;
-
+	@Inject Logger LOG; 
+	
  	/** Diameter of filter. */
 	private double innerDiameter;
 	/** Length of filter. */
@@ -144,7 +95,7 @@ public class FilterT1 extends BaseModel {
 		referencePressureLoss = referencePressureLoss * 1.E5;
 	}
 
-	public FluidPort iterationStep(FluidPort inputPort) {
+	public FluidPort calculateOutletMassFlow(FluidPort inputPort) {
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
@@ -179,14 +130,14 @@ public class FilterT1 extends BaseModel {
 		return createOutputPort(fluid);
 	}
 
-	public int timeStep(FluidPort inputPort) {
+	public void propagate(final double tStepSize, FluidPort inputPort) {
 		pin = inputPort.getPressure();
 		tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
 
 		/* Skip time step computation if no flow in filter. */
 		if (mfin <= 1.E-6) {
-			return 0;
+			return;
 		}
 
 
@@ -216,7 +167,6 @@ public class FilterT1 extends BaseModel {
 		final double DTB = Q / (mass * specificHeatCapacity);
 		filterTemperature = filterTemperature - DTB;
 
-		return 0;
 	}
 	
 
