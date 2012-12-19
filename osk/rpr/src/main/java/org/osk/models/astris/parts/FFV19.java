@@ -28,7 +28,7 @@ public class FFV19 {
 	@Inject @Named(NAME) @Iter Event<FluidPort> event;
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(NAME) @RegulIter Event<AnalogPort> controlEvent;
-	@Inject @Named(Tank17.NAME) @BackIter Event<FluidPort> backEvent;
+	@Inject @Named(Tank17.NAME) @Oxid @BackIter Event<FluidPort> backEvent;
 	@Inject TimeHandler timeHandler;
 
 	FluidPort inputPort;

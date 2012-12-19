@@ -30,7 +30,7 @@ public class Pipe14 {
 	@Inject @Named(Split10.NAME) @BackIter @Right Event<FluidPort> backEvent;
 	@Inject @TimeStep Double tStepSize;
 	
-	public void iteration(@Observes @Named(Split10.NAME) @Right FluidPort inputPort) {
+	public void iteration(@Observes @Named(Split10.NAME) @Right @Iter FluidPort inputPort) {
 		FluidPort output = model.calculateOutletMassFlow(inputPort);
 		event.fire(output);
 	}

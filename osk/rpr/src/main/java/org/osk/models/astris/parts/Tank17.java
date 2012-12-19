@@ -16,6 +16,7 @@ import org.osk.events.Iter;
 import org.osk.events.Oxid;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
+import org.osk.models.rocketpropulsion.BoundaryUtils;
 import org.osk.models.rocketpropulsion.TankT1;
 import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
@@ -108,10 +109,12 @@ public class Tank17 {
 	}
 
 	private void fireBackIteration() {
-		// the tank just request a mass flow as asked from the valves 
-		// no modification is done to the requested value
-		backEvent13.fire(outputFuel);
-		backEvent16.fire(outputOx);
+		// the tank just request a mass flow 
+		// FIXME: it seems there is no connection with oxid/fuel mass flow values from valves
+        FluidPort inputPortFuel = BoundaryUtils.createBoundaryPort("Helium", model.getMfBoundFuelPress());
+        FluidPort inputPortOxidizer = BoundaryUtils.createBoundaryPort("Helium", model.getMfBoundOxPress());
+		backEvent13.fire(inputPortFuel);
+		backEvent16.fire(inputPortOxidizer);
 		outputFuel = outputOx = null; // events processed
 	}
 

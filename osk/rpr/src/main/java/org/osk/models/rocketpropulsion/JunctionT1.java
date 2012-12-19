@@ -221,8 +221,8 @@ public class JunctionT1 extends BaseModel {
     }
 
     public ImmutablePair<FluidPort, FluidPort> backIterStep(FluidPort outputPort) {
-        FluidPort inputPortLeft = BoundaryUtils.createBoundaryPort(outputPort.getBoundaryFluid(), splitfactor * outputPort.getBoundaryMassflow());
-        FluidPort inputPortRight = BoundaryUtils.createBoundaryPort(outputPort.getBoundaryFluid(), (1 - splitfactor) * outputPort.getBoundaryMassflow());
+        FluidPort inputPortLeft = BoundaryUtils.createBoundaryPort(outputPort.getFluid(), splitfactor * outputPort.getMassflow());
+        FluidPort inputPortRight = BoundaryUtils.createBoundaryPort(outputPort.getFluid(), (1 - splitfactor) * outputPort.getMassflow());
         return new ImmutablePair<FluidPort, FluidPort>(inputPortLeft, inputPortRight);
     }
 

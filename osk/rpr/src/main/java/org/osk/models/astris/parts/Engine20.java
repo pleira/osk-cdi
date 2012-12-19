@@ -40,22 +40,6 @@ public class Engine20  {
 	FluidPort inputOxid;
 	FluidPort inputFuel;
 
-//	public void iterationFuel(
-//			@Observes @Named(FFV18.NAME) @Iter FluidPort inputPort) throws OskException {
-//		inputFuel = inputPort;
-//		if (inputOxid != null) {
-//			fireIterationStep();
-//		}
-//	}
-//
-//	public void iterationOxid(
-//			@Observes @Named(FFV19.NAME) @Iter FluidPort inputPort) throws OskException {
-//		inputOxid = inputPort;
-//		if (inputFuel != null) {
-//			fireIterationStep();
-//		}
-//	}
-
 	public void timeIterationFuel(
 			@Observes @Named(FFV18.NAME) @TimeIter FluidPort inputPort) throws OskException {
 		inputFuel = inputPort;
@@ -72,20 +56,13 @@ public class Engine20  {
 		}
 	}
 
-	public void backIterate(
-			@Observes @BackIter Iteration backIter) {
+	public void backIterate(@Observes @BackIter Iteration backIter) {
 		// Here the engine says how much fuel/oxidizer needs
         FluidPort inputPortFuel = BoundaryUtils.createBoundaryPort("Fuel", model.getRequestedFuelFlow());
         FluidPort inputPortOxidizer = BoundaryUtils.createBoundaryPort("Oxidizer", model.getRequestedOxFlow());
 		backFuelEvent.fire(inputPortFuel);
 		backOxidEvent.fire(inputPortOxidizer);
 	}
-
-//	private void fireIterationStep() throws OskException {
-//		model.iterationStep(inputFuel, inputOxid);
-//		event.fire(new Iteration());
-//		inputFuel = inputOxid = null; // events processed
-//	}
 
 	private void fireTimeIteration() throws OskException {
 		Vector3D thrust = model.computeThrust(inputFuel, inputOxid);

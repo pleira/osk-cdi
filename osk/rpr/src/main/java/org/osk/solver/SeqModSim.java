@@ -32,6 +32,7 @@ import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.RegulIter;
+import org.osk.events.TimeIter;
 import org.osk.events.TimeIteration;
 import org.osk.interceptors.AuditTime;
 import org.osk.time.TimeHandler;
@@ -96,12 +97,14 @@ public class SeqModSim  {
          * The the forward iteration takes place, observing whether any
          * error value model complains about not fulfilled hydraulic or
          * boundary condition. */
+    	LOG.info("Forward Iteration...\n");
         iterEvent.fire(new Iteration()); // the event chain deals with iteration methods
         
         // backIterEngineEvent.fire(new Iteration());
         time = tinit;
 
 //        while (true) {
+        try {
         	LOG.info("Time iteration...\n");
             timeEvent.fire(new TimeIteration(time, timeHandler.getStepSizeAsDouble()));
             LOG.info("Regul iteration...\n");
@@ -111,8 +114,13 @@ public class SeqModSim  {
             time = time + timeHandler.getStepSizeAsDouble();
 
             LOG.info("Time: {}",
-               String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
-               timeHandler.getSimulatedMissionTime()));
+            String.format("%1$tFT%1$tH:%1$tM:%1$tS.%1$tL",
+            timeHandler.getSimulatedMissionTime()));
+        } catch(Exception e) {
+        	LOG.error("Got exception: " + e.getMessage());
+        	LOG.error("A cause can be that the models for gas flows are not accurate.");
+        	LOG.error("Please check for WARN or other ERROR messages.");
+        }
 //        }
     }
 

@@ -89,7 +89,7 @@ public class AstrisRocket  {
 //	Mesh mesh1 = new Mesh("mesh_1", "sub");
 //	Mesh mesh2 = new Mesh("mesh_2", "sub");
 
-    
+ /*   
 	@PostConstruct
 	void initNumericalSimulation() {
 //		initItems();
@@ -113,13 +113,10 @@ public class AstrisRocket  {
     }
 
 
-/* -------------------------------------------------------------------------- */
-/*                                Computation
-/* -------------------------------------------------------------------------- */
     @AuditTime
     // Not USED , to think about this concept in this class ...
+    public void initSim(ContainerInitialized init) throws IOException {
 //    public void initSim(@Observes ContainerInitialized init) throws IOException {
-    public void initSim(@Observes ContainerInitialized init) throws IOException {
        // Here, we have initialised all our components
     	// in debug mode, the initial values of the models should be checked 
     	// before doing the computations
@@ -276,5 +273,5 @@ public class AstrisRocket  {
 //		log.info(engineController21.getName());
 //		log.info(engine20.getName());
 //    }
-    
+   */ 
 }

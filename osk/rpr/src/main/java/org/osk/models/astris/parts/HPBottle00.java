@@ -36,15 +36,15 @@ public class HPBottle00  {
 		event.fire(output);
 	}
 
-	public void timeIteration(@Observes @TimeIter TimeIteration timeIter) {
+	public void timeIteration(@Observes TimeIteration timeIter) {
 		model.timeStep();		
 		timeEvent.fire(model.createInputPortIter());
 	}
 
-	public void backIterate(@Observes @Named(Pipe02.NAME) @BackIter FluidPort outputPort) {
+	public void backIterate(@Observes @Named(NAME) @BackIter FluidPort outputPort) {
     	// Set the requested helium mass flow coming from the tank through the different 
     	// elements
-		model.setMftotal(outputPort.getBoundaryMassflow());
+		model.setMftotal(outputPort.getMassflow());
 		// iteration(new Iteration()); // nobody should listen for more, or we can start the forward iteration
 	}
 	

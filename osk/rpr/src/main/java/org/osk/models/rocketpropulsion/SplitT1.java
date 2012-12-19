@@ -147,8 +147,8 @@ public class SplitT1 extends BaseModel {
     }
 
      public FluidPort getBoundedInputMassFlow(FluidPort outputPortLeft, FluidPort outputPortRight) {
-        mfboundLeft  = outputPortLeft.getBoundaryMassflow();
-        mfboundRight = outputPortRight.getBoundaryMassflow();
+        mfboundLeft  = outputPortLeft.getMassflow();
+        mfboundRight = outputPortRight.getMassflow();
 		return BoundaryUtils.createBoundaryPort(
 				outputPortLeft.getFluid(), mfboundLeft + mfboundRight);
     }

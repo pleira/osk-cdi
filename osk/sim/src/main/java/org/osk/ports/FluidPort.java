@@ -15,16 +15,20 @@ public class FluidPort  {
      private double pressure;
      private double temperature;
      private double massflow;
-     private String boundaryFluid;
-     private double boundaryPressure;
-     private double boundaryTemperature;
-     private double boundaryMassflow;
 
      public FluidPort() {}
      
     public FluidPort(final double pressure, 
     		final double temperature, final double massflow) {
         this.massflow = massflow;
+        this.temperature = temperature;
+        this.pressure = pressure;
+    }
+
+    public FluidPort(String fluid, final double pressure, 
+    		final double temperature, final double massflow) {
+    	this.fluid = fluid;
+    	this.massflow = massflow;
         this.temperature = temperature;
         this.pressure = pressure;
     }
@@ -62,22 +66,7 @@ public class FluidPort  {
         this.massflow = massflow;
     }
 
-    public void setBoundaryFluid(final String boundaryFluid) {
-        this.boundaryFluid = boundaryFluid;
-    }
-
-    public void setBoundaryPressure(final double boundaryPressure) {
-        this.boundaryPressure = boundaryPressure;
-    }
-
-    public void setBoundaryTemperature(final double boundaryTemperature) {
-        this.boundaryTemperature = boundaryTemperature;
-    }
-
-    public void setBoundaryMassflow(final double boundaryMassflow) {
-        this.boundaryMassflow = boundaryMassflow;
-    }
-
+ 
     @ManagedAttribute
     public String getFluid() {
         return fluid;
@@ -98,35 +87,12 @@ public class FluidPort  {
         return massflow;
     }
 
-    @ManagedAttribute
-    public String getBoundaryFluid() {
-        return boundaryFluid;
-    }
-
-    @ManagedAttribute
-    public double getBoundaryPressure() {
-        return boundaryPressure;
-    }
-
-    @ManagedAttribute
-    public double getBoundaryTemperature() {
-        return boundaryTemperature;
-    }
-
-    @ManagedAttribute
-    public double getBoundaryMassflow() {
-        return boundaryMassflow;
-    }
-
+ 
      public void printValues(final String txt) {
         LOG.info("Fluid: {}", fluid);
         LOG.info("Pressure: {}", pressure);
         LOG.info("Temperature: {}", temperature);
         LOG.info("Mass Flow: {}", massflow);
-        LOG.info("Boundary Fluid: {}", boundaryFluid);
-        LOG.info("Boundary Pressure: {}", boundaryPressure);
-        LOG.info("Boundary Temperature: {}", boundaryTemperature);
-        LOG.info("Boundary Mass Flow: {}", boundaryMassflow);
         LOG.info(txt);
     }
 
@@ -138,18 +104,11 @@ public class FluidPort  {
         result.append(fluid);
         result.append("; pressure == ");
         result.append(pressure);
-        result.append("; temperature == ");
+        result.append(" bar ; temperature == ");
         result.append(temperature);
-        result.append("; massflow == ");
+        result.append(" K ; massflow == ");
         result.append(massflow);
-        result.append("; boundaryFluid == ");
-        result.append(boundaryFluid);
-        result.append("; boundaryPressure == ");
-        result.append(boundaryPressure);
-        result.append("; boundaryTemperature");
-        result.append(boundaryTemperature);
-        result.append("; boundaryMassflow == ");
-        result.append(boundaryMassflow);
+        result.append(" ");
         result.append(".");
 
         return result.toString();

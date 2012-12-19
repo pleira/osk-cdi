@@ -31,7 +31,7 @@ public class ScStructure22 {
 	@Inject ScStructure model;
 	@Inject @Named(NAME) @ECI @Iter Event<PVCoordinates> event;
 	@Inject @Named(NAME) @ECI @TimeIter Event<PVCoordinates> timerEvent;
-	@Inject @Named(Engine20.NAME) @Oxid @BackIter Event<PVCoordinates> backEvent;
+//	@Inject @Named(Engine20.NAME) @BackIter Event<PVCoordinates> backEvent;
 
 //	public void iteration(@Observes @Iter Iteration iter) {
 //    	event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
@@ -46,7 +46,7 @@ public class ScStructure22 {
 	public void backIterate(
 			@Observes @BackIter Iteration backIter) {
     	// pass the initial position/velocity to interested parties
-		backEvent.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
+		event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
 	}
 	
 	public void handleGravity(@Observes @Named(Gravity23.NAME) @Gravity Vector3D gravity) {
