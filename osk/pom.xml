@@ -13,6 +13,7 @@
   <modules>
     <module>sim</module>
     <module>rpr</module>
+    <module>astris</module>
   </modules>
   <dependencyManagement>
     <dependencies>
