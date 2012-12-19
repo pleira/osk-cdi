@@ -56,7 +56,7 @@ import org.slf4j.Logger;
  */
 // @ApplicationScoped
 public class AstrisRocket  {
-
+	 /*  
 	// Structural items in the numerical simulation
 	@Inject HPBottle00 hpbottle00;
 	@Inject HPBottle01 hpbottle01;
@@ -89,7 +89,7 @@ public class AstrisRocket  {
 //	Mesh mesh1 = new Mesh("mesh_1", "sub");
 //	Mesh mesh2 = new Mesh("mesh_2", "sub");
 
- /*   
+ 
 	@PostConstruct
 	void initNumericalSimulation() {
 //		initItems();
