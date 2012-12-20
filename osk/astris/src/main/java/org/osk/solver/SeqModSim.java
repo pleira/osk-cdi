@@ -88,11 +88,11 @@ public class SeqModSim  {
         // fuel and oxidizer requested, setting initial mass flows of the 
         // components up to the helium tanks. For this order, this overall process 
         // is called backIteration
-        LOG.info("Initial system boundary condition iteration...\n");
+//        LOG.info("Initial system boundary condition iteration...\n");
         // Maybe it is needed to fire two backiterations, one concerning the sc body
         // to setup altitude and environment model
         // and the second one, concerning the engine to setup fluid conditions across the model
-        backIterEvent.fire(new Iteration()); // the event chain deals with backIter methods
+//        backIterEvent.fire(new Iteration()); // the event chain deals with backIter methods
         /*
          * The the forward iteration takes place, observing whether any
          * error value model complains about not fulfilled hydraulic or

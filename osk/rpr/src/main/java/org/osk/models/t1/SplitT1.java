@@ -81,7 +81,7 @@ t this.name = name;
  *      Upgraded for handling of new port classes.
  *      A. Brandt
  */
-package org.osk.models.rocketpropulsion;
+package org.osk.models.t1;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.models.BaseModel;

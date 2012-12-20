@@ -40,7 +40,7 @@ t this.name = name;
  *
  */
 
-package org.osk.models.rocketpropulsion;
+package org.osk.models.t1;
 
 /**
  * Computation of the polynomial approximation of the gravity acceleration

@@ -14,8 +14,9 @@ import org.osk.events.Iteration;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeIteration;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.HPBottleT1;
+import org.osk.models.t1.HPBottleT1;
 import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
 
 @Log
 @ApplicationScoped
@@ -28,6 +29,7 @@ public class HPBottle00  {
 	@Inject	@Named(NAME) @Iter     Event<FluidPort> event;
 	@Inject	@Named(NAME) @TimeIter Event<FluidPort> timeEvent;
 	@Inject	@Named(NAME) @BackIter Event<FluidPort> backIterEvent;
+	@Inject TimeHandler timeHandler;
 		
     // The Helium Bottles are the start of the event chains
     // concerning the Iter and TimeIter calculations in the simulation. 
@@ -37,7 +39,7 @@ public class HPBottle00  {
 	}
 
 	public void timeIteration(@Observes TimeIteration timeIter) {
-		model.timeStep();		
+		model.timeStep(timeHandler.getSimulatedMissionTimeAsDouble());		
 		timeEvent.fire(model.createInputPortIter());
 	}
 

@@ -16,8 +16,8 @@ import org.osk.events.Iter;
 import org.osk.events.Oxid;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.BoundaryUtils;
-import org.osk.models.rocketpropulsion.TankT1;
+import org.osk.models.t1.BoundaryUtils;
+import org.osk.models.t1.TankT1;
 import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
 

@@ -11,7 +11,7 @@ import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.JunctionT1;
+import org.osk.models.t1.JunctionT1;
 import org.osk.ports.FluidPort;
 
 @Log

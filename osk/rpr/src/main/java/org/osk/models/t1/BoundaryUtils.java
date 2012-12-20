@@ -1,4 +1,4 @@
-package org.osk.models.rocketpropulsion;
+package org.osk.models.t1;
 
 import org.osk.ports.FluidPort;
 

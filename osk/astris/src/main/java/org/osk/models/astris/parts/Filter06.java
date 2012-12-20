@@ -12,7 +12,7 @@ import org.osk.events.Iter;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeStep;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.FilterT1;
+import org.osk.models.t1.FilterT1;
 import org.osk.ports.FluidPort;
 
 @Log

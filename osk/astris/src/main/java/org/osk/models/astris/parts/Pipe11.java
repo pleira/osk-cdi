@@ -15,7 +15,7 @@ import org.osk.events.Left;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeStep;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.PipeT1;
+import org.osk.models.t1.PipeT1;
 import org.osk.ports.FluidPort;
 
 @Log

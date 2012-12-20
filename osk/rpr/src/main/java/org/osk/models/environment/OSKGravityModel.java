@@ -17,6 +17,7 @@ import jat.spacetime.Time;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.inject.Inject;
 
@@ -64,16 +65,13 @@ public class OSKGravityModel extends BaseModel {
     public void init() throws OskException {
         convertedMissionTime = new Time();
         earthReference = new EarthRef(convertedMissionTime);
-        // Maybe one day this file is read as resource from classpath 
-        File path = new File("src/main/resources/earthGravity/JGM3.grv");
-
-        String pathString;
         try {
-            pathString = path.getCanonicalPath();
+        	String pathString = OSKGravityModel.class.getClassLoader().getResource("earthGravity/JGM3.grv").toURI().getPath();
             gravityModel = new GravityModel(order, degree, pathString);
-        } catch (IOException ex) {
-            throw new OskException(new DummyLocalizable(ex.getMessage()));
-        }
+		} catch (Exception ex) {
+			// TODO Auto-generated catch block
+			throw new OskException(new DummyLocalizable(ex.getMessage()));
+	    }
     }
 
 

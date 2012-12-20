@@ -26,7 +26,7 @@ t this.name = name;
  *      No warranty and liability for correctness by author.
  *
  */
- package org.osk.models.rocketpropulsion;
+ package org.osk.models.t1;
 
  import javax.annotation.PostConstruct;
 

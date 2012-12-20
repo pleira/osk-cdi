@@ -13,7 +13,7 @@ import org.osk.events.Iter;
 import org.osk.events.RegulIter;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.FluidFlowValve;
+import org.osk.models.t1.FluidFlowValve;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;

@@ -14,7 +14,7 @@ import org.osk.events.Iter;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeStep;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.PipeT1;
+import org.osk.models.t1.PipeT1;
 import org.osk.ports.FluidPort;
 
 @Log
@@ -71,7 +71,7 @@ public class Pipe07 {
 	}
 	
 	@Inject
-	void initSpecificHeatCapacity(@NumberConfig(name = "pipe7.specificHeatCapacity", defaultValue = "5ß0.0") Double value) {
+	void initSpecificHeatCapacity(@NumberConfig(name = "pipe7.specificHeatCapacity", defaultValue = "500.0") Double value) {
 	model.setSpecificHeatCapacity(value);
 	}
 	

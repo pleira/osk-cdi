@@ -56,16 +56,16 @@ package org.osk.models.materials;
  * @author A. Brandt
  */
 public final class HeliumPropertiesBuilder {
-    private static double CV = 3146.5;
-    private static double RSPEZ= 2077;
-    private static double XI= 671741.8271;
-    private static double ROKR= 69.45;
-    private static double LR= 1.38;
-    private static double GAMMA= 323.4165875;
+    private static final double CV = 3146.5;
+    private static final double RSPEZ= 2077;
+    private static final double XI= 671741.8271;
+    private static final double ROKR= 69.45;
+    private static final double LR= 1.38;
+    private static final double GAMMA= 323.4165875;
 
 
     public static MaterialProperties build(double PK, double TLAUF) {
-    // FIXME  PK  has also to be returned!
+    // Notice that PK is pressure in bars !
     	MaterialProperties MPHelium = new MaterialProperties();
         /**********************************************************************/
         /*                                                                    */
@@ -104,11 +104,11 @@ public final class HeliumPropertiesBuilder {
        //double CP = 0, CV = 0, RALLG = 0, RSPEZ = 0, XI = 0, LR = 0, GAMMA = 0;
         double A,B,C,D,E,F,TRED,PRED,FQ,FQO,ETAO,FAKTOR,RORED = 0;
 
-        PK=PK/1E5;
+        // PK=PK/1E5; 
 
         /**********************************************************************/
         /*                                                                    */
-        /*    Berechnung der dynamischen Viskositaet Eta-Null bei p=1 bar     */
+        /*    Calculation of the dynamical viscosity Eta-Null for p=1 bar     */
         /*                                                                    */
         /**********************************************************************/
 
@@ -151,40 +151,18 @@ public final class HeliumPropertiesBuilder {
         FAKTOR=FAKTOR-(4.595341E-12)*Math.pow(TLAUF,3);
         MPHelium.Z=1.0+FAKTOR* (PK);
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Berechnung der Dichte                                           */
-        /*                                                                    */
-        /**********************************************************************/
+        MPHelium.DENSITY = PK*1E5 /(RSPEZ* (TLAUF)*MPHelium.Z); // FIXME: units?
 
-        MPHelium.DENSITY=(PK*1E5)/(RSPEZ* (TLAUF)*MPHelium.Z);
+        /*   Waermeleitfaehigkeit Lambda-null bei p=1 bar     */
+         LAMBDO=ETAO*2.5*CV*.99;
 
-        /**********************************************************************/
-        /*                                                                    */
-        /*    Berechnung der Waermeleitfaehigkeit Lambda-null bei p=1 bar     */
-        /*                                                                    */
-        /**********************************************************************/
-
-        LAMBDO=ETAO*2.5*CV*.99;
-
-        /**********************************************************************/
-        /*                                                                    */
         /*    Berechnung der Waermeleitfaehigkeit Lambda bei Druck=p          */
-        /*                                                                    */
-        /**********************************************************************/
-
         RORED=MPHelium.DENSITY/ROKR;
         MPHelium.LAMBDA=LAMBDO
                 + (.121*(Math.exp(.15*RORED)-1))/(GAMMA*Math.pow(.301,5));
 
-        /**********************************************************************/
-        /*                                                                    */
         /*    Kinematische Viskositaet NUE                                    */
-        /*                                                                    */
-        /**********************************************************************/
-
         MPHelium.NUE=MPHelium.ETA/MPHelium.DENSITY;
-        PK=PK*1E5;
 
         return MPHelium;
     }

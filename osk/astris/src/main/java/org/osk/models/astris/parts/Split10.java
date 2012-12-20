@@ -12,7 +12,7 @@ import org.osk.events.Left;
 import org.osk.events.Right;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
-import org.osk.models.rocketpropulsion.SplitT1;
+import org.osk.models.t1.SplitT1;
 import org.osk.ports.FluidPort;
 
 @Log
