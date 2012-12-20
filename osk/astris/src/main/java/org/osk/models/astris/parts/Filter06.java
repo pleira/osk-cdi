@@ -12,7 +12,7 @@ import org.osk.events.Iter;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeStep;
 import org.osk.interceptors.Log;
-import org.osk.models.t1.FilterT1;
+import org.osk.models.Filter;
 import org.osk.ports.FluidPort;
 
 @Log
@@ -21,7 +21,7 @@ public class Filter06  {
 
 	public final static String NAME = "Filter06";
 
-	@Inject FilterT1 model;
+	@Inject Filter model;
 	@Inject @Named(NAME) @Iter Event<FluidPort> event;
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(Pipe05.NAME) @BackIter Event<FluidPort> backEvent;
@@ -34,7 +34,7 @@ public class Filter06  {
 
 	public void timeIteration(@Observes @Named(Pipe05.NAME) @TimeIter FluidPort input) {
 		model.propagate(tStepSize, input);
-		FluidPort output = model.createOutputPort(input.getFluid());
+		FluidPort output = model.createOutputPort(input);
 		outputEvent.fire(output);
 	}
 

@@ -14,7 +14,7 @@ import org.osk.events.Iter;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeStep;
 import org.osk.interceptors.Log;
-import org.osk.models.t1.PRegT1;
+import org.osk.models.PressureRegulator;
 import org.osk.ports.FluidPort;
 
 @Log
@@ -23,7 +23,7 @@ public class PReg15  {
 		
 	public final static String NAME = "PReg15";
 
-	@Inject PRegT1 model;
+	@Inject PressureRegulator model;
 	@Inject @Named(NAME) @Iter Event<FluidPort> event;
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(Pipe14.NAME) @BackIter Event<FluidPort> backEvent;

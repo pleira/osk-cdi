@@ -73,7 +73,7 @@ import org.slf4j.Logger;
  * @author P. Pita
  */
 
-public class PipeT1 extends BaseModel implements Pipe {
+public class PipeT1 extends BaseModel  {
 	@Inject Logger LOG;
 	
 	private static final int PARTS = 10;

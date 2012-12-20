@@ -69,6 +69,8 @@ package org.osk.models.t1;
 
 import javax.inject.Inject;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumJKC;
 import org.osk.models.materials.HeliumPropertiesBuilder;
@@ -76,7 +78,6 @@ import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a gas dome pressure regulator.
