@@ -129,14 +129,13 @@ public class PipeT1 extends BaseModel {
 			return inputPort.clone();
 		}
 
-		final double RSPEZ = 2077;
-		final double CP = 5223.2;
+//		final double RSPEZ = 2077;
 
 		/** Fluid material properties for heat transfer computations. */
-		MaterialProperties helium = HeliumPropertiesBuilder.build(pin, tin);
+		final MaterialProperties He = HeliumPropertiesBuilder.build(pin, tin);
 
 		final double GESCH = 4. * mfin
-				/ (helium.DENSITY * Math.PI * Math.pow(innerDiameter, 2));
+				/ (He.DENSITY * Math.PI * Math.pow(innerDiameter, 2));
 
 		/**********************************************************************/
 		/*                                                                    */
@@ -147,7 +146,7 @@ public class PipeT1 extends BaseModel {
 		/* Universitt Stuttgart, Pfaffenwaldring, 7000 Stuttgart 80, 1986 */
 		/*                                                                    */
 		/**********************************************************************/
-		double RE = GESCH * innerDiameter / helium.NUE;
+		double RE = GESCH * innerDiameter / He.NUE;
 
 		if (surfaceRoughness >= 5.E-02) {
 			surfaceRoughness = 5.E-02;
@@ -184,8 +183,12 @@ public class PipeT1 extends BaseModel {
 		/**********************************************************************/
 		final double zeta = LA * length / innerDiameter;
 
-		pout = pin - (helium.DENSITY / 2.) * Math.pow(GESCH, 2) * zeta;
-
+		final double pdiff = He.DENSITY * GESCH * GESCH * zeta / 2. ;
+		
+		//pout = pin - (helium.DENSITY / 2.) * Math.pow(GESCH, 2) * zeta;
+		pout = pin - pdiff;
+		assert pout > 0.0;
+		
 		/**********************************************************************/
 		/*                                                                    */
 		/* Temperature change of flow */
@@ -212,7 +215,6 @@ public class PipeT1 extends BaseModel {
 
 		if (RE > 2.E6) {
 			LOG.info("Re number exceeding upper limit");
-			LOG.info("Re number exceeding upper limit");
 			RE = 2.E6;
 		} else if (RE < 2300.) {
 			/*
@@ -226,8 +228,8 @@ public class PipeT1 extends BaseModel {
 		}
 
 		final double XI = Math.pow((1.82 * (Math.log10(RE)) - 1.64), (-2));
-
-		final double PR = CP * helium.ETA / helium.LAMBDA;
+		final double CP = 5223.2;
+		final double PR = CP * He.ETA / He.LAMBDA;
 
 		final double NU = (XI / 8)
 				* (RE - 1000.)
@@ -235,7 +237,7 @@ public class PipeT1 extends BaseModel {
 				/ (1 + 12.7 * (Math.sqrt(XI / 8)) * (Math.pow(PR, (2 / 3)) - 1))
 				* (1 + Math.pow((innerDiameter / length), (2 / 3)));
 
-		alfa = NU * helium.LAMBDA / innerDiameter;
+		alfa = NU * He.LAMBDA / innerDiameter;
 
 		/**********************************************************************/
 		/*                                                                    */

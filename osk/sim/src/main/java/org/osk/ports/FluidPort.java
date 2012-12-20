@@ -20,25 +20,21 @@ public class FluidPort  {
      
     public FluidPort(final double pressure, 
     		final double temperature, final double massflow) {
-        this.massflow = massflow;
-        this.temperature = temperature;
-        this.pressure = pressure;
+        this("", pressure, temperature, massflow);
     }
 
     public FluidPort(String fluid, final double pressure, 
     		final double temperature, final double massflow) {
     	this.fluid = fluid;
     	this.massflow = massflow;
+        assert temperature >= 0.0;
         this.temperature = temperature;
         this.pressure = pressure;
     }
     
     public FluidPort(final String name, String fluid, final double pressure, 
     		final double temperature, final double massflow) {
-    	this.fluid = fluid;
-    	this.massflow = massflow;
-        this.temperature = temperature;
-        this.pressure = pressure;
+        this(name, pressure, temperature, massflow);
     }
     
 	public FluidPort clone() {
@@ -55,10 +51,12 @@ public class FluidPort  {
     }
 
     public void setPressure(final double pressure) {
+        assert pressure >= 0.0;
         this.pressure = pressure;
     }
 
     public void setTemperature(final double temperature) {
+        assert temperature >= 0.0;
         this.temperature = temperature;
     }
 

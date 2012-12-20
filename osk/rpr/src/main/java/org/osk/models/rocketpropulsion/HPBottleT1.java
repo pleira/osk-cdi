@@ -53,10 +53,8 @@ import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 
-
 public class HPBottleT1 extends BaseModel {
 	@Inject Logger LOG; 
-	@Inject TimeHandler timeHandler;
 	/** Mass of pressure vessel. */
 	private double mass;
 	/** Volume of vessel. */
@@ -93,40 +91,32 @@ public class HPBottleT1 extends BaseModel {
 
     public void init(String name) {
     	this.name = name;  
-
-        /* Computation of derived design parameters. */
-        ptotal = ptotal * 1.E5;
-
-        double radius = Math.pow((volume * 3 / (4 * Math.PI)), .33333);
+        final double ptotal_Pa = ptotal * 1.E5;
+        final double radius = Math.pow((volume * 3 / (4 * Math.PI)), .33333);
         diam = radius * 2;
         surface = 4 * Math.PI * Math.pow(radius, 2);
         qHFlow = 0.0;
-        /* Initializing start pressure (to be saved). */
-        pinit = ptotal; 
-        /* Initializing initial bottle wall temperature. */
+        pinit = ptotal_Pa; 
         twall = ttotal;
-        /* Initializing initial mass in bottle. */
         MaterialProperties helium = HeliumPropertiesBuilder.build(ptotal, ttotal);
         mtotal = helium.DENSITY * volume;
-
     }
     
-    public void timeStep() {
-
-        logState("% HPBottleT1 Start Conditions...");
-        ptotal = ptotal / 1E5;
-        final double timeStep = timeHandler.getStepSizeAsDouble();
-        final double DTEMP = computeTempDifference(timeStep);
+    public void timeStep(double timeStep) {
+        // logState("% HPBottleT1 Start Conditions...");
+        // ptotal = ptotal / 1E5;
+        final double ptotal_Pa = ptotal * 1.E5;
+        final double DTEMP = computeTempDifference(timeStep, 
+        		ptotal, ttotal, mftotal, qHFlow, mtotal);
 		final double dmass = mftotal * timeStep ;
 
         ttotal += DTEMP;
         mtotal -= dmass;
-        ptotal = computePressure(ttotal, mtotal/volume);
+        ptotal = computePressure(ttotal, mtotal/volume); // bar
         qHFlow = computeWallHeatTransferFlow(ptotal, ttotal, twall);
         final double q=qHFlow*timeStep;
         twall -= q /(mass*specificHeatCapacity);
-        logState("% End Conditions...");
-
+        // logState("% End Conditions...");
     }
 
 	private double computeWallHeatTransferFlow(double ptotal, double ttotal, double twall) {
@@ -196,7 +186,8 @@ public class HPBottleT1 extends BaseModel {
           return P;
 	}
 
-	private double computeTempDifference(final double timeStep) {
+	private double computeTempDifference(final double timeStep, final double pressure,
+			final double temp, final double mftotal, final double qHFlow, double mtotal) {
         /**********************************************************************/
         /*                                                                    */
         /*   Computation of resulting temp. difference in time interval dT    */
@@ -210,9 +201,9 @@ public class HPBottleT1 extends BaseModel {
         /**********************************************************************/
 
         final double CV = 3146.5;
-		final double H = computeEntalphy(ptotal, ttotal);
-        final double DTEMP = (qHFlow /CV + mftotal * (ttotal - H/CV))
-        		 * timeStep / mtotal;
+		final double H = computeEntalphy(pressure, temp);
+        final double DTEMP = (qHFlow /CV + mftotal * (temp - H/CV))
+        		            * timeStep / mtotal;
 		return DTEMP;
 	}
 
