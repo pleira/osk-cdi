@@ -36,7 +36,7 @@ public class PReg15  {
 
 	public void timeIteration(@Observes @Named(Pipe14.NAME) @TimeIter FluidPort inputPort) {
 		model.propagate(tStepSize, inputPort);
-		FluidPort output = model.createOutputPort(inputPort.getFluid());
+		FluidPort output = model.createOutputPort(inputPort);
 		outputEvent.fire(output);
 	}
 

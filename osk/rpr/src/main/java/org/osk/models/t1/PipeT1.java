@@ -58,6 +58,7 @@ import javax.inject.Inject;
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.models.BaseModel;
+import org.osk.models.Pipe;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
@@ -72,7 +73,7 @@ import org.slf4j.Logger;
  * @author P. Pita
  */
 
-public class PipeT1 extends BaseModel {
+public class PipeT1 extends BaseModel implements Pipe {
 	@Inject Logger LOG;
 	
 	private static final int PARTS = 10;
@@ -120,7 +121,6 @@ public class PipeT1 extends BaseModel {
 		double pin = inputPort.getPressure();
 		double tin = inputPort.getTemperature();
 		mfin = inputPort.getMassflow();
-		String fluid = inputPort.getFluid();
 
 		/* Skip iteration step computation if no flow in pipe. */
 		if (mfin <= 1.E-6) {
@@ -268,7 +268,7 @@ public class PipeT1 extends BaseModel {
 		}
 
 		/* Massflow at outlet */
-		return createOutputPort(fluid);
+		return createOutputPort(inputPort);
 	}
 
 	public void propagate(final double tStepSize, final FluidPort inputPort) {
@@ -334,9 +334,9 @@ public class PipeT1 extends BaseModel {
 	}
 
 
-	public FluidPort createOutputPort(String fluid) {
+	public FluidPort createOutputPort(FluidPort inputPort) {
 		FluidPort outputPort = new FluidPort();
-		outputPort.setFluid(fluid);
+		outputPort.setFluid(inputPort.getFluid());
 		outputPort.setPressure(pout);
 		outputPort.setTemperature(tout);
 		outputPort.setMassflow(mfin);

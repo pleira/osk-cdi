@@ -1,6 +1,4 @@
 package org.osk.models.astris.parts;
-import org.osk.interceptors.Log;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -15,7 +13,8 @@ import org.osk.events.BackIter;
 import org.osk.events.Iter;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeStep;
-import org.osk.models.t1.PipeT1;
+import org.osk.interceptors.Log;
+import org.osk.models.Pipe;
 import org.osk.ports.FluidPort;
 
 @Log
@@ -24,7 +23,7 @@ public class Pipe02 {
 		
 	public final static String NAME = "Pipe02"; 
 	
-	@Inject PipeT1 model;
+	@Inject Pipe model;
 	@Inject @Named(NAME) @Iter Event<FluidPort> event;
 	@Inject @Named(NAME) @TimeIter Event<FluidPort> outputEvent;
 	@Inject @Named(HPBottle00.NAME) @BackIter Event<FluidPort> backEvent;
@@ -37,7 +36,7 @@ public class Pipe02 {
 
 	public void timeIteration(@Observes @Named(HPBottle00.NAME) @TimeIter FluidPort  inputPort) {
 		model.propagate(tStepSize, inputPort);
-		FluidPort output = model.createOutputPort(inputPort.getFluid());
+		FluidPort output = model.createOutputPort(inputPort);
 		outputEvent.fire(output);
 	}
 

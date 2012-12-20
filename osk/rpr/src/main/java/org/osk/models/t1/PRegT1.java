@@ -137,7 +137,7 @@ public class PRegT1 extends BaseModel {
         if (mfin <= 1.E-6) {
             pout  = pcoeff[0] * 1E5;
             tout  = tin;
-            return createOutputPort(fluid);
+            return createOutputPort(inputPort);
         }
 
 
@@ -164,7 +164,7 @@ public class PRegT1 extends BaseModel {
         }
 
         /*   Massflow at outlet                                               */
-        return createOutputPort(fluid);
+        return createOutputPort(inputPort);
     }
 
 	private double heliumHeatFlow(final double pressure, final double tout, final double temperature) {
@@ -290,9 +290,9 @@ public class PRegT1 extends BaseModel {
         return 0;
     }
 
-	public FluidPort createOutputPort(String fluid) {
+	public FluidPort createOutputPort(FluidPort inputPort) {
 		FluidPort outputPort = new FluidPort();
-		outputPort.setFluid(fluid);
+		outputPort.setFluid(inputPort.getFluid());
 		outputPort.setPressure(pout);
 		outputPort.setTemperature(tout);
 		outputPort.setMassflow(mfin);
