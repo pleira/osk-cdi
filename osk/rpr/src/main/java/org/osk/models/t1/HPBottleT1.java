@@ -49,7 +49,6 @@ import org.osk.models.materials.HeliumJKC;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
-import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
 
@@ -102,7 +101,7 @@ public class HPBottleT1 extends BaseModel {
         mtotal = helium.DENSITY * volume;
     }
     
-    public void timeStep(double timeStep) {
+    public void calculateMassFlow(double timeStep) {
         // logState("% HPBottleT1 Start Conditions...");
         // ptotal = ptotal / 1E5;
         final double ptotal_Pa = ptotal * 1.E5;

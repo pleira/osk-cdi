@@ -129,8 +129,12 @@ package org.osk.models.t1;
 
 import javax.inject.Inject;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.math3.exception.util.DummyLocalizable;
 import org.osk.config.SimHeaders;
+import org.osk.errors.OskException;
 import org.osk.models.BaseModel;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
@@ -139,7 +143,6 @@ import org.osk.numeric.DEqSys;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a rocket stage fuel/oxidizer tank with
@@ -379,13 +382,13 @@ public class TankT1 extends BaseModel implements DEQClient {
 	/** Blowdown flag. */
 	private int BDFLAG;
 
-	/** For printout of TabGenerator. */
-	private double poxt;
-	private double tGOxT;
-	private double tLOxT;
-	private double PFuT;
-	private double tGFuT;
-	private double tLFuT;
+//	/** For printout of TabGenerator. */
+//	private double poxt;
+//	private double tGOxT;
+//	private double tLOxT;
+//	private double PFuT;
+//	private double tGFuT;
+//	private double tLFuT;
 
 	private static final String TYPE = "TankT1";
 	private static final String SOLVER = "RKF-4/5";
@@ -496,62 +499,57 @@ public class TankT1 extends BaseModel implements DEQClient {
         ZEITA=-.5;
     }
 
-    public ImmutablePair<FluidPort,  FluidPort> calculateOutletsMassFlow(FluidPort inputPortFuelPressureGas, FluidPort inputPortOxidizerPressureGas) {
-        String fluid;
-        double errval;
-        int    result;
+    public ImmutablePair<FluidPort, FluidPort> calculateOutletsMassFlow(FluidPort inputPortFuelPressureGas, FluidPort inputPortOxidizerPressureGas) throws OskException {
 
-        pinFPG  = inputPortFuelPressureGas.getPressure();
+    	pinFPG  = inputPortFuelPressureGas.getPressure();
         tinFPG  = inputPortFuelPressureGas.getTemperature();
         mfinFPG = inputPortFuelPressureGas.getMassflow();
         pinOPG  = inputPortOxidizerPressureGas.getPressure();
         tinOPG  = inputPortOxidizerPressureGas.getTemperature();
         mfinOPG = inputPortOxidizerPressureGas.getMassflow();
 
-        result = 0;
-
-        errval = Math.abs((mfinFPG - mfBoundFuelPress)
-                / mfBoundFuelPress);
+        // should this be done in a decorator?
+        final double errval = Math.abs((mfinFPG - mfBoundFuelPress) / mfBoundFuelPress);
         if (errval > 0.02) {
-            result = -1;
+    		throw new OskException(new DummyLocalizable("% Tank: Iteration for fuel mass flow gives problems"));
         }
-        errval = Math.abs((mfinOPG - mfBoundOxPress)/mfBoundOxPress);
-        if (errval > 0.02) {
-            result = -1;
+        final double errvalOx = Math.abs((mfinOPG - mfBoundOxPress)/mfBoundOxPress);
+        if (errvalOx > 0.02) {
+    		throw new OskException(new DummyLocalizable("% Tank: Iteration for oxid mass flow gives problems"));
         }
 
-        fluid     = fuel;
         mfoutFuel = mfBoundFuel;
         poutFuel  = YK[9];
         toutFuel  = YK[12];
 
-        FluidPort outputPortFuel = new FluidPort();
-        outputPortFuel.setFluid(fluid);
-        outputPortFuel.setPressure(poutFuel);
-        outputPortFuel.setTemperature(toutFuel);
-        outputPortFuel.setMassflow(mfoutFuel);
+        FluidPort outputPortFuel = new FluidPort(fuel,poutFuel,toutFuel,mfoutFuel);
 
-        fluid         = oxidizer;
         mfoutOxidizer = mfBoundOx;
         poutOxidizer  = YK[3];
         toutOxidizer  = YK[4];
+        
+        //FIXME   For printout in TabGenerator, should be in decorator class
+//        poxt  = YK[3] / 1.E5;
+//        tGOxT = YK[1];
+//        tLOxT = YK[4];
+//        PFuT  = YK[9] / 1.E5;
+//        tGFuT = YK[11];
+//        tLFuT = YK[12];
 
-        //For printout in TabGenerator
-        poxt  = YK[3] / 1.E5;
-        tGOxT = YK[1];
-        tLOxT = YK[4];
-        PFuT  = YK[9] / 1.E5;
-        tGFuT = YK[11];
-        tLFuT = YK[12];
-
-        FluidPort outputPortOxidizer = new FluidPort();
-        outputPortOxidizer.setFluid(fluid);
-        outputPortOxidizer.setPressure(poutOxidizer);
-        outputPortOxidizer.setTemperature(toutOxidizer);
-        outputPortOxidizer.setMassflow(mfoutOxidizer);
+        FluidPort outputPortOxidizer = new FluidPort(oxidizer, poutOxidizer, toutOxidizer, mfoutOxidizer);
 
         return new ImmutablePair<FluidPort,  FluidPort>(outputPortFuel, outputPortOxidizer);
     }
+    
+	public FluidPort createOutputPort(FluidPort inputPort) {
+		FluidPort outputPort = new FluidPort(
+		inputPort.getFluid(),
+		inputPort.getPressure()/1.01,
+		inputPort.getTemperature(),
+		inputPort.getMassflow());
+		return outputPort;
+	}
+	
 
     public int DEQDeriv(final double X, final double Y[], final int N,
             final double F[]) {
@@ -1255,9 +1253,9 @@ public class TankT1 extends BaseModel implements DEQClient {
         pBoundFuelPress  = YK[9];
         pBoundOxPress    = YK[3];
 
-        FluidPort fuelPort = new FluidPort();
-        FluidPort oxPort = new FluidPort();
-        return new ImmutablePair<FluidPort,  FluidPort>(fuelPort, oxPort);
+        FluidPort outputPortFuel = new FluidPort(fuel,poutFuel,toutFuel,mfoutFuel);
+        FluidPort outputPortOxidizer = new FluidPort(oxidizer, poutOxidizer, toutOxidizer, mfoutOxidizer);
+        return new ImmutablePair<FluidPort,  FluidPort>(outputPortFuel, outputPortOxidizer);
     }
 
     
@@ -1846,46 +1844,5 @@ public class TankT1 extends BaseModel implements DEQClient {
 	public void setBDFLAG(int bDFLAG) {
 		BDFLAG = bDFLAG;
 	}
-	@ManagedAttribute    
-	public double getPoxt() {
-		return poxt;
-	}
-	public void setPoxt(double poxt) {
-		this.poxt = poxt;
-	}
-	@ManagedAttribute    
-	public double gettGOxT() {
-		return tGOxT;
-	}
-	public void settGOxT(double tGOxT) {
-		this.tGOxT = tGOxT;
-	}
-	@ManagedAttribute    
-	public double gettLOxT() {
-		return tLOxT;
-	}
-	public void settLOxT(double tLOxT) {
-		this.tLOxT = tLOxT;
-	}
-	@ManagedAttribute    
-	public double getPFuT() {
-		return PFuT;
-	}
-	public void setPFuT(double pFuT) {
-		PFuT = pFuT;
-	}
-	@ManagedAttribute    
-	public double gettGFuT() {
-		return tGFuT;
-	}
-	public void settGFuT(double tGFuT) {
-		this.tGFuT = tGFuT;
-	}
-	@ManagedAttribute    
-	public double gettLFuT() {
-		return tLFuT;
-	}
-	public void settLFuT(double tLFuT) {
-		this.tLFuT = tLFuT;
-	}
+
 }

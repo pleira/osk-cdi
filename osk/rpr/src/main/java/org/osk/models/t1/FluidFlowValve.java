@@ -50,7 +50,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 public class FluidFlowValve extends BaseModel {
 
 	@Inject Logger LOG;
-	@Inject TimeHandler timeHandler;
 
 	private double massflow;
 	private double referencePressureLoss;

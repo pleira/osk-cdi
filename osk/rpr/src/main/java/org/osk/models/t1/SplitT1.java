@@ -83,13 +83,14 @@ t this.name = name;
  */
 package org.osk.models.t1;
 
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.models.BaseModel;
 import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a pipe split. Component for connecting two pure gas

@@ -19,14 +19,11 @@ t this.name = name;
  */
 package org.osk.models.t1;
 
-import javax.inject.Inject;
+import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osk.models.BaseModel;
 import org.osk.ports.AnalogPort;
-import org.osk.time.TimeHandler;
-
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 /**
  * Model definition for a controller component providing 2 analog output ports.
@@ -38,10 +35,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 public class EngineController extends BaseModel {
 
-//	@Inject Logger LOG;
-	@Inject TimeHandler timeHandler;
-
-	/** Commandeable control value. */
 	private double controlRangeMax;
 	private double controlRangeMin;
 	private double controlValue1Nom;
@@ -59,13 +52,12 @@ public class EngineController extends BaseModel {
 
     public void init(String name) {
     	this.name = name;  
-        /* Computation of derived initialization parameters. */
         controlValueActual = controlRangeMax;
         controlValue1 = controlValueActual * controlValue1Nom;
         controlValue2 = controlValueActual * controlValue2Nom;
     }
     
-    public ImmutablePair<AnalogPort, AnalogPort> timeStep() {
+    public ImmutablePair<AnalogPort, AnalogPort> decreaseControl(long time, double timeStep) {
 
         /**
          * Time dependent functionality of the controller has to be computed
@@ -74,10 +66,9 @@ public class EngineController extends BaseModel {
          * relation of signals to each other.
          */
     	
-        if (timeHandler.getSystemTime() == 0) {
+        if (time == 0) {
             return createNewControlSignal();
         }
-    	double timeStep = timeHandler.getStepSizeAsDouble();
         controlValueActual -= 0.001*timeStep/0.5;
         if (controlValueActual < controlRangeMin) {
             controlValueActual = controlRangeMin;

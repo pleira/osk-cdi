@@ -34,7 +34,7 @@ public class FFV19 {
 	FluidPort inputPort;
 	AnalogPort controlPort;
 	
-	public void iterationFuel(@Observes @Named(Tank17.NAME) @Oxid @Iter FluidPort input) {
+	public void iterationOxid(@Observes @Named(Tank17.NAME) @Oxid @Iter FluidPort input) {
 		inputPort = input;
 //		if (controlPort != null) {
 			fireIteration();

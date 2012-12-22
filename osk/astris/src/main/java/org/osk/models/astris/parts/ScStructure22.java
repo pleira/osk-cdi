@@ -16,11 +16,11 @@ import org.osk.events.ECI;
 import org.osk.events.Gravity;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
-import org.osk.events.Oxid;
 import org.osk.events.PVCoordinates;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
 import org.osk.models.structure.ScStructure;
+import org.osk.time.TimeHandler;
 
 @Log
 @ApplicationScoped
@@ -32,14 +32,15 @@ public class ScStructure22 {
 	@Inject @Named(NAME) @ECI @Iter Event<PVCoordinates> event;
 	@Inject @Named(NAME) @ECI @TimeIter Event<PVCoordinates> timerEvent;
 //	@Inject @Named(Engine20.NAME) @BackIter Event<PVCoordinates> backEvent;
+	@Inject TimeHandler timeHandler;
 
-//	public void iteration(@Observes @Iter Iteration iter) {
-//    	event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
-//	}
+	public void iteration(@Observes @ECI Iteration iter) {
+    	event.fire(new PVCoordinates(model.getScPositionECI(), model.getScVelocityECI()));
+	}
 
 	public void timeIteration(
 			@Observes @Named(Engine20.NAME) @TimeIter Vector3D thrust) throws OskException {
-		PVCoordinates scPosVel = model.calculateECICoordinates(thrust);
+		PVCoordinates scPosVel = model.calculateECICoordinates(timeHandler.getStepSizeAsDouble(), thrust);
 		timerEvent.fire(scPosVel);
 	}
 

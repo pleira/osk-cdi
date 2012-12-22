@@ -29,10 +29,10 @@ import javax.inject.Inject;
 
 import org.jboss.weld.environment.se.events.ContainerInitialized;
 import org.osk.events.BackIter;
+import org.osk.events.ECI;
 import org.osk.events.Iter;
 import org.osk.events.Iteration;
 import org.osk.events.RegulIter;
-import org.osk.events.TimeIter;
 import org.osk.events.TimeIteration;
 import org.osk.interceptors.AuditTime;
 import org.osk.time.TimeHandler;
@@ -55,7 +55,8 @@ public class SeqModSim  {
     @Inject @BackIter Event<Iteration> backIterEvent;
     @Inject @RegulIter Event<Iteration> regulIterEvent;
     @Inject Event<TimeIteration> timeEvent;
-   
+//    @Inject @ECI Event<Iteration> positionEvent;
+  
     public void printSimSettings() {
         LOG.info("Simulation: Step size is: {}.",
                 timeHandler.getStepSizeAsDouble());
@@ -97,8 +98,11 @@ public class SeqModSim  {
          * The the forward iteration takes place, observing whether any
          * error value model complains about not fulfilled hydraulic or
          * boundary condition. */
-    	LOG.info("Forward Iteration...\n");
+    	LOG.info("Rocket Model Forward Iteration");
+    	LOG.info("S/C Position in ECI and gravity\n");
         iterEvent.fire(new Iteration()); // the event chain deals with iteration methods
+        
+        //positionEvent.fire(new Iteration());
         
         // backIterEngineEvent.fire(new Iteration());
         time = tinit;

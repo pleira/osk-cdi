@@ -20,7 +20,7 @@ import org.osk.events.PVCoordinates;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
 import org.osk.models.t1.BoundaryUtils;
-import org.osk.models.t1.Engine;
+import org.osk.models.Engine;
 import org.osk.ports.FluidPort;
 
 @Log

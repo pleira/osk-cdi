@@ -117,7 +117,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 public class ScStructure extends BaseModel {
 
 	@Inject Logger LOG;
-	@Inject TimeHandler timeHandler;
 
 	/** Gravity acceleration imposed onto structure. */
 	private Vector3D gravityAccel; 
@@ -143,11 +142,16 @@ public class ScStructure extends BaseModel {
 		scPositionECI_prev = scPositionECI;
 	}
 
-	public PVCoordinates calculateECICoordinates(Vector3D thrust) throws OskException {
+	public PVCoordinates calculateECICoordinates(final double tStepSize, Vector3D thrust) throws OskException {
 		// FIXME See if the Frames concept from OREKIT can be used 
 		final double thrustMag = thrust.getNorm(); 
-		final Vector3D thrustVecECI = scPositionECI.subtract(scPositionECI_prev)
+		final Vector3D thrustVecECI;
+		if (scPositionECI != scPositionECI_prev) {
+			thrustVecECI = scPositionECI.subtract(scPositionECI_prev)
 				.normalize().scalarMultiply(thrustMag);
+		} else {
+			thrustVecECI = thrust; // FIXME
+		}
 		LOG.info("thrustMag:  '{}' ", thrustMag);
 
 		// the actual acceleration is the composition of the gravity plus the rocket
@@ -155,8 +159,6 @@ public class ScStructure extends BaseModel {
 		final Vector3D totalAcc = gravityAccel.add(1.0/scMass, thrustVecECI); 
 		
 		/* Calculation of the new SC velocity.  v = v0 + a * dt */
-		final double tStepSize = timeHandler.getStepSizeAsDouble();
-
 		final Vector3D newVelocityECI = scVelocityECI.add(tStepSize, totalAcc);
 		final Vector3D newPositionECI = scPositionECI.add(tStepSize, newVelocityECI);
 

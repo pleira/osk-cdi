@@ -10,7 +10,8 @@ package org.osk.models.t1;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import net.gescobar.jmx.annotation.ManagedAttribute;
+
 import org.apache.commons.math3.exception.util.DummyLocalizable;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.osk.errors.OskException;
@@ -18,9 +19,7 @@ import org.osk.models.BaseModel;
 import org.osk.models.environment.Atmosphere;
 import org.osk.numeric.NumericalUtils;
 import org.osk.ports.FluidPort;
-import org.slf4j.Logger;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 /**
  * Model definition for an engine.
  *      Added realistic engine physics: Calculating nonlinear thrust from cstar
@@ -37,7 +36,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 public class Engine extends BaseModel {
 
-	@Inject Logger LOG;
 	@Inject Atmosphere atmosphere;
 	
 	/** Fuel flow at ingnition [kg/s]. */

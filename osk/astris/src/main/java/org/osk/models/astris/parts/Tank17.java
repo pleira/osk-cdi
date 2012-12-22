@@ -16,8 +16,8 @@ import org.osk.events.Iter;
 import org.osk.events.Oxid;
 import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
+import org.osk.models.Tank;
 import org.osk.models.t1.BoundaryUtils;
-import org.osk.models.t1.TankT1;
 import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
 
@@ -27,7 +27,7 @@ public class Tank17 {
 
 	public final static String NAME = "Tank17";
 
-	@Inject TankT1 model;
+	@Inject Tank model;
 	@Inject @Named(NAME) @Oxid @Iter Event<FluidPort> eventOxid;
 	@Inject @Named(NAME) @Fuel @Iter Event<FluidPort> eventFuel;
 	@Inject @Named(NAME) @Oxid @TimeIter Event<FluidPort> outputEventOxid;

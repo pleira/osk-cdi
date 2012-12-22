@@ -14,7 +14,7 @@ import org.osk.events.Iteration;
 import org.osk.events.TimeIter;
 import org.osk.events.TimeIteration;
 import org.osk.interceptors.Log;
-import org.osk.models.t1.HPBottleT1;
+import org.osk.models.HPBottle;
 import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
 
@@ -23,7 +23,7 @@ import org.osk.time.TimeHandler;
 public class HPBottle00  {
 
 	public final static String NAME = "HPBottle00"; 
-	@Inject HPBottleT1 model;
+	@Inject HPBottle model;
 	
 	// We produce events marked for this element
 	@Inject	@Named(NAME) @Iter     Event<FluidPort> event;
@@ -39,7 +39,7 @@ public class HPBottle00  {
 	}
 
 	public void timeIteration(@Observes TimeIteration timeIter) {
-		model.timeStep(timeHandler.getSimulatedMissionTimeAsDouble());		
+		model.calculateMassFlow(timeHandler.getSimulatedMissionTimeAsDouble());		
 		timeEvent.fire(model.createInputPortIter());
 	}
 

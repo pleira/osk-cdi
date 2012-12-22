@@ -41,7 +41,6 @@ import com.sun.org.glassfish.gmbal.ManagedAttribute;
 
 public class OSKGravityModel extends BaseModel {
 	@Inject Logger LOG;
-    @Inject TimeHandler timeHandler;
     /** Order of spherical harmonic. */
      private int order = 8; // hardcoded for now 
     /** Degree of spherical harmonic. */
@@ -75,14 +74,14 @@ public class OSKGravityModel extends BaseModel {
     }
 
 
-    public Vector3D computeEarthGravity() {
+    public Vector3D computeEarthGravity(double missionTime) {
     	/* JAT Class of S/C position vector in ECI. An event has supplied the scPositionECI */
     	VectorN  scPositionVector = new VectorN(3);
     	scPositionVector.set(0, scPositionECI.getX());
     	scPositionVector.set(1, scPositionECI.getY());
     	scPositionVector.set(2, scPositionECI.getZ());
 
-    	convertedMissionTime.update(timeHandler.getSimulatedMissionTimeAsDouble());
+    	convertedMissionTime.update(missionTime);
     	/* ECI to ECEF conversion matrix of JAT. */
     	Matrix eci2ECEFMatrix = earthReference.eci2ecef(convertedMissionTime);
     	return new Vector3D(gravityModel.gravity(scPositionVector, eci2ECEFMatrix).getArray());        

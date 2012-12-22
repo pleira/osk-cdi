@@ -13,8 +13,10 @@ import org.osk.events.ECI;
 import org.osk.events.Gravity;
 import org.osk.events.Iter;
 import org.osk.events.PVCoordinates;
+import org.osk.events.TimeIter;
 import org.osk.interceptors.Log;
 import org.osk.models.environment.OSKGravityModel;
+import org.osk.time.TimeHandler;
 
 @Log
 @ApplicationScoped
@@ -24,12 +26,20 @@ public class Gravity23 {
 
 	@Inject OSKGravityModel model;
 	@Inject @Named(NAME) @Gravity Event<Vector3D> outputEvent;
+	@Inject TimeHandler timeHandler;
     
 	public void iteration(@Observes @Named(ScStructure22.NAME) @ECI @Iter PVCoordinates posVel) {
 		model.setScPositionECI(posVel.getPosition());
-		Vector3D gravity = model.computeEarthGravity();
+		Vector3D gravity = model.computeEarthGravity(timeHandler.getSimulatedMissionTimeAsDouble());
 		outputEvent.fire(gravity);
 	}
+
+	public void timeIteration(@Observes @Named(ScStructure22.NAME) @ECI @TimeIter PVCoordinates posVel) {
+		model.setScPositionECI(posVel.getPosition());
+		Vector3D gravity = model.computeEarthGravity(timeHandler.getSimulatedMissionTimeAsDouble());
+		outputEvent.fire(gravity);
+	}
+
 
 	//---------------------------------------------------------------------------------------
 	// Initialisation values

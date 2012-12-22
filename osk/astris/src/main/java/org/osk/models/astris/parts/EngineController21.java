@@ -18,6 +18,7 @@ import org.osk.interceptors.Log;
 import org.osk.models.t1.EngineController;
 import org.osk.ports.AnalogPort;
 import org.osk.ports.FluidPort;
+import org.osk.time.TimeHandler;
 
 @Log
 @ApplicationScoped
@@ -34,7 +35,8 @@ public class EngineController21   {
 	@Inject @Named(NAME) @Oxid @RegulIter Event<AnalogPort> oxidRegulEvent;
 	@Inject @Named(FFV18.NAME) @Fuel @BackIter Event<AnalogPort> fuelBackEvent;
 	@Inject @Named(FFV19.NAME) @Oxid @BackIter Event<AnalogPort> oxidBackEvent;
-	
+	@Inject TimeHandler timeHandler;
+		
 	boolean receivedFuel = false;
 	boolean receivedOxid = false;
 	AnalogPort fuelPort;
@@ -55,13 +57,13 @@ public class EngineController21   {
 	}
 
 	public void timeIterationFuel(@Observes @Named(FFV18.NAME) @TimeIter FluidPort inputPort) {
-		ImmutablePair<AnalogPort, AnalogPort> output = model.timeStep();
+		ImmutablePair<AnalogPort, AnalogPort> output = model.decreaseControl(timeHandler.getSimulatedMissionTime(), timeHandler.getStepSizeAsDouble());
 		fuelRegulEvent.fire(output.getLeft());
 //		oxidRegulEvent.fire(output.getRight());
 	}
 
 	public void timeIterationOxid(@Observes @Named(FFV19.NAME) @TimeIter FluidPort inputPort) {
-		 ImmutablePair<AnalogPort, AnalogPort> output = model.timeStep();
+		ImmutablePair<AnalogPort, AnalogPort> output = model.decreaseControl(timeHandler.getSimulatedMissionTime(), timeHandler.getStepSizeAsDouble());
 //		fuelRegulEvent.fire(output.getLeft());
 		oxidRegulEvent.fire(output.getRight());
 	}
