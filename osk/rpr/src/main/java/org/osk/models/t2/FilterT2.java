@@ -1,5 +1,7 @@
 package org.osk.models.t2;
 
+import javax.enterprise.inject.Alternative;
+
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.models.BaseModel;
@@ -11,6 +13,7 @@ import org.osk.ports.FluidPort;
  * 
  * @author P. Pita
  */
+@Alternative
 public class FilterT2 extends BaseModel implements Filter {
 	
  	/** Diameter of filter. */

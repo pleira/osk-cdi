@@ -1,19 +1,4 @@
 /*
- *      Class architecture is a derivative from ObjectSim 2.0.3.,
- *      a simulation program published in:
- *
- *        Eickhoff, J.:
- *        Modulare Programmarchitektur fuer ein wissensbasiertes
- *        Simulationssystem mit erweiterter Anwendbarkeit in der
- *        Entwicklung und Betriebsberwachung verfahrenstechnischer
- *        Anlagen.
- *        PhD thesis in Department Process Engineering of
- *        TU Hamburg-Harburg, 1996.
- *
- *      See also file history cited there and see historic relation of
- *      this OpenSimKit class to a.m. ObjectSim explained in
- *      OpenSimKit Documentation.
-
  *      File under GPL  see OpenSimKit Documentation.
  *
  *      No warranty and liability for correctness by authors.
@@ -55,7 +40,7 @@ public class SeqModSim  {
     @Inject @BackIter Event<Iteration> backIterEvent;
     @Inject @RegulIter Event<Iteration> regulIterEvent;
     @Inject Event<TimeIteration> timeEvent;
-//    @Inject @ECI Event<Iteration> positionEvent;
+    @Inject @ECI Event<Iteration> positionEvent;
   
     public void printSimSettings() {
         LOG.info("Simulation: Step size is: {}.",

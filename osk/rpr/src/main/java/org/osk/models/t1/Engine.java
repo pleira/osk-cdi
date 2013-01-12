@@ -34,7 +34,7 @@ import org.osk.ports.FluidPort;
  *
  */
 
-public class Engine extends BaseModel {
+public class Engine extends BaseModel implements org.osk.models.Engine {
 
 	@Inject Atmosphere atmosphere;
 	

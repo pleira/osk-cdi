@@ -1,5 +1,7 @@
 package org.osk.models.t2;
 
+import javax.enterprise.inject.Alternative;
+
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -17,7 +19,7 @@ import org.osk.ports.FluidPort;
  * @author A. Brandt
  * @author P. Pita
  */
-
+@Alternative
 public class TankT2 extends BaseModel implements Tank  {
 	
 	/** Fuel type. */

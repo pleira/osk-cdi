@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.models.BaseModel;
+import org.osk.models.Filter;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
@@ -49,7 +50,7 @@ import org.slf4j.Logger;
  * @author P. Pita
  */
 
-public class FilterT1 extends BaseModel {
+public class FilterT1 extends BaseModel implements Filter {
 	@Inject Logger LOG; 
 	
  	/** Diameter of filter. */
@@ -235,6 +236,16 @@ public class FilterT1 extends BaseModel {
 		outputPort.setTemperature(tout);
 		outputPort.setMassflow(mfin);
 		return outputPort;
+	}
+
+	@Override
+	public FluidPort createOutputPort(FluidPort inputPort) {
+			FluidPort outputPort = new FluidPort(
+			inputPort.getFluid(),
+			inputPort.getPressure()/1.01,
+			inputPort.getTemperature(),
+			inputPort.getMassflow());
+			return outputPort;
 	}
 
 	// ----------------------------------------

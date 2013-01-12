@@ -72,6 +72,7 @@ import javax.inject.Inject;
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.models.BaseModel;
+import org.osk.models.PressureRegulator;
 import org.osk.models.materials.HeliumJKC;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
@@ -87,7 +88,7 @@ import org.slf4j.Logger;
  * @author A. Brandt
  */
 
-public class PRegT1 extends BaseModel {
+public class PRegT1 extends BaseModel implements PressureRegulator {
 	@Inject Logger LOG;
 	
 	/** Diameter of pressure regul. */

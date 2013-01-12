@@ -45,6 +45,7 @@ import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.config.SimHeaders;
 import org.osk.models.BaseModel;
+import org.osk.models.HPBottle;
 import org.osk.models.materials.HeliumJKC;
 import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
@@ -52,7 +53,7 @@ import org.osk.ports.FluidPort;
 import org.slf4j.Logger;
 
 
-public class HPBottleT1 extends BaseModel {
+public class HPBottleT1 extends BaseModel implements HPBottle {
 	@Inject Logger LOG; 
 	/** Mass of pressure vessel. */
 	private double mass;

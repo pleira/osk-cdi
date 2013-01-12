@@ -1,5 +1,7 @@
 package org.osk.models.t2;
 
+import javax.enterprise.inject.Alternative;
+
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.models.BaseModel;
@@ -8,7 +10,7 @@ import org.osk.models.materials.HeliumPropertiesBuilder;
 import org.osk.models.materials.MaterialProperties;
 import org.osk.ports.FluidPort;
 
-
+@Alternative
 public class HPBottleT2 extends BaseModel implements HPBottle {
 	/** Mass of pressure vessel. */
 	private double mass;

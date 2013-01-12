@@ -1,2 +1,12 @@
 <beans>
+<alternatives>
+<!--  These are just implmentations used only to verify the event chain
+      without any physical model inside -->
+<class>org.osk.models.t2.EngineT2</class>
+<class>org.osk.models.t2.PipeT2</class>
+<class>org.osk.models.t2.PRegT2</class>
+<class>org.osk.models.t2.TankT2</class>
+<class>org.osk.models.t2.HPBottleT2</class>
+<class>org.osk.models.t2.FilterT2</class>
+</alternatives>
 </beans>

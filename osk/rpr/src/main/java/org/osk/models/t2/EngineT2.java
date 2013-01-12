@@ -1,5 +1,6 @@
 package org.osk.models.t2;
 
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 import net.gescobar.jmx.annotation.ManagedAttribute;
@@ -16,7 +17,7 @@ import org.osk.ports.FluidPort;
  * 
  * @author P. Pita
  */
-
+@Alternative
 public class EngineT2 extends BaseModel implements Engine {
 
 	@Inject Atmosphere atmosphere;

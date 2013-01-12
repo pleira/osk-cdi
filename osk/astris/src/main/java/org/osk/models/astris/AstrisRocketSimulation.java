@@ -1,7 +1,5 @@
 package org.osk.models.astris;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import org.apache.deltaspike.core.api.config.PropertyFileConfig;
 
 /**
@@ -14,7 +12,6 @@ import org.apache.deltaspike.core.api.config.PropertyFileConfig;
  * @author Pablo Pita
  *
  */
-@ApplicationScoped
 public class AstrisRocketSimulation implements PropertyFileConfig  {
 
 	private static final long serialVersionUID = 13344563563L;

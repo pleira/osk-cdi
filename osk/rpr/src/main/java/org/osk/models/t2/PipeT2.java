@@ -1,5 +1,7 @@
 package org.osk.models.t2;
 
+import javax.enterprise.inject.Alternative;
+
 import net.gescobar.jmx.annotation.ManagedAttribute;
 
 import org.osk.models.BaseModel;
@@ -12,7 +14,7 @@ import org.osk.ports.FluidPort;
  * 
  * @author P. Pita
  */
-
+@Alternative
 public class PipeT2 extends BaseModel implements Pipe {
 	
 	private static final int PARTS = 0;
