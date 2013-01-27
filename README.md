@@ -1,12 +1,12 @@
 osk-cdi
 =======
 
-Fork of OpenSimKit to try Java CDI. It deals just with the numerical simulation.
+Fork of the rocket simulation kit OpenSimKit to try Java Context and Dependecy Injection (CDI) technology. This fork deals just with the numerical simulation.
 
 OpenSimKit [OpenSimKit.org] is a simulation kit written in Java. The user has to create numerical models of a system and the models can be linked with the kit. The simulation is run, having the user the possibility to see telemetry and send telecommands. The example in OSK is a simulation of a rocket stage. 
 
 In OSK-CDI, the rocket simulation is modelled using CDI events. The events follow a chain which is embeded in the solver project. The solver project concerns with the connections of the different parts of the rocket engine simulation. The choosen physical models are in a separate project. The choosen models get injected into the solver classes. 
- 
+
 The build system is maven. To install the dependencies, the user should download version 3.7 of the original OSK software and add some of their dependencies (like vecmath and jat) to his local maven repository with a maven install command.
 
 	mvn install:install-file -Dfile=vecmath.jar  -DgroupId=jat.vecmath -DartifactId=vecmath -Dversion=1.0 -Dpackaging=jar
@@ -32,7 +32,11 @@ Other concerns like logging have been imnplemented in a generic way like as a CD
 
 For communicating the possition data to external software like Celestia, the modular solution would be a CDI interceptor or observer of position related events.
  
-Even if the OSK-CDI simulation has been more modularized with respect the original OSK version 3.7 code, I prefer not to develop it further. For system simulation purposes, I read in the literature about software technologies that deal with concurrency like actors. I think actors would be a nicer way to model each part, they would run concurrently, and some master system would harmonize the time and calculations from the different parts.
- 
+Even if the OSK-CDI simulation has been more modularized with respect the original OSK version 3.7 code, I prefer not to develop it further. One limitation I see is that the way the structure model is built is far too verbose. There must be more elegant alternatives. I also see lack of infrastructure for having paralellism. 
 
-T
+I think actors would be a nicer way to model each part of the structure. They could allow running different parts of the simulation concurrently. Some master actor would harmonize the time and calculations from the different parts. There are recent papers (google about them) on evaluating and using Scala Actors. That seems to me a better infrastructure for system simulation.
+
+
+
+
+
