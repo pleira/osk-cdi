@@ -7,8 +7,8 @@
   <packaging>pom</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <org.jboss.weld.se.weld-se.version>2.0.0.Beta1</org.jboss.weld.se.weld-se.version>
-    <deltaspike.version>0.3-incubating</deltaspike.version>
+    <org.jboss.weld.se.weld-se.version>2.0.3.Final</org.jboss.weld.se.weld-se.version>
+    <deltaspike.version>0.4</deltaspike.version>
   </properties>
   <modules>
     <module>sim</module>
@@ -82,7 +82,14 @@
   		<type>jar</type>
   		<optional>false</optional>
   	</dependency>
-    <dependency>
+  	<dependency>
+  		<groupId>org.apache.commons</groupId>
+  		<artifactId>commons-lang3</artifactId>
+  		<version>3.1</version>
+  		<type>jar</type>
+  		<optional>false</optional>
+  	</dependency>
+  	<dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
@@ -117,66 +124,6 @@
             <id>elibom</id>  
             <url>http://repository.elibom.net/nexus/content/repositories/releases</url>  
         </repository>
-    <repository>
-      <id>apache-deltaspike-cdictrl-repository</id>
-      <url>https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/cdictrl/deltaspike-cdictrl-api/0.4-incubating-SNAPSHOT/</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>apache-deltaspike-core-repository</id>
-      <url>https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/core/deltaspike-core-api/0.4-incubating-SNAPSHOT/</url>
-    </repository>
-    <repository>
-      <id>apache-deltaspike-core-impl-repository</id>
-      <url>https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/core/deltaspike-core-impl/0.4-incubating-SNAPSHOT/</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Maven Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </repository>
-    
-<!--     https://repository.apache.org/content/repositories/snapshots/org/apache/deltaspike/cdictrl/deltaspike-cdictrl-api/0.2-incubating-SNAPSHOT/ -->
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Maven Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>

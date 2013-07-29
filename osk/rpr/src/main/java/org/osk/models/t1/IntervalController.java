@@ -35,7 +35,7 @@ import org.osk.ports.AnalogPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
+import net.gescobar.jmx.annotation.ManagedAttribute;
 
 /**
  * Model definition for a controller component provding 2 analog output ports.

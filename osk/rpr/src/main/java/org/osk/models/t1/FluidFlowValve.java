@@ -36,7 +36,7 @@ import org.osk.ports.FluidPort;
 import org.osk.time.TimeHandler;
 import org.slf4j.Logger;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
+import net.gescobar.jmx.annotation.ManagedAttribute;
 
 /**
  * Model definition for fluid flow valve.

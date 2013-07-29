@@ -6,7 +6,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.deltaspike.core.api.config.annotation.ConfigProperty;
+import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.osk.config.NumberConfig;
 import org.osk.config.Util;
 import org.osk.events.BackIter;
