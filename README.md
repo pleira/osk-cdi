@@ -34,6 +34,8 @@ For communicating the possition data to external software like Celestia, the mod
  
 Even if the OSK-CDI simulation has been more modularized with respect the original OSK version 3.7 code, I prefer not to develop it further. One limitation I see is that the way the structure model is built is far too verbose. There must be more elegant alternatives. I also see lack of infrastructure for having paralellism. 
 
-I think actors would be a nicer way to model each part of the structure. They could allow running different parts of the simulation concurrently. Some master actor would harmonize the time and calculations from the different parts. There are recent papers (google about them) on evaluating and using Scala Actors. The technology offered by [Akka IO / Pipelines](http://doc.akka.io/docs/akka/2.2.0/scala/io-codec.html)  seems interesting to me.
+An interesting possibility would be to use [Orekit](http://www.orekit.org) as main kit/framework and consider the rocket simulation as something to be integrated in a similar way as done for the atmospheric force. 
+
+Other approach, the technology offered by [Akka IO / Pipelines](http://doc.akka.io/docs/akka/2.2.0/scala/io-codec.html) seems interesting to me. The connection of different stages is similar to the different steps to do the calculations for the simulation.
 
 
